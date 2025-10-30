@@ -1,35 +1,32 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
-  trend?: string;
   description?: string;
 }
 
-export const StatsCard = ({ title, value, icon: Icon, trend, description }: StatsCardProps) => {
+export const StatsCard = ({ title, value, icon: Icon, description }: StatsCardProps) => {
   return (
-    <Card className="group hover:shadow-glow transition-all duration-300 border-border/50 bg-card/50 backdrop-blur overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-primary opacity-0 group-hover:opacity-5 transition-opacity" />
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold glow-text">{value}</p>
-            {trend && (
-              <p className="text-xs text-success font-medium">{trend}</p>
-            )}
-            {description && (
-              <p className="text-xs text-muted-foreground">{description}</p>
-            )}
-          </div>
-          <div className="p-3 rounded-lg bg-gradient-primary group-hover:animate-pulse-glow">
-            <Icon className="h-6 w-6 text-primary-foreground" />
+    <Card className="border-2 border-border bg-gradient-card hover:shadow-glow-lg hover:border-primary/30 transition-all group">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between mb-2">
+          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            {title}
+          </CardTitle>
+          <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-gradient-primary group-hover:shadow-button transition-all">
+            <Icon className="h-5 w-5 text-primary group-hover:text-white transition-colors" />
           </div>
         </div>
-      </CardContent>
+        <div className="space-y-1">
+          <div className="text-3xl font-bold glow-text">{value}</div>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
+      </CardHeader>
     </Card>
   );
 };
