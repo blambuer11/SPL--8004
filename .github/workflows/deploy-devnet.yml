@@ -39,29 +39,7 @@ jobs:
           # prefer a recent avm release (0.32.1) which is compatible with modern anchors
           avm install 0.32.1 || true
           avm use 0.32.1 || true
-      - name: Configure Solana
-        env:
-          SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
-        run: |
-          set -euo pipefail
-          echo "$SOLANA_KEYPAIR" > /tmp/deploy-keypair.json
-          # ensure PATH contains solana install dir
-          echo "Checking solana binary..."
-          export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.local/bin:$PATH"
-          if ! command -v solana >/dev/null 2>&1; then
-            echo "solana missing, installing (retry)..."
-            for i in 1 2 3; do
-              if sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"; then
-                echo "solana install succeeded" && break
-              else
-                echo "solana install attempt $i failed, retrying..." && sleep 3
-              fi
-            done
-            export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.local/bin:$PATH"
-          fi
-          solana --version || true
-          solana config set --keypair /tmp/deploy-keypair.json
-          solana config set --url devnet
+      # Configure Solana step removed — deploy step now writes the keypair and sets ANCHOR_PROVIDER_URL
       - name: Deploy program (anchor)
         working-directory: ./spl-8004-program/spl-8004
         env:
