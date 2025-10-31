@@ -41,7 +41,6 @@ jobs:
           avm use 0.32.1 || true
       # Configure Solana step removed — deploy step now writes the keypair and sets ANCHOR_PROVIDER_URL
       - name: Deploy program (anchor)
-        working-directory: ./spl-8004-program/spl-8004
         env:
           SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
           ANCHOR_WALLET: /tmp/deploy-keypair.json
@@ -63,5 +62,8 @@ jobs:
           anchor deploy --provider.cluster devnet --provider.url https://api.devnet.solana.com
 
       - name: Print program id
-        working-directory: ./spl-8004-program/spl-8004
-        run: anchor keys list || true
+        run: |
+          set -euo pipefail
+          ls -la || true
+          cd ./spl-8004-program/spl-8004 || true
+          anchor keys list || true
