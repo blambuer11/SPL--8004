@@ -65,11 +65,19 @@ jobs:
       - name: Deploy program (anchor)
         working-directory: ./spl-8004-program/spl-8004
         env:
+          SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
           ANCHOR_WALLET: /tmp/deploy-keypair.json
-          SOLANA_KEYPAIR: /tmp/deploy-keypair.json
+          ANCHOR_PROVIDER_URL: https://api.devnet.solana.com
         run: |
+          set -euo pipefail
+          # write keypair from secret to temp file (Anchor reads ANCHOR_WALLET)
+          echo "$SOLANA_KEYPAIR" > /tmp/deploy-keypair.json
+          # Ensure cargo/bin and avm are on PATH
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cd ./spl-8004-program/spl-8004
           anchor build
-          anchor deploy --provider.cluster devnet
+          # deploy using explicit provider URL (avoid depending on system solana CLI)
+          anchor deploy --provider.cluster devnet --provider.url https://api.devnet.solana.com
 
       - name: Print program id
         working-directory: ./spl-8004-program/spl-8004
