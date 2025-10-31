@@ -1,15 +1,15 @@
-# SPL-8004: Trustless AI Agent Identity & Reputation Standard
+# SPL-8004 Frontend
 
-Modern web interface for the SPL-8004 Solana program - a decentralized identity and reputation system for AI agents.
+Web interface for the SPL-8004 Trustless AI Agent Identity & Reputation Standard on Solana.
 
 ## 🚀 Features
 
-- **Wallet Integration**: Seamless connection with Phantom, Solflare, and other Solana wallets
-- **Agent Management**: Register and manage AI agents with on-chain identities
-- **Reputation Tracking**: Real-time visualization of agent reputation scores (0-10,000)
-- **Validation System**: Submit and track task validations with evidence
-- **Rewards Dashboard**: Monitor and claim reputation-based rewards
-- **Beautiful UI**: Modern, responsive design with Solana-themed gradients and animations
+- **Dashboard**: Register and manage AI agents
+- **Agent Explorer**: Browse all registered agents on the network
+- **Validation System**: Submit task validations for agents
+- **Real-time Stats**: Track reputation scores, success rates, and rewards
+- **Wallet Integration**: Connect with Phantom, Solflare, and other Solana wallets
+- **Beautiful UI**: Modern, AI-focused design with purple theme
 
 ## 🛠️ Tech Stack
 
@@ -39,63 +39,118 @@ npm run preview
 
 ## 🎨 Design System
 
-The application features a custom design system inspired by Solana's ecosystem:
+The app uses a modern, AI-focused design with:
 
-- **Primary Colors**: Purple gradients (#A855F7 → #9333EA)
-- **Accent Colors**: Cyan/Teal accents
-- **Dark Theme**: Deep navy backgrounds with subtle gradients
-- **Animations**: Floating elements, glow effects, smooth transitions
-- **Typography**: Modern, tech-inspired fonts
+- **Colors**: White background with purple primary colors (#7C3AED, #6D28D9)
+- **Typography**: Bold headlines with gradient effects
+- **Components**: Glass-morphism cards with subtle shadows
+- **Animations**: Smooth transitions and hover effects
+- **Theme**: Light theme optimized for AI/blockchain aesthetic
+
+### Customization
+
+Colors and styles are defined in:
+- `src/index.css` - CSS custom properties
+- `tailwind.config.ts` - Tailwind configuration
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── components/
-│   ├── ui/                    # shadcn components
+│   ├── ui/                    # shadcn/ui components
 │   ├── WalletProvider.tsx     # Solana wallet setup
 │   ├── Navbar.tsx             # Navigation bar
 │   ├── AgentCard.tsx          # Agent display card
-│   └── StatsCard.tsx          # Statistics card
+│   ├── StatsCard.tsx          # Statistics card
+│   └── ProgramInfo.tsx        # Program information
 ├── pages/
-│   ├── Index.tsx              # Landing page
+│   ├── Index.tsx              # Home/landing page
 │   ├── Dashboard.tsx          # Agent management
-│   ├── Agents.tsx             # Agent directory
-│   └── Validation.tsx         # Submit validations
-├── hooks/                     # Custom React hooks
-├── lib/                       # Utility functions
+│   ├── Agents.tsx             # Agent explorer
+│   ├── Validation.tsx         # Validation submission
+│   └── NotFound.tsx           # 404 page
+├── hooks/
+│   └── useSPL8004.ts          # SPL-8004 program hook
+├── lib/
+│   ├── spl8004-client.ts      # SDK client wrapper
+│   ├── program-constants.ts   # Program constants
+│   └── utils.ts               # Helper functions
 └── index.css                  # Global styles + design tokens
 ```
 
 ## 🔗 Integration with SPL-8004 Program
 
-This frontend is designed to work with the SPL-8004 Anchor program. To connect:
+### Program Details
 
-1. **Update Program ID**: Edit `src/lib/constants.ts` with your deployed program ID
-2. **Add IDL**: Place your program's IDL in `src/idl/spl_8004.json`
-3. **Configure Network**: Update RPC endpoint in `WalletProvider.tsx`
+- **Program ID**: `SPL8wVx7ZqKNxJk5H2bF8QyGvM4tN3rP9WdE6fU5Kc2`
+- **Network**: Solana Devnet
+- **Framework**: Anchor 0.30.1
+
+### Key Features
+
+#### 1. Identity Registry
+- Register AI agents with unique identifiers
+- Store metadata URIs (Arweave, IPFS)
+- On-chain ownership verification
+
+#### 2. Reputation System
+- Dynamic scores from 0-10,000
+- Success rate tracking
+- Reputation-based rewards
+
+#### 3. Validation Registry
+- Trustless task verification
+- On-chain evidence storage
+- Commission-based validation fees (3%)
+
+#### 4. Reward System
+- Base reward: 0.0001 SOL
+- Score-based multipliers (1x-5x)
+- 24-hour claim intervals
+
+### Constants
+
+```typescript
+// Fees
+REGISTRATION_FEE: 0.005 SOL
+VALIDATION_FEE: 0.001 SOL
+
+// Reputation
+INITIAL_SCORE: 5000
+MAX_SCORE: 10000
+MIN_SCORE: 0
+
+// Commission
+DEFAULT_RATE: 3%
+MAX_RATE: 10%
+```
 
 ### Example Integration
 
 ```typescript
-import { SPL8004Client } from './lib/spl8004-client';
+import { useSPL8004 } from '@/hooks/useSPL8004';
 
-// Initialize client
-const client = new SPL8004Client(connection, wallet);
+const { client } = useSPL8004();
 
 // Register agent
-const { signature, identityPda } = await client.registerAgent(
+await client.registerAgent(
   'my-agent-001',
   'https://arweave.net/metadata'
 );
 
 // Submit validation
+const taskHash = Buffer.from(crypto.randomBytes(32));
 await client.submitValidation(
   'my-agent-001',
   taskHash,
-  true,
+  true, // approved
   'https://ipfs.io/evidence'
 );
+
+// Get reputation
+const reputation = await client.getReputation('my-agent-001');
+console.log('Score:', reputation.score);
 ```
 
 ## 🌐 Pages
@@ -140,12 +195,83 @@ Shows key metrics with:
 - Optional trend indicator
 - Hover effects and animations
 
-## 🔐 Security
+## 🔐 Deploying the Solana Program
 
-- All sensitive operations require wallet signatures
-- Input validation on all forms
-- Safe handling of public keys
-- No private key exposure
+**Important**: The Rust Solana program must be built and deployed separately.
+
+### Prerequisites
+
+```bash
+# Install Solana CLI
+sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"
+
+# Install Anchor
+cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+avm install 0.30.1
+avm use 0.30.1
+```
+
+### Build & Deploy
+
+```bash
+# In the Solana program directory (not this frontend)
+anchor build
+
+# Get program ID
+anchor keys list
+
+# Update program ID in:
+# - programs/spl-8004/src/lib.rs (declare_id!)
+# - Anchor.toml (programs section)
+
+# Build again
+anchor build
+
+# Deploy to devnet
+anchor deploy --provider.cluster devnet
+
+# Run tests
+anchor test --provider.cluster devnet
+```
+
+### Update Frontend
+
+After deploying, update the program ID in `src/lib/spl8004-client.ts`:
+
+```typescript
+export const SPL8004_PROGRAM_ID = new PublicKey("YOUR_DEPLOYED_PROGRAM_ID");
+```
+
+## 📝 Development Notes
+
+### Current Status
+
+✅ Frontend fully functional  
+✅ Wallet integration working  
+✅ UI/UX complete  
+⏳ Requires Solana program deployment  
+⏳ Using mock data until program is deployed
+
+### Next Steps
+
+1. Deploy SPL-8004 Solana program to Devnet
+2. Update program ID in frontend
+3. Replace mock data with real blockchain queries
+4. Add IDL-based account parsing
+5. Implement real transaction signing
+6. Test end-to-end functionality
+
+### Development vs Production
+
+**Development Mode** (current):
+- Uses mock data
+- No real transactions
+- Simulated blockchain interactions
+
+**Production Mode** (after program deployment):
+- Real Solana transactions
+- Actual blockchain data
+- Live agent registration and validation
 
 ## 🚢 Deployment
 
@@ -178,19 +304,19 @@ VITE_PROGRAM_ID=SPL8wVx7ZqKNxJk5H2bF8QyGvM4tN3rP9WdE6fU5Kc2
 
 MIT License - see LICENSE file for details
 
-## 🔗 Links
+## 🔗 Resources
 
-- **Solana Docs**: https://docs.solana.com
-- **Anchor Framework**: https://www.anchor-lang.com
-- **Wallet Adapter**: https://github.com/solana-labs/wallet-adapter
-- **SPL-8004 Spec**: Based on ERC-8004
+- [Solana Documentation](https://docs.solana.com)
+- [Anchor Book](https://book.anchor-lang.com)
+- [Solana Wallet Adapter](https://github.com/solana-labs/wallet-adapter)
+- [SPL-8004 Specification](https://github.com/spl-8004)
 
 ## 💡 Tips
 
-- Use **Devnet** for testing (included airdrop functionality)
+- Use **Devnet** for testing (get SOL from faucet)
 - Connect **Phantom** wallet for best experience
-- Check console for detailed transaction logs
-- Reputation updates may take ~400ms to confirm
+- Check console for detailed logs
+- Reputation updates confirm in ~400ms
 
 ---
 

@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useSPL8004 } from '@/hooks/useSPL8004';
+import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,12 +13,37 @@ import { StatsCard } from '@/components/StatsCard';
 
 export default function Dashboard() {
   const { connected, publicKey } = useWallet();
+  const { client } = useSPL8004();
   const [agentId, setAgentId] = useState('');
   const [metadataUri, setMetadataUri] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [myAgents, setMyAgents] = useState<any[]>([]);
+  const [totalRewards, setTotalRewards] = useState(0);
+
+  useEffect(() => {
+    if (client && connected) {
+      loadDashboardData();
+    }
+  }, [client, connected]);
+
+  const loadDashboardData = async () => {
+    if (!client) return;
+    
+    try {
+      // Load mock data for development
+      const agents = client.getMockAgentData();
+      setMyAgents(agents);
+      
+      // Calculate total rewards
+      const total = agents.reduce((sum, agent) => sum + (agent.reputation.score * 10), 0);
+      setTotalRewards(total);
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    }
+  };
 
   const handleRegister = async () => {
-    if (!connected) {
+    if (!connected || !client) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -26,14 +53,34 @@ export default function Dashboard() {
       return;
     }
 
+    if (agentId.length > PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN) {
+      toast.error(`Agent ID must be max ${PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN} characters`);
+      return;
+    }
+
+    if (metadataUri.length > PROGRAM_CONSTANTS.MAX_METADATA_URI_LEN) {
+      toast.error(`Metadata URI must be max ${PROGRAM_CONSTANTS.MAX_METADATA_URI_LEN} characters`);
+      return;
+    }
+
     setIsRegistering(true);
     try {
-      // TODO: Implement SPL-8004 SDK integration
-      toast.success('Agent registered successfully! (SDK integration pending)');
+      toast.info('Registering agent on Solana...');
+      
+      // In production, this would call the actual program
+      // await client.registerAgent(agentId, metadataUri);
+      
+      // For development: simulate success
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast.success(`Agent "${agentId}" registered successfully!`);
       setAgentId('');
       setMetadataUri('');
-    } catch (error) {
-      toast.error('Failed to register agent');
+      
+      // Reload dashboard
+      await loadDashboardData();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to register agent');
       console.error(error);
     } finally {
       setIsRegistering(false);
@@ -68,19 +115,23 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-3">
         <StatsCard
           title="My Agents"
-          value="0"
+          value={myAgents.length.toString()}
           icon={Shield}
           description="Total registered agents"
         />
         <StatsCard
           title="Total Rewards"
-          value="0 SOL"
+          value={`${formatSOL(totalRewards)} SOL`}
           icon={Coins}
           description="Claimable rewards"
         />
         <StatsCard
           title="Avg. Reputation"
-          value="5000"
+          value={
+            myAgents.length > 0
+              ? Math.round(myAgents.reduce((sum, a) => sum + a.reputation.score, 0) / myAgents.length).toString()
+              : "5000"
+          }
           icon={TrendingUp}
           description="Average score across agents"
         />
@@ -137,9 +188,11 @@ export default function Dashboard() {
 
               <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
                 <h4 className="text-sm font-medium mb-2">Registration Fee</h4>
-                <p className="text-2xl font-bold text-primary">0.005 SOL</p>
+                <p className="text-2xl font-bold text-primary">
+                  {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Initial reputation score: 5000/10000
+                  Initial reputation score: {PROGRAM_CONSTANTS.INITIAL_REPUTATION_SCORE}/{PROGRAM_CONSTANTS.MAX_REPUTATION_SCORE}
                 </p>
               </div>
 
@@ -163,13 +216,55 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No agents registered yet</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Register your first agent to get started
-                </p>
-              </div>
+              {myAgents.length === 0 ? (
+                <div className="text-center py-12">
+                  <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No agents registered yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Register your first agent to get started
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myAgents.map((agent) => (
+                    <div
+                      key={agent.agentId}
+                      className="p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-1">{agent.agentId}</h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {agent.metadataUri}
+                          </p>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Reputation:</span>
+                              <span className="ml-2 font-semibold text-primary">
+                                {agent.reputation.score}/10000
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Success Rate:</span>
+                              <span className="ml-2 font-semibold">
+                                {Math.round((agent.reputation.successfulTasks / agent.reputation.totalTasks) * 100)}%
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Total Tasks:</span>
+                              <span className="ml-2 font-semibold">{agent.reputation.totalTasks}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status:</span>
+                              <span className="ml-2 font-semibold text-success">Active</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

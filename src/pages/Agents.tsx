@@ -1,48 +1,76 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSPL8004 } from '@/hooks/useSPL8004';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AgentCard } from '@/components/AgentCard';
 import { Search, Filter } from 'lucide-react';
 
-// Mock data for demonstration
-const mockAgents = [
-  {
-    agentId: 'ai-trader-001',
-    owner: '7kNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqP',
-    score: 8750,
-    totalTasks: 150,
-    successfulTasks: 142,
-    failedTasks: 8,
-    isActive: true,
-    metadataUri: 'https://arweave.net/example1',
-  },
-  {
-    agentId: 'data-analyst-pro',
-    owner: '9mNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqX',
-    score: 7200,
-    totalTasks: 89,
-    successfulTasks: 78,
-    failedTasks: 11,
-    isActive: true,
-    metadataUri: 'https://arweave.net/example2',
-  },
-  {
-    agentId: 'nft-curator',
-    owner: '5kNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqZ',
-    score: 6100,
-    totalTasks: 45,
-    successfulTasks: 32,
-    failedTasks: 13,
-    isActive: true,
-    metadataUri: 'https://arweave.net/example3',
-  },
-];
-
 export default function Agents() {
+  const { client } = useSPL8004();
   const [searchQuery, setSearchQuery] = useState('');
+  const [agents, setAgents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filteredAgents = mockAgents.filter(agent =>
-    agent.agentId.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    loadAgents();
+  }, [client]);
+
+  const loadAgents = async () => {
+    if (!client) return;
+    
+    setLoading(true);
+    try {
+      // Load mock data for development
+      const mockData = client.getMockAgentData();
+      setAgents(mockData);
+    } catch (error) {
+      console.error('Error loading agents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Expanded mock data for display
+  const mockAgents = [
+    {
+      agentId: 'ai-trader-001',
+      owner: '7kNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqP',
+      score: 8750,
+      totalTasks: 150,
+      successfulTasks: 142,
+      failedTasks: 8,
+      isActive: true,
+      metadataUri: 'https://arweave.net/example1',
+    },
+    {
+      agentId: 'data-analyst-pro',
+      owner: '9mNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqX',
+      score: 7200,
+      totalTasks: 89,
+      successfulTasks: 78,
+      failedTasks: 11,
+      isActive: true,
+      metadataUri: 'https://arweave.net/example2',
+    },
+    {
+      agentId: 'nft-curator',
+      owner: '5kNhGxL5GVs3F8mPQdKvBfJc2x9Y4tA8W3nR5eM6zDqZ',
+      score: 6100,
+      totalTasks: 45,
+      successfulTasks: 32,
+      failedTasks: 13,
+      isActive: true,
+      metadataUri: 'https://arweave.net/example3',
+    },
+  ];
+
+  // Use loaded agents if available, otherwise use mock data
+  const displayAgents = agents.length > 0 ? agents : mockAgents;
+  
+  const filteredAgents = displayAgents.filter(
+    (agent) =>
+      agent.agentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.owner.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

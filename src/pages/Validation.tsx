@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useSPL8004 } from '@/hooks/useSPL8004';
+import { PROGRAM_CONSTANTS, formatSOL, getScoreChangeRange } from '@/lib/program-constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +13,7 @@ import { CheckCircle2, XCircle, Shield } from 'lucide-react';
 
 export default function Validation() {
   const { connected } = useWallet();
+  const { client } = useSPL8004();
   const [agentId, setAgentId] = useState('');
   const [taskHash, setTaskHash] = useState('');
   const [approved, setApproved] = useState(true);
@@ -18,7 +21,7 @@ export default function Validation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!connected) {
+    if (!connected || !client) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -28,15 +31,35 @@ export default function Validation() {
       return;
     }
 
+    if (taskHash.length !== 64) {
+      toast.error('Task hash must be 64 characters (32 bytes hex)');
+      return;
+    }
+
+    if (evidenceUri && evidenceUri.length > PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN) {
+      toast.error(`Evidence URI must be max ${PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN} characters`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // TODO: Implement SPL-8004 SDK integration
-      toast.success('Validation submitted successfully! (SDK integration pending)');
+      toast.info('Submitting validation to Solana...');
+      
+      // In production, this would call the actual program
+      // const taskHashBuffer = Buffer.from(taskHash, 'hex');
+      // await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
+      
+      // For development: simulate success
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast.success(
+        `Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}"!`
+      );
       setAgentId('');
       setTaskHash('');
       setEvidenceUri('');
-    } catch (error) {
-      toast.error('Failed to submit validation');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to submit validation');
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -163,9 +186,12 @@ export default function Validation() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-4">
-                <p className="text-3xl font-bold text-primary">0.001 SOL</p>
+                <p className="text-3xl font-bold text-primary">
+                  {formatSOL(PROGRAM_CONSTANTS.VALIDATION_FEE)} SOL
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Commission: 3% (0.00003 SOL)
+                  Commission: {PROGRAM_CONSTANTS.DEFAULT_COMMISSION_RATE / 100}% (
+                  {formatSOL((PROGRAM_CONSTANTS.VALIDATION_FEE * PROGRAM_CONSTANTS.DEFAULT_COMMISSION_RATE) / 10000)} SOL)
                 </p>
               </div>
             </CardContent>

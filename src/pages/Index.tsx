@@ -20,6 +20,7 @@ import {
   Code2
 } from 'lucide-react';
 import { StatsCard } from '@/components/StatsCard';
+import { ProgramInfo } from '@/components/ProgramInfo';
 
 export default function Index() {
   return (
@@ -234,42 +235,48 @@ export default function Index() {
 
       {/* Technical Stack */}
       <section className="container mx-auto px-4 pb-20">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg">
-            <CardContent className="p-12">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold glow-text mb-4">
-                  Built with Modern Tech
-                </h2>
-                <p className="text-muted-foreground text-lg">
-                  Leveraging the best blockchain and AI technologies
-                </p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center space-y-3">
-                  <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                    <Database className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg">Solana Blockchain</h3>
-                  <p className="text-sm text-muted-foreground">High-speed, low-cost transactions</p>
+        <div className="grid gap-6 lg:grid-cols-3 max-w-6xl mx-auto">
+          <div className="lg:col-span-2">
+            <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg">
+              <CardContent className="p-12">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl md:text-4xl font-bold glow-text mb-4">
+                    Built with Modern Tech
+                  </h2>
+                  <p className="text-muted-foreground text-lg">
+                    Leveraging the best blockchain and AI technologies
+                  </p>
                 </div>
-                <div className="text-center space-y-3">
-                  <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                    <Code2 className="h-7 w-7 text-primary" />
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Database className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg">Solana Blockchain</h3>
+                    <p className="text-sm text-muted-foreground">High-speed, low-cost transactions</p>
                   </div>
-                  <h3 className="font-semibold text-lg">Anchor Framework</h3>
-                  <p className="text-sm text-muted-foreground">Secure smart contract development</p>
-                </div>
-                <div className="text-center space-y-3">
-                  <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                    <Bot className="h-7 w-7 text-primary" />
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Code2 className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg">Anchor Framework</h3>
+                    <p className="text-sm text-muted-foreground">Secure smart contract development</p>
                   </div>
-                  <h3 className="font-semibold text-lg">AI Integration</h3>
-                  <p className="text-sm text-muted-foreground">Autonomous agent support</p>
+                  <div className="text-center space-y-3">
+                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Bot className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg">AI Integration</h3>
+                    <p className="text-sm text-muted-foreground">Autonomous agent support</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="lg:col-span-1">
+            <ProgramInfo />
+          </div>
         </div>
       </section>
 
