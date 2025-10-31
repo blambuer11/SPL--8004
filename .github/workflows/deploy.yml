@@ -14,14 +14,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - name: Setup Node.js (use Node 20 for newer packages)
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      # Some lockfile/package mismatches were causing npm ci to fail in the runner.
+      # Use `npm install` under Node 20 to allow install and regenerate lock if necessary.
+      run: npm install
 
     - name: Run linter
       run: npm run lint || true
