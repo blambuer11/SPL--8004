@@ -50,6 +50,11 @@ jobs:
           set -euo pipefail
           # write keypair from secret to temp file (Anchor reads ANCHOR_WALLET)
           echo "$SOLANA_KEYPAIR" > /tmp/deploy-keypair.json
+          # Diagnostics: print repo root and list relevant paths to help CI troubleshooting
+          echo "PWD: $(pwd)"
+          echo "Listing repo root:" && ls -la || true
+          echo "Listing spl-8004-program:" && ls -la ./spl-8004-program || true
+          echo "Listing spl-8004-program/spl-8004:" && ls -la ./spl-8004-program/spl-8004 || true
           # Ensure cargo/bin and avm are on PATH
           export PATH="$HOME/.cargo/bin:$PATH"
           cd ./spl-8004-program/spl-8004
