@@ -2,7 +2,7 @@
 
 **Decentralized identity, reputation, and trusted certification for AI agents on Solana**
 
-ERC-8004'ün Solana implementasyonu - tam Anchor programı ve modern React frontend ile.
+Solana implementation of ERC-8004 - with full Anchor program and modern React frontend.
 
 ## 🌟 Features
 
