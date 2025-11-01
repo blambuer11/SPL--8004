@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { CheckCircle2, XCircle, Shield } from 'lucide-react';
+import bs58 from 'bs58';
 
 export default function Validation() {
   const { connected } = useWallet();
@@ -19,6 +20,33 @@ export default function Validation() {
   const [approved, setApproved] = useState(true);
   const [evidenceUri, setEvidenceUri] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [computedHexPreview, setComputedHexPreview] = useState<string>("");
+
+  async function sha256Bytes(bytes: Uint8Array): Promise<Uint8Array> {
+    const hash = await (globalThis.crypto as Crypto).subtle.digest('SHA-256', bytes as unknown as BufferSource);
+    return new Uint8Array(hash);
+  }
+
+  async function toTaskHash32(input: string): Promise<Uint8Array> {
+    const raw = input.trim();
+    // 1) If user provided exact 32-byte hex, use it directly
+    const hex = raw.toLowerCase().replace(/^0x/, '');
+    if (/^[0-9a-f]{64}$/.test(hex)) {
+      const out = new Uint8Array(32);
+      for (let i = 0; i < 32; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+      return out;
+    }
+    // 2) Try base58 (e.g., Solana transaction signature or address)
+    try {
+      const decoded = bs58.decode(raw);
+      // Hash to 32 bytes
+      return await sha256Bytes(decoded);
+    } catch {
+      // 3) Fallback: hash arbitrary string (UTF-8)
+      const enc = new TextEncoder().encode(raw);
+      return await sha256Bytes(enc);
+    }
+  }
 
   const handleSubmit = async () => {
     if (!connected || !client) {
@@ -31,11 +59,6 @@ export default function Validation() {
       return;
     }
 
-    if (taskHash.length !== 64) {
-      toast.error('Task hash must be 64 characters (32 bytes hex)');
-      return;
-    }
-
     if (evidenceUri && evidenceUri.length > PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN) {
       toast.error(`Evidence URI must be max ${PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN} characters`);
       return;
@@ -44,17 +67,13 @@ export default function Validation() {
     setIsSubmitting(true);
     try {
       toast.info('Submitting validation to Solana...');
-      const hex = taskHash.trim().toLowerCase().replace(/^0x/, '');
-      if (!/^[0-9a-f]{64}$/.test(hex)) throw new Error('Task hash must be 32-byte hex');
-      const taskHashBuffer = new Uint8Array(32);
-      for (let i = 0; i < 32; i++) {
-        taskHashBuffer[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-      }
+      const taskHashBuffer = await toTaskHash32(taskHash);
       const sig = await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
       toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}". Tx: ${sig.slice(0,8)}...`);
       setAgentId('');
       setTaskHash('');
       setEvidenceUri('');
+      setComputedHexPreview('');
     } catch (error: unknown) {
       const message = (error as Error)?.message || 'Failed to submit validation';
       toast.error(message);
@@ -117,14 +136,29 @@ export default function Validation() {
                 <Label htmlFor="task-hash">Task Hash *</Label>
                 <Input
                   id="task-hash"
-                  placeholder="0x..."
+                  placeholder="0x... (32-byte hex) or base58 (e.g., Solana tx signature)"
                   value={taskHash}
-                  onChange={(e) => setTaskHash(e.target.value)}
+                  onChange={async (e) => {
+                    const v = e.target.value;
+                    setTaskHash(v);
+                    try {
+                      const bytes = await toTaskHash32(v);
+                      // Show preview as hex for transparency
+                      setComputedHexPreview(Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(''));
+                    } catch {
+                      setComputedHexPreview('');
+                    }
+                  }}
                   className="bg-input border-border/50"
                 />
                 <p className="text-xs text-muted-foreground">
-                  32-byte hash of the completed task
+                  Paste 32-byte hex, base58 signature, or any string — it will be hashed (SHA-256) to 32 bytes.
                 </p>
+                {computedHexPreview && (
+                  <p className="text-[10px] text-muted-foreground font-mono break-all">
+                    Computed (hex): {computedHexPreview}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

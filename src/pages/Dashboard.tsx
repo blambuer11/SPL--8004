@@ -74,6 +74,7 @@ export default function Dashboard() {
 
     setIsRegistering(true);
     try {
+  toast.message('Opening wallet for signature…');
   toast.info('Registering agent on Solana...');
   const sig = await client.registerAgent(agentId, metadataUri);
   toast.success(`Agent "${agentId}" registered. \nTx: ${sig.slice(0,8)}...`);

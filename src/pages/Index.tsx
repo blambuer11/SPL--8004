@@ -279,8 +279,10 @@ export default function Index() {
           </div>
 
           <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg mb-8 p-8">
-            <pre className="mermaid">
-{`graph TB
+            <div className="overflow-x-auto md:scale-95 lg:scale-100 origin-top-left">
+              <pre className="mermaid">
+{`%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '12px', 'primaryColor': '#7c3aed', 'primaryTextColor': '#e9d5ff', 'lineColor': '#a78bfa' }, 'flowchart': { 'htmlLabels': true } } }%%
+graph LR
     Start([Agent Owner]) --> Register[Register Agent<br/>agent_id + metadata_uri]
     Register --> Identity[(Identity Registry<br/>PDA)]
     Register --> Reputation[(Reputation Registry<br/>Score: 5000)]
@@ -311,23 +313,24 @@ export default function Index() {
     Transfer --> End([Complete])
     Wait --> NextTask
     
-    style Start fill:#9333ea,stroke:#7c3aed,stroke-width:3px,color:#fff
-    style Register fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff
-    style Identity fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    style Reputation fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    style RewardPool fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    style Validator fill:#9333ea,stroke:#7c3aed,stroke-width:3px,color:#fff
-    style Submit fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff
-    style ValidationReg fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    style Update fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff
-    style ScoreCheck fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
-    style IncScore fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    style DecScore fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
-    style CalcReward fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
-    style ClaimReward fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    style Transfer fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    style End fill:#9333ea,stroke:#7c3aed,stroke-width:3px,color:#fff`}
-            </pre>
+    style Start fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style Register fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
+    style Identity fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
+    style Reputation fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
+    style RewardPool fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
+    style Validator fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style Submit fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
+    style ValidationReg fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
+    style Update fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
+    style ScoreCheck fill:#f59e0b,stroke:#d97706,stroke-width:1px,color:#fff
+    style IncScore fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
+    style DecScore fill:#ef4444,stroke:#dc2626,stroke-width:1px,color:#fff
+    style CalcReward fill:#8b5cf6,stroke:#7c3aed,stroke-width:1px,color:#fff
+    style ClaimReward fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
+    style Transfer fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
+    style End fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff`}
+              </pre>
+            </div>
           </Card>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8">

@@ -1,6 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction, SendTransactionError } from "@solana/web3.js";
+import bs58 from "bs58";
+import { Buffer } from "buffer";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { PROGRAM_CONSTANTS } from "./program-constants";
 
@@ -81,7 +83,7 @@ export class SPL8004Client {
 
   private async sha256(data: Uint8Array | string): Promise<Uint8Array> {
     const enc = typeof data === "string" ? new TextEncoder().encode(data) : data;
-    const hash = await (globalThis.crypto as Crypto).subtle.digest("SHA-256", enc);
+    const hash = await (globalThis.crypto as Crypto).subtle.digest("SHA-256", enc as unknown as BufferSource);
     return new Uint8Array(hash);
   }
 
@@ -112,24 +114,37 @@ export class SPL8004Client {
     const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
     const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
     tx.add(...ixs);
+
+    const signed = await this.wallet.signTransaction(tx);
+    const raw = signed.serialize();
+    // Precompute signature for recovery in case RPC reports "already processed"
+    const firstSig = signed.signatures?.[0]?.signature;
+    const sigStr = firstSig ? bs58.encode(firstSig) : undefined;
+
     try {
-      const signed = await this.wallet.signTransaction(tx);
-      const sig = await this.connection.sendRawTransaction(signed.serialize());
+      const sig = await this.connection.sendRawTransaction(raw, {
+        maxRetries: 3,
+        preflightCommitment: "confirmed",
+      });
       await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
       return sig;
-    } catch (e: unknown) {
-      if (e instanceof SendTransactionError) {
+    } catch (inner: unknown) {
+      if (inner instanceof SendTransactionError) {
+        const msg = (inner.message || "").toLowerCase();
+        // If RPC says it's already processed, confirm using the precomputed signature
+        if (sigStr && (msg.includes("already been processed") || msg.includes("already processed"))) {
+          await this.connection.confirmTransaction({ signature: sigStr, blockhash, lastValidBlockHeight }, "confirmed");
+          return sigStr;
+        }
         try {
-          const logs = await e.getLogs(this.connection);
-          // Surface rich logs for easier debugging in UI/console
-          console.error("Transaction failed:", e.message, logs);
-          throw new Error(`Transaction failed: ${e.message}\nLogs:\n${(logs || []).join("\n")}`);
-        } catch (logErr) {
-          console.error("Transaction failed (no logs):", e);
-          throw e;
+          const logs = await inner.getLogs(this.connection);
+          console.error("Transaction failed:", inner.message, logs);
+          throw new Error(`Transaction failed: ${inner.message}\nLogs:\n${(logs || []).join("\n")}`);
+        } catch {
+          throw inner;
         }
       }
-      throw e;
+      throw inner;
     }
   }
 
@@ -154,7 +169,7 @@ export class SPL8004Client {
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     await this.send([ix]);
@@ -301,7 +316,7 @@ export class SPL8004Client {
         { pubkey: configPda, isSigner: false, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     return this.send([ix]);
@@ -336,7 +351,7 @@ export class SPL8004Client {
         { pubkey: cfg.treasury, isSigner: false, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     return this.send([ix]);
@@ -359,7 +374,7 @@ export class SPL8004Client {
         { pubkey: identityPda, isSigner: false, isWritable: true },
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: false },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     return this.send([ix]);
@@ -379,7 +394,7 @@ export class SPL8004Client {
         { pubkey: identityPda, isSigner: false, isWritable: true },
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: false },
       ],
-      data,
+    	data: Buffer.from(data),
     });
 
     return this.send([ix]);
@@ -403,7 +418,7 @@ export class SPL8004Client {
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     return this.send([ix]);
@@ -425,7 +440,7 @@ export class SPL8004Client {
         { pubkey: validationPda, isSigner: false, isWritable: false },
         { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
       ],
-      data,
+      data: Buffer.from(data),
     });
 
     return this.send([ix]);
