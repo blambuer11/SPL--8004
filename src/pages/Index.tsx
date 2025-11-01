@@ -27,6 +27,7 @@ import { GradientBorder } from '@/components/GradientBorder';
 import { GlowingText } from '@/components/GlowingText';
 import { StatsCard } from '@/components/StatsCard';
 import { ProgramInfo } from '@/components/ProgramInfo';
+import { CodeExample } from '@/components/CodeExample';
 
 export default function Index() {
   return (
@@ -38,26 +39,27 @@ export default function Index() {
         
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center space-y-8 mb-16">
-            <Badge className="bg-[color:var(--primary)]/10 text-[color:var(--primary-foreground)] border-[color:var(--primary)]/20 backdrop-blur px-6 py-2 text-sm font-semibold">
+            <Badge className="bg-[color:var(--primary)]/10 text-[color:var(--primary-foreground)] border-[color:var(--primary)]/20 backdrop-blur px-6 py-2 text-sm font-semibold animate-fade-in">
               <Sparkles className="w-4 h-4 mr-2 text-[color:var(--primary)]" />
-              Noema • SPL-8004 Standard
+              SPL-8004 • First Solana AI Agent Standard
             </Badge>
             
-            <div className="relative">
+            <div className="relative animate-fade-in">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[color:var(--foreground)] mb-6">
                 <GlowingText>
-                  Noema — Sovereign Agent
+                  SPL-8004
                   <br />
-                  Reputation Protocol
+                  AI Agent Reputation Standard
                 </GlowingText>
               </h1>
               
-              <div className="absolute -top-20 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
             </div>
             
-            <p className="text-lg md:text-xl text-[color:var(--muted)] max-w-3xl mx-auto leading-relaxed">
-              Decentralized identity and reputation for autonomous agents. Noema leverages SPL-8004 for trustless validation and on-chain reputation.
+            <p className="text-lg md:text-xl text-[color:var(--muted)] max-w-3xl mx-auto leading-relaxed animate-fade-in">
+              The first Solana Program Library standard for decentralized AI agent identity, trustless validation, and on-chain reputation. 
+              Built on Solana's high-performance infrastructure for autonomous agent ecosystems.
             </p>
             
             <div className="flex flex-wrap gap-4 justify-center pt-8">
@@ -288,49 +290,331 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Technical Stack */}
+      {/* Architecture Section */}
       <section className="container mx-auto px-4 pb-20">
-        <div className="grid gap-6 lg:grid-cols-3 max-w-6xl mx-auto">
-          <div className="lg:col-span-2">
-            <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg">
-              <CardContent className="p-12">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold glow-text mb-4">
-                    Built with Modern Tech
-                  </h2>
-                  <p className="text-muted-foreground text-lg">
-                    Leveraging the best blockchain and AI technologies
-                  </p>
-                </div>
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="text-center space-y-3">
-                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Database className="h-7 w-7 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-lg">Solana Blockchain</h3>
-                    <p className="text-sm text-muted-foreground">High-speed, low-cost transactions</p>
-                  </div>
-                  <div className="text-center space-y-3">
-                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Code2 className="h-7 w-7 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-lg">Anchor Framework</h3>
-                    <p className="text-sm text-muted-foreground">Secure smart contract development</p>
-                  </div>
-                  <div className="text-center space-y-3">
-                    <div className="w-14 h-14 mx-auto bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Bot className="h-7 w-7 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-lg">AI Integration</h3>
-                    <p className="text-sm text-muted-foreground">Autonomous agent support</p>
-                  </div>
-                </div>
-              </CardContent>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
+              <Code2 className="w-4 h-4 mr-2 text-purple-400" />
+              Protocol Architecture
+            </Badge>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <GlowingText>How SPL-8004 Works</GlowingText>
+            </h2>
+            
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
+              A complete on-chain infrastructure for AI agent identity and reputation management
+            </p>
+          </div>
+
+          <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg mb-8 p-8">
+            <div 
+              className="prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: `<lov-mermaid>
+graph TB
+    subgraph Agents["🤖 AI Agents"]
+        A1[Agent 1]
+        A2[Agent 2]
+        A3[Agent N]
+    end
+    
+    subgraph SPL8004["SPL-8004 Protocol"]
+        IR[Identity Registry<br/>On-chain IDs & Metadata]
+        RR[Reputation Registry<br/>Score: 0-10000]
+        VR[Validation Registry<br/>Task Evidence]
+        RP[Reward Pool<br/>SOL Distribution]
+        
+        IR --> RR
+        VR --> RR
+        RR --> RP
+    end
+    
+    subgraph Validators["✅ Validators"]
+        V1[Validator 1]
+        V2[Validator 2]
+        V3[Validator N]
+    end
+    
+    A1 -->|Register| IR
+    A2 -->|Register| IR
+    A3 -->|Register| IR
+    
+    V1 -->|Submit Validation| VR
+    V2 -->|Submit Validation| VR
+    V3 -->|Submit Validation| VR
+    
+    VR -->|Update Score| RR
+    RR -->|Calculate Rewards| RP
+    RP -->|Claim| A1
+    
+    style SPL8004 fill:#7c3aed20,stroke:#7c3aed,stroke-width:3px
+    style IR fill:#6d28d920,stroke:#6d28d9
+    style RR fill:#6d28d920,stroke:#6d28d9
+    style VR fill:#6d28d920,stroke:#6d28d9
+    style RP fill:#6d28d920,stroke:#6d28d9
+</lov-mermaid>`
+              }}
+            />
+          </Card>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <Card className="border border-primary/20 bg-card/50 backdrop-blur p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                Data Flow
+              </h3>
+              <ol className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">1</span>
+                  <span>Agent registers identity with metadata URI (Arweave/IPFS)</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">2</span>
+                  <span>Validators submit task results with evidence</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">3</span>
+                  <span>Protocol updates reputation score (0-10000)</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">4</span>
+                  <span>Rewards calculated based on score multiplier (1x-5x)</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">5</span>
+                  <span>Agent claims accumulated rewards (24h interval)</span>
+                </li>
+              </ol>
+            </Card>
+
+            <Card className="border border-primary/20 bg-card/50 backdrop-blur p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Lock className="h-5 w-5 text-primary" />
+                Security Model
+              </h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>PDA-based account security (no private keys needed)</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Owner-only operations (metadata, deactivation, claims)</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Immutable validation history on-chain</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Commission-based sustainability (3% default)</span>
+                </li>
+                <li className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Arithmetic overflow protection throughout</span>
+                </li>
+              </ul>
             </Card>
           </div>
-          
-          <div className="lg:col-span-1">
-            <ProgramInfo />
+        </div>
+      </section>
+
+      {/* ERC-8004 Comparison */}
+      <section className="container mx-auto px-4 pb-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
+              <Network className="w-4 h-4 mr-2 text-purple-400" />
+              Cross-Chain Standard
+            </Badge>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <GlowingText>ERC-8004 Compatible</GlowingText>
+            </h2>
+            
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              SPL-8004 implements the same core concepts as Ethereum's ERC-8004, 
+              optimized for Solana's high-performance architecture
+            </p>
+          </div>
+
+          <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-primary/10 border-b border-primary/20">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Feature</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">ERC-8004 (Ethereum)</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">SPL-8004 (Solana)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-primary/10">
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Identity Storage</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">Mapping-based</td>
+                    <td className="px-6 py-4 text-sm text-green-400">PDA-based accounts ✓</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Reputation Scoring</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">0-10000 scale</td>
+                    <td className="px-6 py-4 text-sm text-green-400">0-10000 scale ✓</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Validation System</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">On-chain validation</td>
+                    <td className="px-6 py-4 text-sm text-green-400">On-chain + evidence URI ✓</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Transaction Speed</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">~15 TPS</td>
+                    <td className="px-6 py-4 text-sm text-green-400">65,000+ TPS ⚡</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Confirmation Time</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">~12-15 seconds</td>
+                    <td className="px-6 py-4 text-sm text-green-400">~400ms ⚡</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Transaction Cost</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">$0.50 - $5.00</td>
+                    <td className="px-6 py-4 text-sm text-green-400">~$0.00025 💰</td>
+                  </tr>
+                  <tr className="hover:bg-primary/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">Scalability</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">Limited by gas</td>
+                    <td className="px-6 py-4 text-sm text-green-400">Native parallelization 🚀</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Code Examples */}
+      <section className="container mx-auto px-4 pb-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
+              <Github className="w-4 h-4 mr-2 text-purple-400" />
+              Integration Examples
+            </Badge>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <GlowingText>Build with SPL-8004</GlowingText>
+            </h2>
+            
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Complete TypeScript SDK and Rust client for seamless integration
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <CodeExample
+              title="Register Agent"
+              language="typescript"
+              description="Create a new AI agent identity on-chain with metadata"
+              code={`import { SPL8004Client } from '@/lib/spl8004-client';
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('https://api.devnet.solana.com');
+const client = new SPL8004Client(connection, wallet);
+
+// Register agent with unique ID and metadata URI
+const { identityPda, reputationPda } = await client.registerAgent(
+  'my-agent-001',
+  'https://arweave.net/metadata-hash'
+);
+
+console.log('Agent registered:', identityPda.toString());
+console.log('Initial reputation:', 5000); // Default starting score`}
+            />
+
+            <CodeExample
+              title="Submit Validation"
+              language="typescript"
+              description="Validators submit task results with on-chain evidence"
+              code={`// Generate task hash for unique validation
+const taskHash = Buffer.from(crypto.randomBytes(32));
+
+// Submit validation with evidence
+const { validationPda } = await client.submitValidation(
+  'my-agent-001',      // Agent ID
+  taskHash,            // Unique task identifier
+  true,                // Task approved
+  'https://ipfs.io/QmEvidence123'  // Evidence URI
+);
+
+// Update reputation based on validation
+await client.updateReputation('my-agent-001', taskHash);`}
+            />
+
+            <CodeExample
+              title="Check Reputation & Claim Rewards"
+              language="typescript"
+              description="Query agent reputation and claim earned rewards"
+              code={`// Get current reputation
+const reputation = await client.getReputation('my-agent-001');
+
+console.log('Score:', reputation.score.toNumber());
+console.log('Total tasks:', reputation.totalTasks.toNumber());
+console.log('Success rate:', 
+  (reputation.successfulTasks.toNumber() / 
+   reputation.totalTasks.toNumber()) * 100 + '%'
+);
+
+// Claim accumulated rewards (every 24h)
+const rewardPool = await client.getRewardPool('my-agent-001');
+if (rewardPool.claimableAmount > 0) {
+  await client.claimRewards('my-agent-001');
+  console.log('Rewards claimed:', rewardPool.claimableAmount / 1e9, 'SOL');
+}`}
+            />
+
+            <CodeExample
+              title="Rust Program Integration"
+              language="rust"
+              description="On-chain Anchor program structure"
+              code={`use anchor_lang::prelude::*;
+
+#[program]
+pub mod spl_8004 {
+    use super::*;
+
+    pub fn register_agent(
+        ctx: Context<RegisterAgent>,
+        agent_id: String,
+        metadata_uri: String,
+    ) -> Result<()> {
+        let identity = &mut ctx.accounts.identity;
+        identity.owner = ctx.accounts.owner.key();
+        identity.agent_id = agent_id;
+        identity.metadata_uri = metadata_uri;
+        identity.is_active = true;
+        
+        // Initialize reputation with score 5000
+        let reputation = &mut ctx.accounts.reputation;
+        reputation.score = 5000;
+        
+        Ok(())
+    }
+}`}
+            />
+          </div>
+
+          <div className="mt-8 text-center">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 border-primary/50 hover:bg-primary/10"
+              onClick={() => window.open('https://github.com', '_blank')}
+            >
+              <Github className="mr-2 h-5 w-5" />
+              View Full Documentation on GitHub
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>
@@ -351,8 +635,8 @@ export default function Index() {
               </h2>
               
               <p className="text-purple-200/70 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-                Join the next generation of AI infrastructure on Solana. Register your agents, 
-                validate tasks, and earn reputation-based rewards.
+                Start building with the first Solana standard for AI agent reputation. 
+                Join the ecosystem and contribute to the future of autonomous agents.
               </p>
               
               <div className="flex flex-wrap gap-4 justify-center">
