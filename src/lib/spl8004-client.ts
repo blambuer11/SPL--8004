@@ -32,36 +32,38 @@ export class SPL8004Client {
 
   // PDA Finders
   findConfigPda(): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync(
-      [Buffer.from(CONFIG_SEED)],
-      this.programId
-    );
+    const seed = new TextEncoder().encode(CONFIG_SEED);
+    return PublicKey.findProgramAddressSync([seed], this.programId);
   }
 
   findIdentityPda(agentId: string): [PublicKey, number] {
+    const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(IDENTITY_SEED), Buffer.from(agentId)],
+      [enc.encode(IDENTITY_SEED), enc.encode(agentId)],
       this.programId
     );
   }
 
   findReputationPda(identityPda: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(REPUTATION_SEED), identityPda.toBuffer()],
+      [enc.encode(REPUTATION_SEED), identityPda.toBytes()],
       this.programId
     );
   }
 
   findRewardPoolPda(identityPda: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(REWARD_POOL_SEED), identityPda.toBuffer()],
+      [enc.encode(REWARD_POOL_SEED), identityPda.toBytes()],
       this.programId
     );
   }
 
   findValidationPda(identityPda: PublicKey, taskHash: Uint8Array): [PublicKey, number] {
+    const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(VALIDATION_SEED), identityPda.toBuffer(), taskHash],
+      [enc.encode(VALIDATION_SEED), identityPda.toBytes(), taskHash],
       this.programId
     );
   }
@@ -79,7 +81,7 @@ export class SPL8004Client {
 
   private async sha256(data: Uint8Array | string): Promise<Uint8Array> {
     const enc = typeof data === "string" ? new TextEncoder().encode(data) : data;
-    const hash = await crypto.subtle.digest("SHA-256", enc);
+    const hash = await (globalThis.crypto as Crypto).subtle.digest("SHA-256", enc);
     return new Uint8Array(hash);
   }
 
@@ -188,17 +190,8 @@ export class SPL8004Client {
 
   async getAllAgents() {
     try {
-      // Get all accounts owned by program
-      const accounts = await this.connection.getProgramAccounts(this.programId, {
-        filters: [
-          {
-            memcmp: {
-              offset: 0,
-              bytes: Buffer.from([/* identity discriminator */]).toString('base64'),
-            },
-          },
-        ],
-      });
+      // Get all accounts owned by program (no filter to avoid Buffer base64 issues without IDL)
+      const accounts = await this.connection.getProgramAccounts(this.programId);
 
       return accounts.map((account) => ({
         address: account.pubkey,
