@@ -8,52 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 260 60% 10%;
+    --background: 210 48% 8%; /* #0F172A deep */
+    --foreground: 210 50% 95%; /* #E6EEF6 light text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 260 60% 10%;
+    --card: 210 10% 6%;
+    --card-foreground: 210 50% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 260 60% 10%;
+    --popover: 210 10% 6%;
+    --popover-foreground: 210 50% 95%;
 
-    --primary: 270 80% 60%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 270 70% 70%;
-    --primary-dark: 270 90% 45%;
+    --primary: 266 64% 59%; /* Nebula Purple #7C3AED */
+    --primary-foreground: 210 50% 95%;
+    --primary-light: 266 64% 70%;
+    --primary-dark: 266 64% 40%;
 
-    --secondary: 280 60% 65%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 188 92% 43%; /* Solar Cyan #06B6D4 */
+    --secondary-foreground: 210 50% 95%;
 
-    --muted: 240 20% 96%;
-    --muted-foreground: 260 20% 45%;
+    --muted: 223 17% 65%; /* #94A3B8 */
+    --muted-foreground: 210 50% 95%;
 
-    --accent: 290 75% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 39 95% 51%; /* Stellar Gold #F59E0B */
+    --accent-foreground: 210 10% 8%;
 
     --success: 142 76% 45%;
-    --success-foreground: 0 0% 100%;
+    --success-foreground: 210 50% 95%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 20% 90%;
-    --input: 240 20% 95%;
-    --ring: 270 80% 60%;
+    --border: 210 12% 12%;
+    --input: 210 10% 8%;
+    --ring: 266 64% 59%;
 
     --radius: 0.75rem;
 
-    --gradient-primary: linear-gradient(135deg, hsl(270 80% 60%), hsl(280 70% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(270 80% 60%) 0%, hsl(280 70% 65%) 50%, hsl(260 75% 70%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(270 60% 98%));
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(270 80% 95%) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(280 70% 95%) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(260 75% 95%) 0px, transparent 50%);
+    --gradient-primary: linear-gradient(135deg, hsl(266 64% 59%), hsl(188 92% 43%));
+    --gradient-hero: linear-gradient(135deg, hsl(210 48% 8%) 0%, hsl(266 64% 59%) 40%, hsl(188 92% 43%) 100%);
+    --gradient-card: linear-gradient(145deg, rgba(15,23,42,0.6), rgba(12,18,34,0.3));
+    --gradient-mesh: radial-gradient(at 20% 10%, rgba(124,58,237,0.06) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, rgba(6,182,212,0.04) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, rgba(245,158,11,0.03) 0px, transparent 50%);
     
-    --shadow-glow: 0 8px 32px hsl(270 80% 60% / 0.12);
-    --shadow-glow-lg: 0 12px 48px hsl(270 80% 60% / 0.18);
-    --shadow-card: 0 4px 24px hsl(260 20% 50% / 0.08);
-    --shadow-button: 0 4px 16px hsl(270 80% 60% / 0.25);
+    --shadow-glow: 0 12px 40px hsl(266 64% 59% / 0.12);
+    --shadow-glow-lg: 0 18px 64px hsl(266 64% 59% / 0.18);
+    --shadow-card: 0 6px 32px rgba(2,6,23,0.5);
+    --shadow-button: 0 6px 24px hsl(266 64% 59% / 0.25);
 
     --animation-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }

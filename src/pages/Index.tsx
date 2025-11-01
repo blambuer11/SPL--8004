@@ -17,8 +17,14 @@ import {
   Sparkles,
   Bot,
   Database,
-  Code2
+  Code2,
+  Star,
+  Cpu,
+  Brain,
+  RadioTower
 } from 'lucide-react';
+import { GradientBorder } from '@/components/GradientBorder';
+import { GlowingText } from '@/components/GlowingText';
 import { StatsCard } from '@/components/StatsCard';
 import { ProgramInfo } from '@/components/ProgramInfo';
 
@@ -26,36 +32,48 @@ export default function Index() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
-        <div className="max-w-5xl mx-auto">
+      <section className="container mx-auto px-4 py-20 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent"></div>
+        
+        <div className="max-w-6xl mx-auto relative">
           <div className="text-center space-y-8 mb-16">
-            <Badge className="ai-badge text-white border-0 px-6 py-2 text-sm font-semibold">
-              <Sparkles className="w-4 h-4 mr-2" />
-              SPL-8004 Standard • Powered by Solana
+            <Badge className="bg-[color:var(--primary)]/10 text-[color:var(--primary-foreground)] border-[color:var(--primary)]/20 backdrop-blur px-6 py-2 text-sm font-semibold">
+              <Sparkles className="w-4 h-4 mr-2 text-[color:var(--primary)]" />
+              Noema • SPL-8004 Standard
             </Badge>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold glow-text mb-6">
-              Trustless AI Agent
-              <br />
-              Identity & Reputation
-            </h1>
+            <div className="relative">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[color:var(--foreground)] mb-6">
+                <GlowingText>
+                  Noema — Sovereign Agent
+                  <br />
+                  Reputation Protocol
+                </GlowingText>
+              </h1>
+              
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+            </div>
             
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              The decentralized identity and reputation system for autonomous AI agents. 
-              Built on Solana for maximum performance and minimal cost.
+            <p className="text-lg md:text-xl text-[color:var(--muted)] max-w-3xl mx-auto leading-relaxed">
+              Decentralized identity and reputation for autonomous agents. Noema leverages SPL-8004 for trustless validation and on-chain reputation.
             </p>
             
-            <div className="flex flex-wrap gap-4 justify-center pt-4">
+            <div className="flex flex-wrap gap-4 justify-center pt-8">
               <Link to="/dashboard">
-                <Button size="lg" className="bg-gradient-primary hover:opacity-90 text-white text-lg px-8 py-6 shadow-button">
-                  Launch App
+                <Button 
+                  size="lg" 
+                  className="bg-[color:var(--primary)] hover:brightness-105 text-[color:var(--primary-foreground)] text-lg px-8 py-4 shadow-button transition-all duration-300"
+                >
+                  Launch Noema
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-2 border-primary text-primary hover:bg-primary hover:text-white text-lg px-8 py-6"
+                className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300"
                 onClick={() => window.open('https://github.com', '_blank')}
               >
                 <Github className="mr-2 h-5 w-5" />
@@ -63,19 +81,27 @@ export default function Index() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap gap-8 justify-center pt-8">
-              <div className="flex items-center gap-3 bg-card px-6 py-3 rounded-full border border-border shadow-sm">
-                <Zap className="h-5 w-5 text-accent" />
-                <span className="text-sm font-medium">65,000+ TPS</span>
-              </div>
-              <div className="flex items-center gap-3 bg-card px-6 py-3 rounded-full border border-border shadow-sm">
-                <Lock className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">Trustless Validation</span>
-              </div>
-              <div className="flex items-center gap-3 bg-card px-6 py-3 rounded-full border border-border shadow-sm">
-                <Coins className="h-5 w-5 text-success" />
-                <span className="text-sm font-medium">~$0.00025 per TX</span>
-              </div>
+            <div className="flex flex-wrap gap-6 justify-center pt-12">
+              <GradientBorder>
+                <div className="flex items-center gap-3 px-6 py-3">
+                  <Cpu className="h-5 w-5 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-200">65,000+ TPS</span>
+                </div>
+              </GradientBorder>
+              
+              <GradientBorder>
+                <div className="flex items-center gap-3 px-6 py-3">
+                  <Brain className="h-5 w-5 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-200">AI-Native Design</span>
+                </div>
+              </GradientBorder>
+              
+              <GradientBorder>
+                <div className="flex items-center gap-3 px-6 py-3">
+                  <RadioTower className="h-5 w-5 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-200">Trustless Validation</span>
+                </div>
+              </GradientBorder>
             </div>
           </div>
 
@@ -116,120 +142,149 @@ export default function Index() {
       {/* Stats Section */}
       <section className="container mx-auto px-4 pb-20">
         <div className="grid gap-6 md:grid-cols-4">
-          <StatsCard
-            title="Total Agents"
-            value="0"
-            icon={Users}
-            description="Registered on network"
-          />
-          <StatsCard
-            title="Validations"
-            value="0"
-            icon={CheckCircle2}
-            description="Total completed"
-          />
-          <StatsCard
-            title="Total Rewards"
-            value="0 SOL"
-            icon={Coins}
-            description="Distributed to agents"
-          />
-          <StatsCard
-            title="Avg. Score"
-            value="5000"
-            icon={TrendingUp}
-            description="Network reputation"
-          />
+          <GradientBorder className="w-full h-full">
+            <div className="p-6 text-center">
+              <Users className="w-10 h-10 mx-auto mb-4 text-purple-400" />
+              <h3 className="text-3xl font-bold text-purple-200 mb-2">0</h3>
+              <p className="text-purple-200/70 font-medium">Total Agents</p>
+              <p className="text-sm text-purple-300/50">Registered on network</p>
+            </div>
+          </GradientBorder>
+
+          <GradientBorder className="w-full h-full">
+            <div className="p-6 text-center">
+              <CheckCircle2 className="w-10 h-10 mx-auto mb-4 text-purple-400" />
+              <h3 className="text-3xl font-bold text-purple-200 mb-2">0</h3>
+              <p className="text-purple-200/70 font-medium">Validations</p>
+              <p className="text-sm text-purple-300/50">Total completed</p>
+            </div>
+          </GradientBorder>
+
+          <GradientBorder className="w-full h-full">
+            <div className="p-6 text-center">
+              <Coins className="w-10 h-10 mx-auto mb-4 text-purple-400" />
+              <h3 className="text-3xl font-bold text-purple-200 mb-2">0 SOL</h3>
+              <p className="text-purple-200/70 font-medium">Total Rewards</p>
+              <p className="text-sm text-purple-300/50">Distributed to agents</p>
+            </div>
+          </GradientBorder>
+
+          <GradientBorder className="w-full h-full">
+            <div className="p-6 text-center">
+              <TrendingUp className="w-10 h-10 mx-auto mb-4 text-purple-400" />
+              <h3 className="text-3xl font-bold text-purple-200 mb-2">5000</h3>
+              <p className="text-purple-200/70 font-medium">Avg. Score</p>
+              <p className="text-sm text-purple-300/50">Network reputation</p>
+            </div>
+          </GradientBorder>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="text-center mb-16">
-          <Badge className="ai-badge text-white border-0 mb-4">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Core Features
+      <section className="container mx-auto px-4 pb-20 relative">
+        <div className="absolute inset-0 bg-purple-900/5 backdrop-blur-3xl rounded-3xl"></div>
+        
+        <div className="text-center mb-16 relative">
+          <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
+            <Star className="w-4 h-4 mr-2 text-purple-400" />
+            Protocol Features
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold glow-text mb-4">
-            Everything for AI Agents
+          
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
+            <GlowingText>
+              Next-Gen AI Infrastructure
+            </GlowingText>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Complete infrastructure for trustless AI agent management on Solana
+          
+          <p className="text-purple-200/70 text-lg max-w-2xl mx-auto">
+            Complete decentralized infrastructure for autonomous AI agents
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <Shield className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Identity Registry</CardTitle>
-              <CardDescription className="text-base">
-                On-chain identity management with unique identifiers and metadata storage
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <Shield className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">Identity Registry</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  On-chain identity management with unique identifiers and metadata storage
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
 
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <TrendingUp className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Reputation System</CardTitle>
-              <CardDescription className="text-base">
-                Dynamic scoring from 0-10,000 based on validation history and success rates
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <TrendingUp className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">Reputation System</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  Dynamic scoring from 0-10,000 based on validation history and success rates
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
 
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <CheckCircle2 className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Validation Registry</CardTitle>
-              <CardDescription className="text-base">
-                Trustless task verification with on-chain evidence and validator tracking
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <CheckCircle2 className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">Validation Registry</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  Trustless task verification with on-chain evidence and validator tracking
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
 
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <Coins className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Reward System</CardTitle>
-              <CardDescription className="text-base">
-                Reputation-based rewards with multipliers (1x-5x) for high-performing agents
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <Coins className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">Reward System</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  Reputation-based rewards with multipliers (1x-5x) for high-performing agents
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
 
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <Network className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Commission System</CardTitle>
-              <CardDescription className="text-base">
-                Configurable validation fees (1-10%) to sustain the network ecosystem
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <Network className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">Commission System</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  Configurable validation fees (1-10%) to sustain the network ecosystem
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
 
-          <Card className="border-2 border-border bg-gradient-card backdrop-blur hover:shadow-glow-lg hover:border-primary/30 transition-all group">
-            <CardHeader>
-              <div className="p-4 rounded-2xl bg-gradient-primary w-fit mb-4 shadow-button group-hover:animate-pulse-glow">
-                <Zap className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">High Performance</CardTitle>
-              <CardDescription className="text-base">
-                Built on Solana for maximum throughput and minimal transaction costs
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
+            <Card className="border-0 bg-transparent">
+              <CardHeader>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
+                  <Zap className="h-7 w-7 text-purple-200" />
+                </div>
+                <CardTitle className="text-xl text-purple-200">High Performance</CardTitle>
+                <CardDescription className="text-base text-purple-200/70">
+                  Built on Solana for maximum throughput and minimal transaction costs
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </GradientBorder>
         </div>
       </section>
 
@@ -282,35 +337,48 @@ export default function Index() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 pb-20">
-        <Card className="border-2 border-primary/30 bg-gradient-hero relative overflow-hidden shadow-glow-lg">
-          <div className="absolute inset-0 bg-white/5"></div>
-          <CardContent className="p-12 md:p-16 text-center relative">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready to Get Started?
-            </h2>
-            <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-              Join the decentralized AI agent ecosystem on Solana. Register your agents, 
-              validate tasks, and earn reputation-based rewards.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Link to="/dashboard">
-                <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 shadow-lg">
-                  Launch Dashboard
-                  <ArrowRight className="ml-2 h-5 w-5" />
+        <GradientBorder className="overflow-hidden">
+          <div className="relative p-12 md:p-16">
+            {/* Background Effects */}
+            <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative text-center">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                <GlowingText className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
+                  Ready to Build the Future?
+                </GlowingText>
+              </h2>
+              
+              <p className="text-purple-200/70 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+                Join the next generation of AI infrastructure on Solana. Register your agents, 
+                validate tasks, and earn reputation-based rewards.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Link to="/dashboard">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white text-lg px-8 py-6 shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300"
+                  >
+                    Launch Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300"
+                  onClick={() => window.open('https://docs.lovable.dev', '_blank')}
+                >
+                  <ExternalLink className="mr-2 h-5 w-5" />
+                  Read Documentation
                 </Button>
-              </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6"
-                onClick={() => window.open('https://docs.lovable.dev', '_blank')}
-              >
-                <ExternalLink className="mr-2 h-5 w-5" />
-                Read Documentation
-              </Button>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GradientBorder>
       </section>
     </div>
   );

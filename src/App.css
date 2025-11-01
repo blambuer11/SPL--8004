@@ -1,42 +1,44 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Custom Gradients */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #7C3AED 0%, #4338CA 100%);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.bg-gradient-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+/* Glow Effects */
+.glow-text {
+  text-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+}
+
+.shadow-glow-lg {
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
+}
+
+.shadow-button {
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+/* Custom Components */
+.ai-badge {
+  background: linear-gradient(135deg, #7C3AED 0%, #4338CA 100%);
 }

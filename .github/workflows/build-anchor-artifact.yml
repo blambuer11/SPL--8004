@@ -32,7 +32,7 @@ jobs:
           cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli || true
 
       - name: Build program
-        working-directory: ./spl-8004
+        working-directory: ./spl_8004
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.local/share/solana/install/active_release/bin:$PATH"
           anchor build
@@ -42,5 +42,5 @@ jobs:
         with:
           name: spl-8004-artifacts
           path: |
-            spl-8004/target/deploy/*.so
-            spl-8004/target/deploy/*.json
+            spl_8004/target/deploy/*.so
+            spl_8004/target/deploy/*.json

@@ -39,8 +39,12 @@ jobs:
           # prefer a recent avm release (0.32.1) which is compatible with modern anchors
           avm install 0.32.1 || true
           avm use 0.32.1 || true
-      # Configure Solana step removed — deploy step now writes the keypair and sets ANCHOR_PROVIDER_URL
-      - name: Deploy program (anchor)
+      - name: Checkout SPL-8004 program repo
+        uses: actions/checkout@v4
+        with:
+          repository: blambuer11/SPL--8004
+          path: spl-8004-program
+      # Deploy program (anchor)
         env:
           SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
           ANCHOR_WALLET: /tmp/deploy-keypair.json
