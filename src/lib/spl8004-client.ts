@@ -128,6 +128,10 @@ export class SPL8004Client {
     return new Uint8Array([b ? 1 : 0]);
   }
 
+  private normalizeAgentId(agentId: string): string {
+    return (agentId ?? "").trim();
+  }
+
   private async send(ixs: TransactionInstruction[]): Promise<string> {
     const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
     const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
@@ -195,7 +199,8 @@ export class SPL8004Client {
   }
   async getIdentity(agentId: string) {
     try {
-      const [identityPda] = this.findIdentityPda(agentId);
+      const clean = this.normalizeAgentId(agentId);
+      const [identityPda] = this.findIdentityPda(clean);
       const accountInfo = await this.connection.getAccountInfo(identityPda);
       
       if (!accountInfo) return null;
@@ -204,7 +209,7 @@ export class SPL8004Client {
       return {
         address: identityPda,
         owner: new PublicKey(accountInfo.data.slice(8, 40)),
-        agentId: agentId,
+  agentId: clean,
         isActive: accountInfo.data[accountInfo.data.length - 2] === 1,
       };
     } catch (error) {
@@ -215,8 +220,9 @@ export class SPL8004Client {
 
   async getReputation(agentId: string) {
     try {
-      const [identityPda] = this.findIdentityPda(agentId);
-      const [reputationPda] = this.findReputationPda(agentId);
+      const clean = this.normalizeAgentId(agentId);
+      const [identityPda] = this.findIdentityPda(clean);
+      const [reputationPda] = this.findReputationPda(clean);
       const accountInfo = await this.connection.getAccountInfo(reputationPda);
       
       if (!accountInfo) return null;
@@ -284,9 +290,11 @@ export class SPL8004Client {
   // On-chain actions
   async registerAgent(agentId: string, metadataUri: string): Promise<string> {
     await this.ensureConfig();
-    const [identityPda] = this.findIdentityPda(agentId);
-  const [reputationPda] = this.findReputationPda(agentId);
-  const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+    const cleanId = this.normalizeAgentId(agentId);
+    const cleanUri = (metadataUri ?? "").trim();
+    const [identityPda] = this.findIdentityPda(cleanId);
+    const [reputationPda] = this.findReputationPda(cleanId);
+    const [rewardPoolPda] = this.findRewardPoolPda(cleanId);
     const [configPda] = this.findConfigPda();
 
     // Helpful debug log in case of PDA/account mismatch
@@ -320,8 +328,8 @@ export class SPL8004Client {
     const disc = await this.discriminator("register_agent");
     const data = new Uint8Array([
       ...disc,
-      ...this.encodeString(agentId),
-      ...this.encodeString(metadataUri),
+      ...this.encodeString(cleanId),
+      ...this.encodeString(cleanUri),
     ]);
 
     const buildIx = (identity: PublicKey, reputation: PublicKey, rewardPool: PublicKey) => new TransactionInstruction({
@@ -353,6 +361,9 @@ export class SPL8004Client {
           identityPda: identityPda.toBase58(),
           reputationPdaFallback: repById.toBase58(),
           rewardPoolPdaFallback: poolById.toBase58(),
+          agentIdRaw: agentId,
+          agentIdNormalized: cleanId,
+          agentIdBytes: Array.from(new TextEncoder().encode(cleanId)),
         });
         const ix2 = buildIx(identityPda, repById, poolById);
         return await this.send([ix2]);
@@ -365,7 +376,8 @@ export class SPL8004Client {
     const cfg = await this.getConfigAccount();
     if (!cfg) throw new Error("Config not initialized. Please initialize config first.");
 
-    const [identityPda] = this.findIdentityPda(agentId);
+    const clean = this.normalizeAgentId(agentId);
+    const [identityPda] = this.findIdentityPda(clean);
     const idAcc = await this.connection.getAccountInfo(identityPda);
     if (!idAcc) throw new Error("Agent not found. Register agent first.");
 
@@ -397,14 +409,15 @@ export class SPL8004Client {
   }
 
   async updateMetadata(agentId: string, newMetadataUri: string): Promise<string> {
-    const [identityPda] = this.findIdentityPda(agentId);
+    const cleanId = this.normalizeAgentId(agentId);
+    const [identityPda] = this.findIdentityPda(cleanId);
     const idAcc = await this.connection.getAccountInfo(identityPda);
     if (!idAcc) throw new Error("Agent not found.");
 
     const disc = await this.discriminator("update_metadata");
     const data = new Uint8Array([
       ...disc,
-      ...this.encodeString(newMetadataUri),
+      ...this.encodeString((newMetadataUri ?? "").trim()),
     ]);
 
     const ix = new TransactionInstruction({
@@ -420,7 +433,8 @@ export class SPL8004Client {
   }
 
   async deactivateAgent(agentId: string): Promise<string> {
-    const [identityPda] = this.findIdentityPda(agentId);
+    const cleanId = this.normalizeAgentId(agentId);
+    const [identityPda] = this.findIdentityPda(cleanId);
     const idAcc = await this.connection.getAccountInfo(identityPda);
     if (!idAcc) throw new Error("Agent not found.");
 
@@ -440,8 +454,9 @@ export class SPL8004Client {
   }
 
   async claimRewards(agentId: string): Promise<string> {
-    const [identityPda] = this.findIdentityPda(agentId);
-    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+    const cleanId = this.normalizeAgentId(agentId);
+    const [identityPda] = this.findIdentityPda(cleanId);
+    const [rewardPoolPda] = this.findRewardPoolPda(cleanId);
     
     const idAcc = await this.connection.getAccountInfo(identityPda);
     if (!idAcc) throw new Error("Agent not found.");
@@ -464,9 +479,10 @@ export class SPL8004Client {
   }
 
   async updateReputation(agentId: string, validationPda: PublicKey): Promise<string> {
-    const [identityPda] = this.findIdentityPda(agentId);
-    const [reputationPda] = this.findReputationPda(agentId);
-    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+    const cleanId = this.normalizeAgentId(agentId);
+    const [identityPda] = this.findIdentityPda(cleanId);
+    const [reputationPda] = this.findReputationPda(cleanId);
+    const [rewardPoolPda] = this.findRewardPoolPda(cleanId);
 
     const disc = await this.discriminator("update_reputation");
     const data = new Uint8Array([...disc]);
