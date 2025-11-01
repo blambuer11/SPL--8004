@@ -44,7 +44,12 @@ export default function Validation() {
     setIsSubmitting(true);
     try {
       toast.info('Submitting validation to Solana...');
-      const taskHashBuffer = new Uint8Array(Buffer.from(taskHash.replace(/^0x/, ''), 'hex'));
+      const hex = taskHash.trim().toLowerCase().replace(/^0x/, '');
+      if (!/^[0-9a-f]{64}$/.test(hex)) throw new Error('Task hash must be 32-byte hex');
+      const taskHashBuffer = new Uint8Array(32);
+      for (let i = 0; i < 32; i++) {
+        taskHashBuffer[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+      }
       const sig = await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
       toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}". Tx: ${sig.slice(0,8)}...`);
       setAgentId('');
