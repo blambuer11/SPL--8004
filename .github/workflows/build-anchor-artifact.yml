@@ -1,0 +1,46 @@
+name: Build Anchor Program and Upload Artifacts
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+
+jobs:
+  build-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup toolchain install 1.82.0
+          rustup default 1.82.0
+
+      - name: Install Solana (v1.20.6)
+        run: |
+          curl -sSfL "https://release.solana.com/v1.20.6/install" | sh -s -- -y
+          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Install Anchor CLI (v0.32.1)
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli || true
+
+      - name: Build program
+        working-directory: ./spl-8004
+        run: |
+          export PATH="$HOME/.cargo/bin:$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          anchor build
+
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spl-8004-artifacts
+          path: |
+            spl-8004/target/deploy/*.so
+            spl-8004/target/deploy/*.json
