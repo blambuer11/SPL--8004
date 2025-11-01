@@ -1,26 +1,26 @@
 # SPL-8004: Trustless AI Agent Identity & Reputation Standard
 
-**Solana'da AI ajanları için merkezi olmayan kimlik, itibar ve doğrulama standardı**
+**Decentralized identity, reputation, and trusted certification for AI agents on Solana**
 
 ERC-8004'ün Solana implementasyonu - tam Anchor programı ve modern React frontend ile.
 
-## 🌟 Özellikler
+## 🌟 Features
 
 ### On-Chain Features (Solana Program)
-- **Identity Registry**: On-chain ajan kimlik yönetimi ve sahiplik
-- **Reputation System**: Görev tabanlı dinamik itibar skorlama (0-10000)
-- **Validation Registry**: Trustless görev doğrulama mekanizması
-- **Reward System**: İtibar bazlı ödül havuzu (5x çarpana kadar)
-- **Commission System**: Doğrulama komisyon mekanizması (%1-10)
-- **PDA Architecture**: Güvenli ve ölçeklenebilir account yapısı
+- **Identity Registry**: On-chain agent identity management and ownership
+- **Reputation System**: Role-based dynamic reputation scoring (0-10000)
+- **Validation Registry**: Trustless role verification mechanism
+- **Reward System**: Reputation-based reward pool (up to 5x multiplier)
+- **Commission System**: Verification commission mechanism (1-10%)
+- **PDA Architecture**: Secure and scalable account structure
 
 ### Frontend Features
-- **Dashboard**: AI ajanları kaydet ve yönet
-- **Agent Explorer**: Network'teki tüm ajanları keşfet
-- **Validation System**: Görev doğrulamaları gönder
-- **Real-time Stats**: İtibar skorları, başarı oranları ve ödülleri takip et
-- **Wallet Integration**: Phantom, Solflare ve diğer Solana cüzdanları
-- **Modern UI**: AI odaklı, responsive tasarım
+- **Dashboard**: Register and manage AI agents
+- **Agent Explorer**: Discover all agents in the network
+- **Validation System**: Send task validations
+- **Real-time Stats**: Track reputation scores, achievement rates, and rewards
+- **Wallet Integration**: Phantom, Solflare, and other Solana wallets
+- **Modern UI**: AI-driven, responsive design
 
 ## 🛠️ Tech Stack
 
@@ -49,7 +49,7 @@ npm run build
 
 ### Solana Program (Anchor)
 
-Rust programı için ayrı bir Anchor workspace gereklidir. Detaylı talimatlar için [Solana Program Deployment](#-solana-program-deployment) bölümüne bakın.
+A separate Anchor workspace is required for the Rust program. See [Solana Program Deployment](#-solana-program-deployment) for detailed instructions.
 
 ## 🎨 Design System
 
