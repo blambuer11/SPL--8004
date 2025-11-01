@@ -44,22 +44,15 @@ export default function Validation() {
     setIsSubmitting(true);
     try {
       toast.info('Submitting validation to Solana...');
-      
-      // In production, this would call the actual program
-      // const taskHashBuffer = Buffer.from(taskHash, 'hex');
-      // await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
-      
-      // For development: simulate success
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(
-        `Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}"!`
-      );
+      const taskHashBuffer = new Uint8Array(Buffer.from(taskHash.replace(/^0x/, ''), 'hex'));
+      const sig = await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
+      toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}". Tx: ${sig.slice(0,8)}...`);
       setAgentId('');
       setTaskHash('');
       setEvidenceUri('');
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to submit validation');
+    } catch (error: unknown) {
+      const message = (error as Error)?.message || 'Failed to submit validation';
+      toast.error(message);
       console.error(error);
     } finally {
       setIsSubmitting(false);

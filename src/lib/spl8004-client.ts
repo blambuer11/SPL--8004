@@ -1,7 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { PROGRAM_CONSTANTS } from "./program-constants";
 
 // Program ID (Devnet)
 export const SPL8004_PROGRAM_ID = new PublicKey("G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW");
@@ -66,6 +67,82 @@ export class SPL8004Client {
   }
 
   // Account getters with proper error handling
+  async getConfigAccount() {
+    const [configPda] = this.findConfigPda();
+    const info = await this.connection.getAccountInfo(configPda);
+    if (!info) return null;
+    // Parse treasury at offset 8 (disc) + 32 (authority) = 40..72
+    const treasury = new PublicKey(info.data.slice(8 + 32, 8 + 32 + 32));
+    const commissionRate = info.data.readUInt16LE(8 + 32 + 32);
+    return { address: configPda, treasury, commissionRate };
+  }
+
+  private async sha256(data: Uint8Array | string): Promise<Uint8Array> {
+    const enc = typeof data === "string" ? new TextEncoder().encode(data) : data;
+    const hash = await crypto.subtle.digest("SHA-256", enc);
+    return new Uint8Array(hash);
+  }
+
+  private async discriminator(name: string): Promise<Uint8Array> {
+    // Anchor global instruction discriminator = sha256("global:<name>") first 8 bytes
+    const h = await this.sha256(`global:${name}`);
+    return h.slice(0, 8);
+  }
+
+  private encodeString(str: string): Uint8Array {
+    const bytes = new TextEncoder().encode(str);
+    const len = new Uint8Array(4);
+    new DataView(len.buffer).setUint32(0, bytes.length, true);
+    return new Uint8Array([...len, ...bytes]);
+  }
+
+  private u16le(n: number): Uint8Array {
+    const buf = new Uint8Array(2);
+    new DataView(buf.buffer).setUint16(0, n, true);
+    return buf;
+  }
+
+  private boolU8(b: boolean): Uint8Array {
+    return new Uint8Array([b ? 1 : 0]);
+  }
+
+  private async send(ixs: TransactionInstruction[]): Promise<string> {
+    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+    const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
+    tx.add(...ixs);
+    const signed = await this.wallet.signTransaction(tx);
+    const sig = await this.connection.sendRawTransaction(signed.serialize());
+    await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
+    return sig;
+  }
+
+  private async ensureConfig(treasury?: PublicKey, commissionRate?: number): Promise<{ address: PublicKey }>{
+    const existing = await this.getConfigAccount();
+    if (existing) return { address: existing.address };
+    const rate = commissionRate ?? PROGRAM_CONSTANTS.DEFAULT_COMMISSION_RATE;
+    const tre = treasury ?? this.wallet.publicKey;
+
+    const [configPda] = this.findConfigPda();
+    const disc = await this.discriminator("initialize_config");
+    const data = new Uint8Array([
+      ...disc,
+      ...this.u16le(rate),
+      ...tre.toBytes(),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: configPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data,
+    });
+
+    await this.send([ix]);
+    return { address: configPda };
+  }
   async getIdentity(agentId: string) {
     try {
       const [identityPda] = this.findIdentityPda(agentId);
@@ -161,6 +238,72 @@ export class SPL8004Client {
         isActive: true,
       },
     ];
+  }
+
+  // On-chain actions
+  async registerAgent(agentId: string, metadataUri: string): Promise<string> {
+    await this.ensureConfig();
+    const [identityPda] = this.findIdentityPda(agentId);
+    const [reputationPda] = this.findReputationPda(identityPda);
+    const [rewardPoolPda] = this.findRewardPoolPda(identityPda);
+    const [configPda] = this.findConfigPda();
+
+    const disc = await this.discriminator("register_agent");
+    const data = new Uint8Array([
+      ...disc,
+      ...this.encodeString(agentId),
+      ...this.encodeString(metadataUri),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: identityPda, isSigner: false, isWritable: true },
+        { pubkey: reputationPda, isSigner: false, isWritable: true },
+        { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: configPda, isSigner: false, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
+  }
+
+  async submitValidation(agentId: string, taskHash: Uint8Array, approved: boolean, evidenceUri: string): Promise<string> {
+    const cfg = await this.getConfigAccount();
+    if (!cfg) throw new Error("Config not initialized. Please initialize config first.");
+
+    const [identityPda] = this.findIdentityPda(agentId);
+    const idAcc = await this.connection.getAccountInfo(identityPda);
+    if (!idAcc) throw new Error("Agent not found. Register agent first.");
+
+    if (taskHash.length !== 32) throw new Error("taskHash must be 32 bytes");
+    const [validationPda] = this.findValidationPda(identityPda, taskHash);
+
+    const disc = await this.discriminator("submit_validation");
+    const data = new Uint8Array([
+      ...disc,
+      ...taskHash,
+      ...this.boolU8(approved),
+      ...this.encodeString(evidenceUri || ""),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: validationPda, isSigner: false, isWritable: true },
+        { pubkey: identityPda, isSigner: false, isWritable: false },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: cfg.address, isSigner: false, isWritable: true },
+        { pubkey: cfg.treasury, isSigner: false, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
   }
 }
 

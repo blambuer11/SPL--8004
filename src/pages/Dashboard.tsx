@@ -65,22 +65,17 @@ export default function Dashboard() {
 
     setIsRegistering(true);
     try {
-      toast.info('Registering agent on Solana...');
-      
-      // In production, this would call the actual program
-      // await client.registerAgent(agentId, metadataUri);
-      
-      // For development: simulate success
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(`Agent "${agentId}" registered successfully!`);
+  toast.info('Registering agent on Solana...');
+  const sig = await client.registerAgent(agentId, metadataUri);
+  toast.success(`Agent "${agentId}" registered. \nTx: ${sig.slice(0,8)}...`);
       setAgentId('');
       setMetadataUri('');
       
       // Reload dashboard
       await loadDashboardData();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to register agent');
+    } catch (error: unknown) {
+      const message = (error as Error)?.message || 'Failed to register agent';
+      toast.error(message);
       console.error(error);
     } finally {
       setIsRegistering(false);
