@@ -9,6 +9,9 @@ jobs:
   build-anchor:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout
@@ -20,19 +23,20 @@ jobs:
           export PATH="$HOME/.cargo/bin:$PATH"
           rustup toolchain install 1.82.0
           rustup default 1.82.0
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Solana (v1.20.6)
         run: |
           curl -sSfL "https://release.solana.com/v1.20.6/install" | sh -s -- -y
-          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI (v0.32.1)
         run: |
           export PATH="$HOME/.cargo/bin:$PATH"
-          cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli || true
+          cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli
 
       - name: Build program
-        working-directory: ./spl_8004
+        working-directory: spl_8004
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.local/share/solana/install/active_release/bin:$PATH"
           anchor build

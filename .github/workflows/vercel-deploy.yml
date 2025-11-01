@@ -8,6 +8,9 @@ jobs:
   vercel-deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: Checkout
@@ -20,12 +23,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd agent-aura-sovereign || true
           npm ci --no-audit --no-fund
 
       - name: Build
         run: |
-          cd agent-aura-sovereign || true
           npm run build
 
       - name: Deploy to Vercel
@@ -33,7 +34,7 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # required
           vercel-args: '--prod'
-          working-directory: 'agent-aura-sovereign'
+          working-directory: '.'
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }} # optional but recommended
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }} # optional but recommended
         env:
