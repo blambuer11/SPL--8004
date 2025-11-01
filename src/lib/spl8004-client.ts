@@ -54,10 +54,28 @@ export class SPL8004Client {
     );
   }
 
+  // Fallback PDA: reputation derived from identity pubkey (for older on-chain versions)
+  findReputationPdaByIdentity(identity: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
+    return PublicKey.findProgramAddressSync(
+      [enc.encode(REPUTATION_SEED), identity.toBytes()],
+      this.programId
+    );
+  }
+
   findRewardPoolPda(agentId: string): [PublicKey, number] {
     const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
       [enc.encode(REWARD_POOL_SEED), enc.encode(agentId)],
+      this.programId
+    );
+  }
+
+  // Fallback PDA: reward_pool derived from identity pubkey (for older on-chain versions)
+  findRewardPoolPdaByIdentity(identity: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
+    return PublicKey.findProgramAddressSync(
+      [enc.encode(REWARD_POOL_SEED), identity.toBytes()],
       this.programId
     );
   }
@@ -267,8 +285,8 @@ export class SPL8004Client {
   async registerAgent(agentId: string, metadataUri: string): Promise<string> {
     await this.ensureConfig();
     const [identityPda] = this.findIdentityPda(agentId);
-    const [reputationPda] = this.findReputationPda(agentId);
-    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+  const [reputationPda] = this.findReputationPda(agentId);
+  const [rewardPoolPda] = this.findRewardPoolPda(agentId);
     const [configPda] = this.findConfigPda();
 
     // Helpful debug log in case of PDA/account mismatch
@@ -306,12 +324,12 @@ export class SPL8004Client {
       ...this.encodeString(metadataUri),
     ]);
 
-    const ix = new TransactionInstruction({
+    const buildIx = (identity: PublicKey, reputation: PublicKey, rewardPool: PublicKey) => new TransactionInstruction({
       programId: this.programId,
       keys: [
-        { pubkey: identityPda, isSigner: false, isWritable: true },
-        { pubkey: reputationPda, isSigner: false, isWritable: true },
-        { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
+        { pubkey: identity, isSigner: false, isWritable: true },
+        { pubkey: reputation, isSigner: false, isWritable: true },
+        { pubkey: rewardPool, isSigner: false, isWritable: true },
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: configPda, isSigner: false, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
@@ -319,7 +337,28 @@ export class SPL8004Client {
       data: Buffer.from(data),
     });
 
-    return this.send([ix]);
+    try {
+      const ix = buildIx(identityPda, reputationPda, rewardPoolPda);
+      return await this.send([ix]);
+    } catch (e: unknown) {
+      const msg = (e as Error)?.message || "";
+      const lower = msg.toLowerCase();
+      const isSeedMismatch = lower.includes("constraintseeds") || lower.includes("seeds constraint") || lower.includes("error code: 2006");
+      const mentionsReputation = lower.includes("reputation");
+      if (isSeedMismatch && mentionsReputation) {
+        // Try fallback PDAs (older program version: derive by identity pubkey)
+        const [repById] = this.findReputationPdaByIdentity(identityPda);
+        const [poolById] = this.findRewardPoolPdaByIdentity(identityPda);
+        console.warn("Retrying register with identity-based PDAs", {
+          identityPda: identityPda.toBase58(),
+          reputationPdaFallback: repById.toBase58(),
+          rewardPoolPdaFallback: poolById.toBase58(),
+        });
+        const ix2 = buildIx(identityPda, repById, poolById);
+        return await this.send([ix2]);
+      }
+      throw e;
+    }
   }
 
   async submitValidation(agentId: string, taskHash: Uint8Array, approved: boolean, evidenceUri: string): Promise<string> {
