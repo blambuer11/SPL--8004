@@ -257,7 +257,85 @@ export class SPL8004Client {
     }
   }
 
-  // Helper to create mock data for development
+  async getAllUserAgents() {
+    try {
+      // Fetch all identity accounts where owner = current wallet
+      const accounts = await this.connection.getProgramAccounts(this.programId, {
+        filters: [
+          {
+            memcmp: {
+              offset: 8, // Skip 8-byte discriminator
+              bytes: this.wallet.publicKey.toBase58(),
+            },
+          },
+        ],
+      });
+
+      const agents = [];
+      for (const { pubkey, account } of accounts) {
+        try {
+          // Parse IdentityRegistry structure
+          const data = account.data;
+          if (data.length < 8) continue; // Not an identity account
+
+          // Layout: [disc(8)][owner(32)][agent_id_len(4)][agent_id][metadata_uri_len(4)][metadata_uri][created(8)][updated(8)][is_active(1)][bump(1)]
+          let offset = 8 + 32; // skip disc + owner
+          const agentIdLen = data.readUInt32LE(offset);
+          offset += 4;
+          if (offset + agentIdLen > data.length) continue;
+          const agentId = new TextDecoder().decode(data.slice(offset, offset + agentIdLen));
+          offset += agentIdLen;
+
+          const metadataUriLen = data.readUInt32LE(offset);
+          offset += 4;
+          if (offset + metadataUriLen > data.length) continue;
+          const metadataUri = new TextDecoder().decode(data.slice(offset, offset + metadataUriLen));
+          offset += metadataUriLen;
+
+          const createdAt = data.readBigInt64LE(offset);
+          offset += 8;
+          const updatedAt = data.readBigInt64LE(offset);
+          offset += 8;
+          const isActive = data[offset] === 1;
+
+          // Fetch reputation for this agent
+          const reputation = await this.getReputation(agentId);
+
+          agents.push({
+            address: pubkey.toBase58(),
+            agentId,
+            owner: this.wallet.publicKey.toString(),
+            metadataUri,
+            createdAt: Number(createdAt),
+            updatedAt: Number(updatedAt),
+            isActive,
+            reputation: reputation
+              ? {
+                  score: reputation.score,
+                  totalTasks: reputation.totalTasks,
+                  successfulTasks: reputation.successfulTasks,
+                  failedTasks: reputation.failedTasks,
+                }
+              : {
+                  score: 5000,
+                  totalTasks: 0,
+                  successfulTasks: 0,
+                  failedTasks: 0,
+                },
+          });
+        } catch (parseErr) {
+          console.warn("Failed to parse agent account:", pubkey.toBase58(), parseErr);
+        }
+      }
+
+      return agents;
+    } catch (error) {
+      console.error("Error fetching user agents:", error);
+      return [];
+    }
+  }
+
+  // Helper to create mock data for development (deprecated in favor of getAllUserAgents)
   getMockAgentData() {
     return [
       {

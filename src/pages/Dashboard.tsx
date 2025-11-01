@@ -33,21 +33,28 @@ export default function Dashboard() {
     if (client && connected) {
       loadDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, connected]);
 
   const loadDashboardData = async () => {
     if (!client) return;
     
     try {
-      // Load mock data for development
-      const agents = client.getMockAgentData();
+      // Load real on-chain data
+      const agents = await client.getAllUserAgents();
       setMyAgents(agents);
       
-      // Calculate total rewards
-      const total = agents.reduce((sum, agent) => sum + (agent.reputation.score * 10), 0);
+      // Calculate total rewards (simulated: score * 0.0001 SOL)
+      const total = agents.reduce((sum, agent) => {
+        const rewardEstimate = (agent.reputation.score / 10000) * 100_000; // 0-0.01 SOL range
+        return sum + rewardEstimate;
+      }, 0);
       setTotalRewards(total);
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      // Fallback to empty state on error
+      setMyAgents([]);
+      setTotalRewards(0);
     }
   };
 
