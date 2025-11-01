@@ -341,6 +341,95 @@ export class SPL8004Client {
 
     return this.send([ix]);
   }
+
+  async updateMetadata(agentId: string, newMetadataUri: string): Promise<string> {
+    const [identityPda] = this.findIdentityPda(agentId);
+    const idAcc = await this.connection.getAccountInfo(identityPda);
+    if (!idAcc) throw new Error("Agent not found.");
+
+    const disc = await this.discriminator("update_metadata");
+    const data = new Uint8Array([
+      ...disc,
+      ...this.encodeString(newMetadataUri),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: identityPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: false },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
+  }
+
+  async deactivateAgent(agentId: string): Promise<string> {
+    const [identityPda] = this.findIdentityPda(agentId);
+    const idAcc = await this.connection.getAccountInfo(identityPda);
+    if (!idAcc) throw new Error("Agent not found.");
+
+    const disc = await this.discriminator("deactivate_agent");
+    const data = new Uint8Array([...disc]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: identityPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: false },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
+  }
+
+  async claimRewards(agentId: string): Promise<string> {
+    const [identityPda] = this.findIdentityPda(agentId);
+    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+    
+    const idAcc = await this.connection.getAccountInfo(identityPda);
+    if (!idAcc) throw new Error("Agent not found.");
+
+    const disc = await this.discriminator("claim_rewards");
+    const data = new Uint8Array([...disc]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: identityPda, isSigner: false, isWritable: false },
+        { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
+  }
+
+  async updateReputation(agentId: string, validationPda: PublicKey): Promise<string> {
+    const [identityPda] = this.findIdentityPda(agentId);
+    const [reputationPda] = this.findReputationPda(agentId);
+    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
+
+    const disc = await this.discriminator("update_reputation");
+    const data = new Uint8Array([...disc]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: reputationPda, isSigner: false, isWritable: true },
+        { pubkey: identityPda, isSigner: false, isWritable: false },
+        { pubkey: validationPda, isSigner: false, isWritable: false },
+        { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
+      ],
+      data,
+    });
+
+    return this.send([ix]);
+  }
 }
 
 export const createSPL8004Client = (

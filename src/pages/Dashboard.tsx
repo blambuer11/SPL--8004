@@ -281,17 +281,55 @@ export default function Dashboard() {
                 Claimable Rewards
               </CardTitle>
               <CardDescription>
-                Claim your earned rewards from agent validations
+                Claim your earned rewards from agent validations (24h cooldown)
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Coins className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No rewards available</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Complete validations to earn rewards
-                </p>
-              </div>
+              {myAgents.length === 0 ? (
+                <div className="text-center py-12">
+                  <Coins className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No agents registered</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Register an agent to start earning rewards
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myAgents.map((agent) => (
+                    <div
+                      key={agent.agentId}
+                      className="p-4 rounded-lg border border-border/50 flex items-center justify-between"
+                    >
+                      <div>
+                        <h3 className="font-semibold mb-1">{agent.agentId}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Simulated rewards: 0.0001 SOL
+                        </p>
+                      </div>
+                      <Button
+                        onClick={async () => {
+                          if (!client) return;
+                          try {
+                            toast.info('Claiming rewards...');
+                            const sig = await client.claimRewards(agent.agentId);
+                            toast.success(`Rewards claimed! Tx: ${sig.slice(0, 8)}...`);
+                            await loadDashboardData();
+                          } catch (error: unknown) {
+                            const message = (error as Error)?.message || 'Failed to claim rewards';
+                            toast.error(message);
+                            console.error(error);
+                          }
+                        }}
+                        variant="outline"
+                        className="border-primary/50 hover:bg-primary/10"
+                      >
+                        <Coins className="h-4 w-4 mr-2" />
+                        Claim Rewards
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
