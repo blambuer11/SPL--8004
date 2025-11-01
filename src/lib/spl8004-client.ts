@@ -3,8 +3,8 @@ import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-// Program ID - Deploy sonrası güncellenecek
-export const SPL8004_PROGRAM_ID = new PublicKey("SPL8wVx7ZqKNxJk5H2bF8QyGvM4tN3rP9WdE6fU5Kc2");
+// Program ID (Devnet)
+export const SPL8004_PROGRAM_ID = new PublicKey("G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW");
 
 // PDA Seeds
 const CONFIG_SEED = "config";
