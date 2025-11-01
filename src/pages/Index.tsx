@@ -2,36 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { 
-  Shield, 
-  TrendingUp, 
-  CheckCircle2, 
-  Coins,
-  Network,
-  Zap,
-  Lock,
-  Users,
-  ArrowRight,
-  Github,
-  ExternalLink,
-  Sparkles,
-  Bot,
-  Database,
-  Code2,
-  Star,
-  Cpu,
-  Brain,
-  RadioTower
-} from 'lucide-react';
+import { Shield, TrendingUp, CheckCircle2, Coins, Network, Zap, Lock, Users, ArrowRight, Github, ExternalLink, Sparkles, Bot, Database, Code2, Star, Cpu, Brain, RadioTower } from 'lucide-react';
 import { GradientBorder } from '@/components/GradientBorder';
 import { GlowingText } from '@/components/GlowingText';
 import { StatsCard } from '@/components/StatsCard';
 import { ProgramInfo } from '@/components/ProgramInfo';
 import { CodeExample } from '@/components/CodeExample';
-
 export default function Index() {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 md:py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -64,20 +42,12 @@ export default function Index() {
             
             <div className="flex flex-wrap gap-4 justify-center pt-8">
               <Link to="/dashboard">
-                <Button 
-                  size="lg" 
-                  className="bg-[color:var(--primary)] hover:brightness-105 text-[color:var(--primary-foreground)] text-lg px-8 py-4 shadow-button transition-all duration-300"
-                >
+                <Button size="lg" className="bg-[color:var(--primary)] hover:brightness-105 text-[color:var(--primary-foreground)] text-lg px-8 py-4 shadow-button transition-all duration-300">
                   Launch Noema
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300"
-                onClick={() => window.open('https://github.com', '_blank')}
-              >
+              <Button size="lg" variant="outline" className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300" onClick={() => window.open('https://github.com', '_blank')}>
                 <Github className="mr-2 h-5 w-5" />
                 View on GitHub
               </Button>
@@ -309,54 +279,7 @@ export default function Index() {
           </div>
 
           <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg mb-8 p-8">
-            <div 
-              className="prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: `<lov-mermaid>
-graph TB
-    subgraph Agents["🤖 AI Agents"]
-        A1[Agent 1]
-        A2[Agent 2]
-        A3[Agent N]
-    end
-    
-    subgraph SPL8004["SPL-8004 Protocol"]
-        IR[Identity Registry<br/>On-chain IDs & Metadata]
-        RR[Reputation Registry<br/>Score: 0-10000]
-        VR[Validation Registry<br/>Task Evidence]
-        RP[Reward Pool<br/>SOL Distribution]
-        
-        IR --> RR
-        VR --> RR
-        RR --> RP
-    end
-    
-    subgraph Validators["✅ Validators"]
-        V1[Validator 1]
-        V2[Validator 2]
-        V3[Validator N]
-    end
-    
-    A1 -->|Register| IR
-    A2 -->|Register| IR
-    A3 -->|Register| IR
-    
-    V1 -->|Submit Validation| VR
-    V2 -->|Submit Validation| VR
-    V3 -->|Submit Validation| VR
-    
-    VR -->|Update Score| RR
-    RR -->|Calculate Rewards| RP
-    RP -->|Claim| A1
-    
-    style SPL8004 fill:#7c3aed20,stroke:#7c3aed,stroke-width:3px
-    style IR fill:#6d28d920,stroke:#6d28d9
-    style RR fill:#6d28d920,stroke:#6d28d9
-    style VR fill:#6d28d920,stroke:#6d28d9
-    style RP fill:#6d28d920,stroke:#6d28d9
-</lov-mermaid>`
-              }}
-            />
+            
           </Card>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -495,128 +418,7 @@ graph TB
 
       {/* Code Examples */}
       <section className="container mx-auto px-4 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
-              <Github className="w-4 h-4 mr-2 text-purple-400" />
-              Integration Examples
-            </Badge>
-            
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <GlowingText>Build with SPL-8004</GlowingText>
-            </h2>
-            
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Complete TypeScript SDK and Rust client for seamless integration
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            <CodeExample
-              title="Register Agent"
-              language="typescript"
-              description="Create a new AI agent identity on-chain with metadata"
-              code={`import { SPL8004Client } from '@/lib/spl8004-client';
-import { Connection } from '@solana/web3.js';
-
-const connection = new Connection('https://api.devnet.solana.com');
-const client = new SPL8004Client(connection, wallet);
-
-// Register agent with unique ID and metadata URI
-const { identityPda, reputationPda } = await client.registerAgent(
-  'my-agent-001',
-  'https://arweave.net/metadata-hash'
-);
-
-console.log('Agent registered:', identityPda.toString());
-console.log('Initial reputation:', 5000); // Default starting score`}
-            />
-
-            <CodeExample
-              title="Submit Validation"
-              language="typescript"
-              description="Validators submit task results with on-chain evidence"
-              code={`// Generate task hash for unique validation
-const taskHash = Buffer.from(crypto.randomBytes(32));
-
-// Submit validation with evidence
-const { validationPda } = await client.submitValidation(
-  'my-agent-001',      // Agent ID
-  taskHash,            // Unique task identifier
-  true,                // Task approved
-  'https://ipfs.io/QmEvidence123'  // Evidence URI
-);
-
-// Update reputation based on validation
-await client.updateReputation('my-agent-001', taskHash);`}
-            />
-
-            <CodeExample
-              title="Check Reputation & Claim Rewards"
-              language="typescript"
-              description="Query agent reputation and claim earned rewards"
-              code={`// Get current reputation
-const reputation = await client.getReputation('my-agent-001');
-
-console.log('Score:', reputation.score.toNumber());
-console.log('Total tasks:', reputation.totalTasks.toNumber());
-console.log('Success rate:', 
-  (reputation.successfulTasks.toNumber() / 
-   reputation.totalTasks.toNumber()) * 100 + '%'
-);
-
-// Claim accumulated rewards (every 24h)
-const rewardPool = await client.getRewardPool('my-agent-001');
-if (rewardPool.claimableAmount > 0) {
-  await client.claimRewards('my-agent-001');
-  console.log('Rewards claimed:', rewardPool.claimableAmount / 1e9, 'SOL');
-}`}
-            />
-
-            <CodeExample
-              title="Rust Program Integration"
-              language="rust"
-              description="On-chain Anchor program structure"
-              code={`use anchor_lang::prelude::*;
-
-#[program]
-pub mod spl_8004 {
-    use super::*;
-
-    pub fn register_agent(
-        ctx: Context<RegisterAgent>,
-        agent_id: String,
-        metadata_uri: String,
-    ) -> Result<()> {
-        let identity = &mut ctx.accounts.identity;
-        identity.owner = ctx.accounts.owner.key();
-        identity.agent_id = agent_id;
-        identity.metadata_uri = metadata_uri;
-        identity.is_active = true;
         
-        // Initialize reputation with score 5000
-        let reputation = &mut ctx.accounts.reputation;
-        reputation.score = 5000;
-        
-        Ok(())
-    }
-}`}
-            />
-          </div>
-
-          <div className="mt-8 text-center">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-primary/50 hover:bg-primary/10"
-              onClick={() => window.open('https://github.com', '_blank')}
-            >
-              <Github className="mr-2 h-5 w-5" />
-              View Full Documentation on GitHub
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </section>
 
       {/* CTA Section */}
@@ -641,21 +443,13 @@ pub mod spl_8004 {
               
               <div className="flex flex-wrap gap-4 justify-center">
                 <Link to="/dashboard">
-                  <Button 
-                    size="lg" 
-                    className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white text-lg px-8 py-6 shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300"
-                  >
+                  <Button size="lg" className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white text-lg px-8 py-6 shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300">
                     Launch Dashboard
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300"
-                  onClick={() => window.open('https://docs.lovable.dev', '_blank')}
-                >
+                <Button size="lg" variant="outline" className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300" onClick={() => window.open('https://docs.lovable.dev', '_blank')}>
                   <ExternalLink className="mr-2 h-5 w-5" />
                   Read Documentation
                 </Button>
@@ -664,6 +458,5 @@ pub mod spl_8004 {
           </div>
         </GradientBorder>
       </section>
-    </div>
-  );
+    </div>;
 }
