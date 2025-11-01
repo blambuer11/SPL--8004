@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -9,7 +9,7 @@ import { BookOpen, Rocket, Code2, Puzzle, Shield, Zap, Bot, Database, FileCode, 
 type NavItem = {
   id: string;
   title: string;
-  icon?: any;
+  icon?: ComponentType<{ className?: string }>;
   children?: NavItem[];
 };
 

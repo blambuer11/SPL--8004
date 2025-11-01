@@ -17,7 +17,16 @@ export default function Dashboard() {
   const [agentId, setAgentId] = useState('');
   const [metadataUri, setMetadataUri] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
-  const [myAgents, setMyAgents] = useState<any[]>([]);
+  type MyAgent = {
+    agentId: string;
+    metadataUri: string;
+    reputation: {
+      score: number;
+      totalTasks: number;
+      successfulTasks: number;
+    };
+  };
+  const [myAgents, setMyAgents] = useState<MyAgent[]>([]);
   const [totalRewards, setTotalRewards] = useState(0);
 
   useEffect(() => {

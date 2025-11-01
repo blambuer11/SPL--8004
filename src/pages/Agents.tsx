@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ComponentProps } from 'react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Search, Filter } from 'lucide-react';
 export default function Agents() {
   const { client } = useSPL8004();
   const [searchQuery, setSearchQuery] = useState('');
-  const [agents, setAgents] = useState<any[]>([]);
+  type Agent = ComponentProps<typeof AgentCard>;
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

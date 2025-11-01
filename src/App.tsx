@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Agents from "./pages/Agents";
 import Validation from "./pages/Validation";
+import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/agents" element={<Agents />} />
             <Route path="/validation" element={<Validation />} />
+            <Route path="/docs" element={<Docs />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

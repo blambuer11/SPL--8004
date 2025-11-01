@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction, SendTransactionError } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { PROGRAM_CONSTANTS } from "./program-constants";
 
@@ -44,26 +44,26 @@ export class SPL8004Client {
     );
   }
 
-  findReputationPda(identityPda: PublicKey): [PublicKey, number] {
+  findReputationPda(agentId: string): [PublicKey, number] {
     const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [enc.encode(REPUTATION_SEED), identityPda.toBytes()],
+      [enc.encode(REPUTATION_SEED), enc.encode(agentId)],
       this.programId
     );
   }
 
-  findRewardPoolPda(identityPda: PublicKey): [PublicKey, number] {
+  findRewardPoolPda(agentId: string): [PublicKey, number] {
     const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [enc.encode(REWARD_POOL_SEED), identityPda.toBytes()],
+      [enc.encode(REWARD_POOL_SEED), enc.encode(agentId)],
       this.programId
     );
   }
 
-  findValidationPda(identityPda: PublicKey, taskHash: Uint8Array): [PublicKey, number] {
+  findValidationPda(agentId: string, taskHash: Uint8Array): [PublicKey, number] {
     const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
-      [enc.encode(VALIDATION_SEED), identityPda.toBytes(), taskHash],
+      [enc.encode(VALIDATION_SEED), enc.encode(agentId), taskHash],
       this.programId
     );
   }
@@ -112,10 +112,25 @@ export class SPL8004Client {
     const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
     const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
     tx.add(...ixs);
-    const signed = await this.wallet.signTransaction(tx);
-    const sig = await this.connection.sendRawTransaction(signed.serialize());
-    await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
-    return sig;
+    try {
+      const signed = await this.wallet.signTransaction(tx);
+      const sig = await this.connection.sendRawTransaction(signed.serialize());
+      await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
+      return sig;
+    } catch (e: unknown) {
+      if (e instanceof SendTransactionError) {
+        try {
+          const logs = await e.getLogs(this.connection);
+          // Surface rich logs for easier debugging in UI/console
+          console.error("Transaction failed:", e.message, logs);
+          throw new Error(`Transaction failed: ${e.message}\nLogs:\n${(logs || []).join("\n")}`);
+        } catch (logErr) {
+          console.error("Transaction failed (no logs):", e);
+          throw e;
+        }
+      }
+      throw e;
+    }
   }
 
   private async ensureConfig(treasury?: PublicKey, commissionRate?: number): Promise<{ address: PublicKey }>{
@@ -168,7 +183,7 @@ export class SPL8004Client {
   async getReputation(agentId: string) {
     try {
       const [identityPda] = this.findIdentityPda(agentId);
-      const [reputationPda] = this.findReputationPda(identityPda);
+      const [reputationPda] = this.findReputationPda(agentId);
       const accountInfo = await this.connection.getAccountInfo(reputationPda);
       
       if (!accountInfo) return null;
@@ -237,9 +252,37 @@ export class SPL8004Client {
   async registerAgent(agentId: string, metadataUri: string): Promise<string> {
     await this.ensureConfig();
     const [identityPda] = this.findIdentityPda(agentId);
-    const [reputationPda] = this.findReputationPda(identityPda);
-    const [rewardPoolPda] = this.findRewardPoolPda(identityPda);
+    const [reputationPda] = this.findReputationPda(agentId);
+    const [rewardPoolPda] = this.findRewardPoolPda(agentId);
     const [configPda] = this.findConfigPda();
+
+    // Helpful debug log in case of PDA/account mismatch
+    console.debug("RegisterAgent PDAs", {
+      identityPda: identityPda.toBase58(),
+      reputationPda: reputationPda.toBase58(),
+      rewardPoolPda: rewardPoolPda.toBase58(),
+      configPda: configPda.toBase58(),
+      programId: this.programId.toBase58(),
+    });
+
+    // Preflight: if any target PDA already exists, bail out with a friendly error
+    const [idAcc, repAcc, poolAcc] = await Promise.all([
+      this.connection.getAccountInfo(identityPda),
+      this.connection.getAccountInfo(reputationPda),
+      this.connection.getAccountInfo(rewardPoolPda),
+    ]);
+    if (idAcc || repAcc || poolAcc) {
+      const exists = [
+        idAcc ? "identity" : null,
+        repAcc ? "reputation" : null,
+        poolAcc ? "reward_pool" : null,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      throw new Error(
+        `Agent ID may already be registered (existing accounts: ${exists}). Try a different agentId.`
+      );
+    }
 
     const disc = await this.discriminator("register_agent");
     const data = new Uint8Array([
@@ -273,7 +316,7 @@ export class SPL8004Client {
     if (!idAcc) throw new Error("Agent not found. Register agent first.");
 
     if (taskHash.length !== 32) throw new Error("taskHash must be 32 bytes");
-    const [validationPda] = this.findValidationPda(identityPda, taskHash);
+    const [validationPda] = this.findValidationPda(agentId, taskHash);
 
     const disc = await this.discriminator("submit_validation");
     const data = new Uint8Array([
