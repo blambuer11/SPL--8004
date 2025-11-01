@@ -18,8 +18,8 @@ export const Navbar = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg glow-text">SPL-8004</span>
-              <span className="text-xs text-muted-foreground -mt-1">AI Agent Protocol</span>
+              <span className="font-bold text-lg glow-text">Neoma</span>
+              <span className="text-xs text-muted-foreground -mt-1">SPL-8004 Protocol</span>
             </div>
           </Link>
 
@@ -63,6 +63,16 @@ export const Navbar = () => {
               }`}
             >
               Validation
+            </Link>
+            <Link
+              to="/docs"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/docs')
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              Docs
             </Link>
           </div>
 

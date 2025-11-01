@@ -19,6 +19,25 @@
 
   <body>
     <div id="root"></div>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+          primaryColor: '#7c3aed',
+          primaryTextColor: '#fff',
+          primaryBorderColor: '#6d28d9',
+          lineColor: '#a78bfa',
+          secondaryColor: '#3b82f6',
+          tertiaryColor: '#10b981',
+          background: 'transparent',
+          mainBkg: '#1e1b4b',
+          secondBkg: '#312e81',
+          tertiaryBkg: '#4c1d95'
+        }
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
