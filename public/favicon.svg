@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="noemaFav" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 50 V14 a4 4 0 0 1 4-4 h0 a4 4 0 0 1 4 4 v20 L44 14 a4 4 0 0 1 6 0 v36" stroke="url(#noemaFav)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

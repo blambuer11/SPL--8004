@@ -21,8 +21,8 @@ export function CodeExample({ title, language, code, description }: CodeExampleP
   };
 
   return (
-    <Card className="border border-primary/20 bg-card/50 backdrop-blur overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-primary/10 bg-primary/5">
+    <Card className="border border-border bg-card shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-input/60">
         <div className="flex items-center gap-3">
           <Badge variant="outline" className="font-mono text-xs">
             {language}
@@ -50,14 +50,14 @@ export function CodeExample({ title, language, code, description }: CodeExampleP
       </div>
       
       {description && (
-        <div className="px-6 py-3 bg-muted/30 border-b border-primary/10">
+        <div className="px-6 py-3 bg-white border-b border-border">
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
       )}
       
       <div className="relative">
-        <pre className="p-6 overflow-x-auto text-sm leading-relaxed">
-          <code className="font-mono text-foreground/90">{code}</code>
+        <pre className="p-6 overflow-x-auto text-sm leading-relaxed bg-white">
+          <code className="font-mono text-foreground">{code}</code>
         </pre>
       </div>
     </Card>

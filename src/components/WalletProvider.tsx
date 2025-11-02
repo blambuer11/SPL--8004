@@ -1,9 +1,8 @@
 import { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
+import { useNetwork } from './NetworkProvider';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -11,9 +10,9 @@ interface WalletProviderProps {
   children: ReactNode;
 }
 
-export const WalletProvider: FC<WalletProviderProps> = ({ children }) => {
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+// Inner component that uses the hook
+const WalletProviderInner: FC<WalletProviderProps> = ({ children }) => {
+  const { endpoint } = useNetwork();
 
   const wallets = useMemo(
     () => [
@@ -32,4 +31,9 @@ export const WalletProvider: FC<WalletProviderProps> = ({ children }) => {
       </SolanaWalletProvider>
     </ConnectionProvider>
   );
+};
+
+// Export wrapper that can be used inside NetworkProvider
+export const WalletProvider: FC<WalletProviderProps> = ({ children }) => {
+  return <WalletProviderInner>{children}</WalletProviderInner>;
 };

@@ -10,18 +10,18 @@ interface StatsCardProps {
 
 export const StatsCard = ({ title, value, icon: Icon, description }: StatsCardProps) => {
   return (
-    <Card className="border-2 border-border bg-gradient-card hover:shadow-glow-lg hover:border-primary/30 transition-all group">
+    <Card className="border border-border bg-card shadow-sm hover:shadow-md transition-shadow group">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between mb-2">
-          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {title}
           </CardTitle>
-          <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-gradient-primary group-hover:shadow-button transition-all">
-            <Icon className="h-5 w-5 text-primary group-hover:text-white transition-colors" />
+          <div className="p-2 rounded-lg border border-border bg-white">
+            <Icon className="h-5 w-5 text-foreground" />
           </div>
         </div>
         <div className="space-y-1">
-          <div className="text-3xl font-bold glow-text">{value}</div>
+          <div className="text-3xl font-semibold text-foreground">{value}</div>
           {description && (
             <p className="text-sm text-muted-foreground">{description}</p>
           )}

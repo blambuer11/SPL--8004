@@ -3,38 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SPL-8004 | Trustless AI Agent Identity & Reputation</title>
-    <meta name="description" content="Decentralized identity and reputation system for AI agents on Solana. ERC-8004 implementation with on-chain verification." />
-    <meta name="author" content="SPL-8004" />
+  <title>Noema Protocol | Trust Infrastructure for Autonomous AI</title>
+  <meta name="description" content="The Stripe of AI Agent Identity. Give your AI agents identity, reputation, and payment rails — from blockchain complexity to npm install @noema/sdk" />
+  <meta name="author" content="Noema Protocol" />
+  <meta name="keywords" content="AI agents, autonomous AI, agent identity, agent reputation, AI payments, Solana AI, SPL-8004, X402, agent infrastructure" />
 
-    <meta property="og:title" content="SPL-8004 | Trustless AI Agent Identity & Reputation" />
-    <meta property="og:description" content="Decentralized identity and reputation system for AI agents on Solana" />
+  <meta property="og:title" content="Noema Protocol | The Stripe of AI Agent Identity" />
+  <meta property="og:description" content="Trust Infrastructure for Autonomous AI — Identity, Reputation, and Payment Rails for AI Agents on Solana" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="https://noema.ai/og-image.png" />
+    <meta property="og:url" content="https://noema.ai" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@NoemaProtocol" />
+    <meta name="twitter:title" content="Noema Protocol | The Stripe of AI Agent Identity" />
+    <meta name="twitter:description" content="Trust Infrastructure for Autonomous AI on Solana" />
+    <meta name="twitter:image" content="https://noema.ai/og-image.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      // Expose mermaid to window so SPA routes can trigger re-render (mermaid.run)
+      window.mermaid = mermaid;
       mermaid.initialize({ 
         startOnLoad: true,
-        theme: 'dark',
+        theme: 'base',
         themeVariables: {
-          primaryColor: '#7c3aed',
-          primaryTextColor: '#fff',
-          primaryBorderColor: '#6d28d9',
-          lineColor: '#a78bfa',
-          secondaryColor: '#3b82f6',
-          tertiaryColor: '#10b981',
-          background: 'transparent',
-          mainBkg: '#1e1b4b',
-          secondBkg: '#312e81',
-          tertiaryBkg: '#4c1d95'
+          primaryColor: '#e5e7eb',
+          primaryTextColor: '#111827',
+          primaryBorderColor: '#d1d5db',
+          lineColor: '#9ca3af',
+          background: 'transparent'
         }
       });
     </script>

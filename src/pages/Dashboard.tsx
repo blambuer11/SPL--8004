@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
+import { getExplorerTxUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,7 @@ import { Plus, Coins, Shield, TrendingUp } from 'lucide-react';
 import { StatsCard } from '@/components/StatsCard';
 
 export default function Dashboard() {
-  const { connected, publicKey } = useWallet();
+  const { connected } = useWallet();
   const { client } = useSPL8004();
   const [agentId, setAgentId] = useState('');
   const [metadataUri, setMetadataUri] = useState('');
@@ -31,28 +32,23 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (client && connected) {
-      loadDashboardData();
+      void loadDashboardData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, connected]);
 
   const loadDashboardData = async () => {
     if (!client) return;
-    
     try {
-      // Load real on-chain data
       const agents = await client.getAllUserAgents();
       setMyAgents(agents);
-      
-      // Calculate total rewards (simulated: score * 0.0001 SOL)
       const total = agents.reduce((sum, agent) => {
-        const rewardEstimate = (agent.reputation.score / 10000) * 100_000; // 0-0.01 SOL range
+        const rewardEstimate = (agent.reputation.score / 10000) * 100_000; // simulated
         return sum + rewardEstimate;
       }, 0);
       setTotalRewards(total);
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      // Fallback to empty state on error
       setMyAgents([]);
       setTotalRewards(0);
     }
@@ -81,14 +77,23 @@ export default function Dashboard() {
 
     setIsRegistering(true);
     try {
-  toast.message('Opening wallet for signature…');
-  toast.info('Registering agent on Solana...');
-  const sig = await client.registerAgent(agentId, metadataUri);
-  toast.success(`Agent "${agentId}" registered. \nTx: ${sig.slice(0,8)}...`);
+      toast.message('Opening wallet for signature…');
+      toast.info('Registering agent on Solana...');
+      const sig = await client.registerAgent(agentId, metadataUri);
+      toast.success(`Agent "${agentId}" registered.`, {
+        description: (
+          <a
+            href={getExplorerTxUrl(sig)}
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2 text-blue-600 hover:text-blue-700"
+          >
+            View transaction on Explorer
+          </a>
+        ),
+      });
       setAgentId('');
       setMetadataUri('');
-      
-      // Reload dashboard
       await loadDashboardData();
     } catch (error: unknown) {
       const message = (error as Error)?.message || 'Failed to register agent';
@@ -103,10 +108,10 @@ export default function Dashboard() {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <div className="p-4 rounded-full bg-gradient-primary inline-block animate-pulse-glow">
-            <Shield className="h-12 w-12 text-primary-foreground" />
+          <div className="p-4 rounded-full border border-border inline-block">
+            <Shield className="h-12 w-12 text-foreground" />
           </div>
-          <h1 className="text-4xl font-bold glow-text">Connect Your Wallet</h1>
+          <h1 className="text-4xl font-bold text-foreground">Connect Your Wallet</h1>
           <p className="text-muted-foreground text-lg">
             Please connect your Solana wallet to access the dashboard and manage your AI agents.
           </p>
@@ -118,35 +123,26 @@ export default function Dashboard() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
-        <h1 className="text-4xl font-bold glow-text mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage your AI agents and track their performance
-        </p>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground">Manage your AI agents and track their performance</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <StatsCard
-          title="My Agents"
-          value={myAgents.length.toString()}
-          icon={Shield}
-          description="Total registered agents"
-        />
-        <StatsCard
-          title="Total Rewards"
-          value={`${formatSOL(totalRewards)} SOL`}
-          icon={Coins}
-          description="Claimable rewards"
-        />
+        <StatsCard title="My Agents" value={myAgents.length.toString()} icon={Shield} description="Total registered agents" />
+        <StatsCard title="Total Rewards" value={`${formatSOL(totalRewards)} SOL`} icon={Coins} description="Claimable rewards" />
         <StatsCard
           title="Avg. Reputation"
-          value={
-            myAgents.length > 0
-              ? Math.round(myAgents.reduce((sum, a) => sum + a.reputation.score, 0) / myAgents.length).toString()
-              : "5000"
-          }
+          value={myAgents.length > 0 ? Math.round(myAgents.reduce((s, a) => s + a.reputation.score, 0) / myAgents.length).toString() : '5000'}
           icon={TrendingUp}
           description="Average score across agents"
         />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <a href="/agents" className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800">Manage Agents</a>
+        <a href="/validation" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Submit Validation</a>
+        <a href="/payments" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">X402 Payments</a>
+        <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
       </div>
 
       <Tabs defaultValue="register" className="space-y-6">
@@ -163,56 +159,28 @@ export default function Dashboard() {
                 <Plus className="h-5 w-5" />
                 Register New Agent
               </CardTitle>
-              <CardDescription>
-                Register a new AI agent on the SPL-8004 network
-              </CardDescription>
+              <CardDescription>Register a new AI agent on the SPL-8004 network</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="agent-id">Agent ID</Label>
-                <Input
-                  id="agent-id"
-                  placeholder="my-agent-001"
-                  value={agentId}
-                  onChange={(e) => setAgentId(e.target.value)}
-                  maxLength={64}
-                  className="bg-input border-border/50"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Unique identifier for your agent (max 64 characters)
-                </p>
+                <Input id="agent-id" placeholder="my-agent-001" value={agentId} onChange={(e) => setAgentId(e.target.value)} maxLength={64} className="bg-input border-border/50" />
+                <p className="text-xs text-muted-foreground">Unique identifier for your agent (max 64 characters)</p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="metadata-uri">Metadata URI</Label>
-                <Input
-                  id="metadata-uri"
-                  placeholder="https://arweave.net/..."
-                  value={metadataUri}
-                  onChange={(e) => setMetadataUri(e.target.value)}
-                  maxLength={200}
-                  className="bg-input border-border/50"
-                />
-                <p className="text-xs text-muted-foreground">
-                  URI pointing to agent metadata (max 200 characters)
-                </p>
+                <Input id="metadata-uri" placeholder="https://arweave.net/..." value={metadataUri} onChange={(e) => setMetadataUri(e.target.value)} maxLength={200} className="bg-input border-border/50" />
+                <p className="text-xs text-muted-foreground">URI pointing to agent metadata (max 200 characters)</p>
               </div>
 
               <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
                 <h4 className="text-sm font-medium mb-2">Registration Fee</h4>
-                <p className="text-2xl font-bold text-primary">
-                  {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Initial reputation score: {PROGRAM_CONSTANTS.INITIAL_REPUTATION_SCORE}/{PROGRAM_CONSTANTS.MAX_REPUTATION_SCORE}
-                </p>
+                <p className="text-2xl font-bold text-primary">{formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</p>
+                <p className="text-xs text-muted-foreground mt-1">Initial reputation score: {PROGRAM_CONSTANTS.INITIAL_REPUTATION_SCORE}/{PROGRAM_CONSTANTS.MAX_REPUTATION_SCORE}</p>
               </div>
 
-              <Button
-                onClick={handleRegister}
-                disabled={isRegistering || !agentId || !metadataUri}
-                className="w-full bg-gradient-primary hover:shadow-glow"
-              >
+              <Button onClick={handleRegister} disabled={isRegistering || !agentId || !metadataUri} className="w-full bg-gradient-primary hover:shadow-glow">
                 {isRegistering ? 'Registering...' : 'Register Agent'}
               </Button>
             </CardContent>
@@ -223,52 +191,31 @@ export default function Dashboard() {
           <Card className="border-border/50 bg-card/50 backdrop-blur">
             <CardHeader>
               <CardTitle>My Agents</CardTitle>
-              <CardDescription>
-                View and manage all your registered agents
-              </CardDescription>
+              <CardDescription>View and manage all your registered agents</CardDescription>
             </CardHeader>
             <CardContent>
               {myAgents.length === 0 ? (
                 <div className="text-center py-12">
                   <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">No agents registered yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Register your first agent to get started
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">Register your first agent to get started</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {myAgents.map((agent) => (
-                    <div
-                      key={agent.agentId}
-                      className="p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors"
-                    >
+                    <div key={agent.agentId} className="p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-1">{agent.agentId}</h3>
-                          <p className="text-sm text-muted-foreground mb-3">
-                            {agent.metadataUri}
-                          </p>
+                          <p className="text-sm text-muted-foreground mb-3">{agent.metadataUri}</p>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
                               <span className="text-muted-foreground">Reputation:</span>
-                              <span className="ml-2 font-semibold text-primary">
-                                {agent.reputation.score}/10000
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Success Rate:</span>
-                              <span className="ml-2 font-semibold">
-                                {Math.round((agent.reputation.successfulTasks / agent.reputation.totalTasks) * 100)}%
-                              </span>
+                              <span className="ml-2 font-semibold text-primary">{agent.reputation.score}/10000</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Total Tasks:</span>
                               <span className="ml-2 font-semibold">{agent.reputation.totalTasks}</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Status:</span>
-                              <span className="ml-2 font-semibold text-success">Active</span>
                             </div>
                           </div>
                         </div>
@@ -288,31 +235,22 @@ export default function Dashboard() {
                 <Coins className="h-5 w-5" />
                 Claimable Rewards
               </CardTitle>
-              <CardDescription>
-                Claim your earned rewards from agent validations (24h cooldown)
-              </CardDescription>
+              <CardDescription>Claim your earned rewards from agent validations (24h cooldown)</CardDescription>
             </CardHeader>
             <CardContent>
               {myAgents.length === 0 ? (
                 <div className="text-center py-12">
                   <Coins className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">No agents registered</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Register an agent to start earning rewards
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">Register an agent to start earning rewards</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {myAgents.map((agent) => (
-                    <div
-                      key={agent.agentId}
-                      className="p-4 rounded-lg border border-border/50 flex items-center justify-between"
-                    >
+                    <div key={agent.agentId} className="p-4 rounded-lg border border-border/50 flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold mb-1">{agent.agentId}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Simulated rewards: 0.0001 SOL
-                        </p>
+                        <p className="text-sm text-muted-foreground">Simulated rewards: 0.0001 SOL</p>
                       </div>
                       <Button
                         onClick={async () => {
@@ -320,7 +258,9 @@ export default function Dashboard() {
                           try {
                             toast.info('Claiming rewards...');
                             const sig = await client.claimRewards(agent.agentId);
-                            toast.success(`Rewards claimed! Tx: ${sig.slice(0, 8)}...`);
+                            toast.success('Rewards claimed!', { description: (
+                              <a href={getExplorerTxUrl(sig)} target="_blank" rel="noreferrer" className="underline underline-offset-2 text-blue-600 hover:text-blue-700">View transaction on Explorer</a>
+                            ) });
                             await loadDashboardData();
                           } catch (error: unknown) {
                             const message = (error as Error)?.message || 'Failed to claim rewards';
@@ -345,3 +285,4 @@ export default function Dashboard() {
     </div>
   );
 }
+ 

@@ -2,108 +2,583 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Shield, TrendingUp, CheckCircle2, Coins, Network, Zap, Lock, Users, ArrowRight, Github, ExternalLink, Sparkles, Bot, Database, Code2, Star, Cpu, Brain, RadioTower } from 'lucide-react';
-import { GradientBorder } from '@/components/GradientBorder';
-import { GlowingText } from '@/components/GlowingText';
-import { StatsCard } from '@/components/StatsCard';
-import { ProgramInfo } from '@/components/ProgramInfo';
-import { CodeExample } from '@/components/CodeExample';
-export default function Index() {
-  return <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent"></div>
-        
-        <div className="max-w-6xl mx-auto relative">
-          <div className="text-center space-y-8 mb-16">
-            <Badge className="bg-[color:var(--primary)]/10 text-[color:var(--primary-foreground)] border-[color:var(--primary)]/20 backdrop-blur px-6 py-2 text-sm font-semibold animate-fade-in">
-              <Sparkles className="w-4 h-4 mr-2 text-[color:var(--primary)]" />
-              SPL-8004 • First Solana AI Agent Standard
-            </Badge>
-            
-            <div className="relative animate-fade-in">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[color:var(--foreground)] mb-6">
-                <GlowingText>
-                  SPL-8004
-                  <br />
-                  AI Agent Reputation Standard
-                </GlowingText>
-              </h1>
-              
-              <div className="absolute -top-20 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-            </div>
-            
-            <p className="text-lg md:text-xl text-[color:var(--muted)] max-w-3xl mx-auto leading-relaxed animate-fade-in">
-              The first Solana Program Library standard for decentralized AI agent identity, trustless validation, and on-chain reputation. 
-              Built on Solana's high-performance infrastructure for autonomous agent ecosystems.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 justify-center pt-8">
-              <Link to="/dashboard">
-                <Button size="lg" className="bg-[color:var(--primary)] hover:brightness-105 text-[color:var(--primary-foreground)] text-lg px-8 py-4 shadow-button transition-all duration-300">
-                  Launch Noema
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300" onClick={() => window.open('https://github.com', '_blank')}>
-                <Github className="mr-2 h-5 w-5" />
-                View on GitHub
-              </Button>
-            </div>
+import { useEffect } from 'react';
+import { 
+  Shield, Network, Zap, ArrowRight, CheckCircle2, Code2, 
+  TrendingUp, MessageSquare, Wrench, GitBranch, Calendar,
+  Users, Sparkles, Bot, Database, Lock, Globe, Cpu, Server,
+  Activity, BarChart3, FileCode
+} from 'lucide-react';
 
-            <div className="flex flex-wrap gap-6 justify-center pt-12">
-              <GradientBorder>
-                <div className="flex items-center gap-3 px-6 py-3">
-                  <Cpu className="h-5 w-5 text-purple-400" />
-                  <span className="text-sm font-medium text-purple-200">65,000+ TPS</span>
-                </div>
-              </GradientBorder>
-              
-              <GradientBorder>
-                <div className="flex items-center gap-3 px-6 py-3">
-                  <Brain className="h-5 w-5 text-purple-400" />
-                  <span className="text-sm font-medium text-purple-200">AI-Native Design</span>
-                </div>
-              </GradientBorder>
-              
-              <GradientBorder>
-                <div className="flex items-center gap-3 px-6 py-3">
-                  <RadioTower className="h-5 w-5 text-purple-400" />
-                  <span className="text-sm font-medium text-purple-200">Trustless Validation</span>
-                </div>
-              </GradientBorder>
-            </div>
+type MermaidGlobal = { mermaid?: { initialize: (cfg: unknown) => void; run: (opts?: unknown) => void } };
+
+export default function Index() {
+  useEffect(() => {
+    // Load Mermaid for inline diagrams
+    const existing = document.querySelector('script#mermaid-cdn');
+    if (!existing) {
+      const s = document.createElement('script');
+      s.id = 'mermaid-cdn';
+      s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+      s.onload = () => {
+        try {
+          const m = (window as unknown as MermaidGlobal).mermaid;
+          if (m) {
+            m.initialize({ startOnLoad: false, theme: 'dark' });
+            m.run({ querySelector: '.mermaid' });
+          }
+        } catch {/* ignore */}
+      };
+      document.body.appendChild(s);
+    } else {
+      try {
+        const m = (window as unknown as MermaidGlobal).mermaid;
+        if (m) m.run({ querySelector: '.mermaid' });
+      } catch {/* ignore */}
+    }
+  }, []);
+  return (
+    <div className="min-h-screen overflow-hidden">
+      {/* Hero Section with Animated Network */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-purple-950 via-slate-900 to-blue-950 text-white">
+        {/* Animated Background Grid */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+            animation: 'grid-move 20s linear infinite'
+          }}></div>
+        </div>
+        
+        {/* Floating Orbs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
+        
+        <div className="relative container mx-auto px-6 py-24 text-center">
+          <Badge variant="outline" className="mb-6 border-purple-400 text-purple-300 px-4 py-1 animate-fade-in">
+            <Bot className="w-4 h-4 mr-2 inline" />
+            Solana's First AI Agent Infrastructure
+          </Badge>
+          
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent animate-fade-in">
+            The AWS of AI Agents
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto animate-fade-in" style={{animationDelay: '0.2s'}}>
+            Enterprise-grade protocol infrastructure for autonomous agents. Identity, Communication, Tools & Functions.
+          </p>
+          
+          <div className="flex gap-4 justify-center mb-8 animate-fade-in" style={{animationDelay: '0.4s'}}>
+            <Link to="/launch">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:scale-105 transition-transform">
+                Start Building <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/docs">
+              <Button size="lg" variant="outline" className="border-purple-400 text-purple-300 hover:bg-purple-950">
+                Documentation
+              </Button>
+            </Link>
           </div>
 
-          {/* Hero Visual */}
-          <div className="relative mt-20">
-            <div className="absolute inset-0 bg-gradient-primary opacity-20 blur-3xl rounded-full"></div>
-            <Card className="relative border-2 border-primary/20 bg-gradient-card backdrop-blur-sm shadow-glow-lg">
-              <CardContent className="p-12">
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="text-center space-y-2">
-                    <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-button">
-                      <Bot className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-lg">Register Agent</h3>
-                    <p className="text-sm text-muted-foreground">Create on-chain identity</p>
+          {/* Start Building Docs Block */}
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 text-left animate-fade-in" style={{animationDelay: '0.5s'}}>
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white text-xl">Architecture (Mermaid)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mermaid text-white/90">
+                  {`graph TD;
+  A[Wallet] --> B[Register Agent];
+  B --> C[Identity PDA];
+  B --> D[Reputation PDA];
+  C --> E[Submit Validation];
+  D --> E;
+  E --> F[Score Update];
+`}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white text-xl">Try in CodeSandbox</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video rounded-lg overflow-hidden border border-white/10">
+                  <iframe
+                    src="https://codesandbox.io/embed/new?codemirror=1"
+                    style={{width:'100%', height:'100%', border:0, borderRadius: 8, overflow:'hidden'}}
+                    title="CodeSandbox"
+                    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+                    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Animated Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-lg rounded-lg p-6 border border-white/10 hover:bg-white/10 transition-all hover:scale-105 animate-fade-in" style={{animationDelay: '0.5s'}}>
+              <Activity className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-purple-400">65K</div>
+              <div className="text-sm text-slate-400">TPS Throughput</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-lg rounded-lg p-6 border border-white/10 hover:bg-white/10 transition-all hover:scale-105 animate-fade-in" style={{animationDelay: '0.6s'}}>
+              <Zap className="h-8 w-8 text-blue-400 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-blue-400">$0.00005</div>
+              <div className="text-sm text-slate-400">Per Transaction</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-lg rounded-lg p-6 border border-white/10 hover:bg-white/10 transition-all hover:scale-105 animate-fade-in" style={{animationDelay: '0.7s'}}>
+              <Shield className="h-8 w-8 text-cyan-400 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-cyan-400">100%</div>
+              <div className="text-sm text-slate-400">On-Chain Proof</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-lg rounded-lg p-6 border border-white/10 hover:bg-white/10 transition-all hover:scale-105 animate-fade-in" style={{animationDelay: '0.8s'}}>
+              <Network className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-purple-400">4</div>
+              <div className="text-sm text-slate-400">Protocol Stack</div>
+            </div>
+          </div>
+        </div>
+        
+        <style>{`
+          @keyframes grid-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+          }
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in {
+            animation: fade-in 0.8s ease-out forwards;
+            opacity: 0;
+          }
+        `}</style>
+      </section>
+
+      {/* X402 Facilitator Quick Start */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+            <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Coins className="h-6 w-6 text-emerald-600" />
+                    <CardTitle>X402 Payments</CardTitle>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-button">
-                      <CheckCircle2 className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-lg">Get Validated</h3>
-                    <p className="text-sm text-muted-foreground">Trustless verification</p>
+                  <Badge className="bg-emerald-500 text-white">Micropayments</Badge>
+                </div>
+                <CardDescription>USDC-based agent payments with facilitator</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-slate-700 space-y-2">
+                  <li>• Sub-cent payments ($0.0001+)</li>
+                  <li>• 400ms settlement on Solana</li>
+                  <li>• 0.1% platform fee (optional)</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-slate-200">
+              <CardHeader>
+                <CardTitle>Facilitator (Local)</CardTitle>
+                <CardDescription>Start local gateway on port 3000</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-slate-900 text-slate-100 p-3 rounded text-xs">
+                  <code>{`cd spl-8004-program/x402-facilitator
+npm install && npm start
+# Health: http://localhost:3000/health`}</code>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-purple-200">
+              <CardHeader>
+                <CardTitle>Integrate in App</CardTitle>
+                <CardDescription>Use built-in hook</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-slate-900 text-slate-100 p-3 rounded text-xs">
+                  <code>{`import { useX402 } from '@/hooks/useX402';
+
+const { fetchWithPayment, checkFacilitator } = useX402();
+// await fetchWithPayment('/api/agents/alpha');`}</code>
+                </div>
+                <div className="mt-3 text-sm">
+                  <Link to="/docs#x402-protocol" className="text-purple-700 font-medium inline-flex items-center">
+                    Read Docs <ArrowRight className="h-4 w-4 ml-1" />
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+      
+      {/* How It Works - Animated Flow */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white opacity-50"></div>
+        <div className="container mx-auto px-6 relative">
+          <div className="text-center mb-16">
+            <Badge className="bg-purple-100 text-purple-700 mb-4">
+              <Activity className="w-4 h-4 mr-2" />
+              Simple 3-Step Process
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              From registration to reputation, everything on-chain
+            </p>
+          </div>
+          
+          {/* Flow Diagram */}
+          <div className="max-w-6xl mx-auto relative">
+            {/* Connection Lines */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-purple-300 via-blue-300 to-cyan-300 -translate-y-1/2" style={{zIndex: 0}}>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 animate-pulse"></div>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 relative" style={{zIndex: 1}}>
+              <Card className="border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-xl hover:-translate-y-2 duration-300 bg-white">
+                <CardHeader>
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 mx-auto shadow-lg">
+                    <Shield className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-button">
-                      <TrendingUp className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-lg">Earn Rewards</h3>
-                    <p className="text-sm text-muted-foreground">Reputation-based</p>
+                  <div className="text-center">
+                    <Badge className="bg-purple-100 text-purple-700 mb-2">Step 1</Badge>
+                    <CardTitle className="text-xl">Register Agent</CardTitle>
                   </div>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-slate-600 mb-4">Create on-chain identity with SPL-8004 protocol</p>
+                  <div className="bg-slate-900 text-slate-100 p-3 rounded text-xs text-left">
+                    <code>await client.registerAgent()</code>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-2 border-blue-200 hover:border-blue-400 transition-all hover:shadow-xl hover:-translate-y-2 duration-300 bg-white">
+                <CardHeader>
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center mb-4 mx-auto shadow-lg">
+                    <Zap className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <Badge className="bg-blue-100 text-blue-700 mb-2">Step 2</Badge>
+                    <CardTitle className="text-xl">Execute Tasks</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-slate-600 mb-4">Perform work and interact with other agents</p>
+                  <div className="bg-slate-900 text-slate-100 p-3 rounded text-xs text-left">
+                    <code>await agent.execute(task)</code>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-2 border-cyan-200 hover:border-cyan-400 transition-all hover:shadow-xl hover:-translate-y-2 duration-300 bg-white">
+                <CardHeader>
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center mb-4 mx-auto shadow-lg">
+                    <TrendingUp className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <Badge className="bg-cyan-100 text-cyan-700 mb-2">Step 3</Badge>
+                    <CardTitle className="text-xl">Earn Reputation</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-slate-600 mb-4">Build verifiable on-chain reputation score</p>
+                  <div className="bg-slate-900 text-slate-100 p-3 rounded text-xs text-left">
+                    <code>score = await getScore()</code>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Protocol Stack - Architecture Diagram */}
+      <section className="py-24 bg-white relative">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <Badge className="bg-blue-100 text-blue-700 mb-4">
+              <Globe className="w-4 h-4 mr-2" />
+              Four Protocol Standard
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">Complete Protocol Stack</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Everything AI agents need in one infrastructure
+            </p>
+          </div>
+          
+          {/* Architecture Layers */}
+          <div className="max-w-7xl mx-auto mb-12">
+            <div className="relative">
+              {/* Layer Diagram */}
+              <div className="space-y-4">
+                {/* Application Layer */}
+                <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-6 rounded-xl border-2 border-purple-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Bot className="h-6 w-6 text-purple-600" />
+                    <h3 className="font-bold text-lg">Application Layer</h3>
+                  </div>
+                  <p className="text-sm text-slate-600">Trading Bots, Support Agents, Data Providers, Content Creators</p>
+                </div>
+                
+                {/* Protocol Layer */}
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-purple-50 to-white p-4 rounded-lg border-2 border-purple-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <Shield className="h-6 w-6 text-purple-600" />
+                      <Badge className="bg-green-500 text-white text-xs">Live</Badge>
+                    </div>
+                    <h4 className="font-bold mb-1">SPL-8004</h4>
+                    <p className="text-xs text-slate-600">Identity & Reputation</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border-2 border-blue-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <MessageSquare className="h-6 w-6 text-blue-600" />
+                      <Badge className="bg-blue-500 text-white text-xs">Q1 '26</Badge>
+                    </div>
+                    <h4 className="font-bold mb-1">SPL-ACP</h4>
+                    <p className="text-xs text-slate-600">Communication</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-lg border-2 border-cyan-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <Wrench className="h-6 w-6 text-cyan-600" />
+                      <Badge className="bg-cyan-500 text-white text-xs">Q2 '26</Badge>
+                    </div>
+                    <h4 className="font-bold mb-1">SPL-TAP</h4>
+                    <p className="text-xs text-slate-600">Tool Abstraction</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-50 to-white p-4 rounded-lg border-2 border-purple-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <GitBranch className="h-6 w-6 text-purple-600" />
+                      <Badge className="bg-purple-500 text-white text-xs">Q2 '26</Badge>
+                    </div>
+                    <h4 className="font-bold mb-1">SPL-FCP</h4>
+                    <p className="text-xs text-slate-600">Function Calls</p>
+                  </div>
+                </div>
+                
+                {/* Infrastructure Layer */}
+                <div className="bg-gradient-to-r from-slate-100 to-slate-50 p-6 rounded-xl border-2 border-slate-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Server className="h-6 w-6 text-slate-600" />
+                    <h3 className="font-bold text-lg">Solana Infrastructure</h3>
+                  </div>
+                  <p className="text-sm text-slate-600">65K TPS, $0.00005/tx, Sub-second Finality</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Protocol Details Grid */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <Card className="border-2 border-purple-200 hover:shadow-2xl transition-all group">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 group-hover:scale-110 transition-transform">
+                    <Shield className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-green-500 text-white">✓ Live on Devnet</Badge>
+                </div>
+                <CardTitle className="text-2xl mt-4">SPL-8004</CardTitle>
+                <CardDescription className="text-base">Identity & Reputation System</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
+                    <span>On-chain agent registry with PDA accounts</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
+                    <span>Dynamic reputation scoring (0-10K)</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
+                    <span>Validation history & reward mechanisms</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-blue-200 hover:shadow-2xl transition-all group">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 group-hover:scale-110 transition-transform">
+                    <MessageSquare className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-blue-500 text-white">Q1 2026</Badge>
+                </div>
+                <CardTitle className="text-2xl mt-4">SPL-ACP</CardTitle>
+                <CardDescription className="text-base">Agent Communication Protocol</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <span>Peer-to-peer messaging between agents</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <span>Encrypted communication channels</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <span>Multi-agent coordination primitives</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-cyan-200 hover:shadow-2xl transition-all group">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-700 group-hover:scale-110 transition-transform">
+                    <Wrench className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-cyan-500 text-white">Q2 2026</Badge>
+                </div>
+                <CardTitle className="text-2xl mt-4">SPL-TAP</CardTitle>
+                <CardDescription className="text-base">Tool Abstraction Protocol</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-cyan-500 mt-0.5" />
+                    <span>Composable tool registry & marketplace</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-cyan-500 mt-0.5" />
+                    <span>Permission management & access control</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-cyan-500 mt-0.5" />
+                    <span>Usage metering & micropayments</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-purple-200 hover:shadow-2xl transition-all group">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 group-hover:scale-110 transition-transform">
+                    <GitBranch className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-purple-500 text-white">Q2 2026</Badge>
+                </div>
+                <CardTitle className="text-2xl mt-4">SPL-FCP</CardTitle>
+                <CardDescription className="text-base">Function Call Protocol</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-purple-500 mt-0.5" />
+                    <span>Workflow orchestration engine</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-purple-500 mt-0.5" />
+                    <span>Multi-step execution with state management</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-purple-500 mt-0.5" />
+                    <span>Error handling & rollback mechanisms</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits - Comparison Chart */}
+      <section className="py-24 bg-gradient-to-br from-slate-50 to-purple-50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-300 rounded-full blur-3xl opacity-10"></div>
+        <div className="container mx-auto px-6 relative">
+          <div className="text-center mb-16">
+            <Badge className="bg-purple-100 text-purple-700 mb-4">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Performance Metrics
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">Why Build on Noema?</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Unmatched performance on Solana blockchain
+            </p>
+          </div>
+          
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="text-center border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-2xl group bg-white">
+              <CardHeader>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Zap className="h-10 w-10 text-white" />
+                </div>
+                <CardTitle className="text-3xl mb-2">1000x Faster</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-5xl font-bold text-purple-600 mb-2">65K</div>
+                <p className="text-slate-600 mb-4">Transactions per second</p>
+                <div className="bg-purple-50 rounded-lg p-3 text-sm">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-slate-600">Ethereum</span>
+                    <span className="font-mono">15 TPS</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-purple-700">
+                    <span>Solana</span>
+                    <span className="font-mono">65,000 TPS</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center border-2 border-blue-200 hover:border-blue-400 transition-all hover:shadow-2xl group bg-white">
+              <CardHeader>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Activity className="h-10 w-10 text-white" />
+                </div>
+                <CardTitle className="text-3xl mb-2">1000x Cheaper</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-5xl font-bold text-blue-600 mb-2">$0.00005</div>
+                <p className="text-slate-600 mb-4">Per transaction cost</p>
+                <div className="bg-blue-50 rounded-lg p-3 text-sm">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-slate-600">Ethereum</span>
+                    <span className="font-mono">$0.50-$5</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-blue-700">
+                    <span>Solana</span>
+                    <span className="font-mono">$0.00005</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center border-2 border-cyan-200 hover:border-cyan-400 transition-all hover:shadow-2xl group bg-white">
+              <CardHeader>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Shield className="h-10 w-10 text-white" />
+                </div>
+                <CardTitle className="text-3xl mb-2">100% Verifiable</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-5xl font-bold text-cyan-600 mb-2">On-Chain</div>
+                <p className="text-slate-600 mb-4">Cryptographic proof</p>
+                <div className="bg-cyan-50 rounded-lg p-3 text-sm">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Lock className="h-4 w-4 text-cyan-600" />
+                    <span className="font-semibold">Immutable Records</span>
+                  </div>
+                  <p className="text-slate-600 text-xs">Every action signed & stored permanently</p>
                 </div>
               </CardContent>
             </Card>
@@ -111,403 +586,369 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="grid gap-6 md:grid-cols-4">
-          <GradientBorder className="w-full h-full">
-            <div className="p-6 text-center">
-              <Users className="w-10 h-10 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-3xl font-bold text-purple-200 mb-2">0</h3>
-              <p className="text-purple-200/70 font-medium">Total Agents</p>
-              <p className="text-sm text-purple-300/50">Registered on network</p>
-            </div>
-          </GradientBorder>
-
-          <GradientBorder className="w-full h-full">
-            <div className="p-6 text-center">
-              <CheckCircle2 className="w-10 h-10 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-3xl font-bold text-purple-200 mb-2">0</h3>
-              <p className="text-purple-200/70 font-medium">Validations</p>
-              <p className="text-sm text-purple-300/50">Total completed</p>
-            </div>
-          </GradientBorder>
-
-          <GradientBorder className="w-full h-full">
-            <div className="p-6 text-center">
-              <Coins className="w-10 h-10 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-3xl font-bold text-purple-200 mb-2">0 SOL</h3>
-              <p className="text-purple-200/70 font-medium">Total Rewards</p>
-              <p className="text-sm text-purple-300/50">Distributed to agents</p>
-            </div>
-          </GradientBorder>
-
-          <GradientBorder className="w-full h-full">
-            <div className="p-6 text-center">
-              <TrendingUp className="w-10 h-10 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-3xl font-bold text-purple-200 mb-2">5000</h3>
-              <p className="text-purple-200/70 font-medium">Avg. Score</p>
-              <p className="text-sm text-purple-300/50">Network reputation</p>
-            </div>
-          </GradientBorder>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="container mx-auto px-4 pb-20 relative">
-        <div className="absolute inset-0 bg-purple-900/5 backdrop-blur-3xl rounded-3xl"></div>
-        
-        <div className="text-center mb-16 relative">
-          <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
-            <Star className="w-4 h-4 mr-2 text-purple-400" />
-            Protocol Features
-          </Badge>
-          
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
-            <GlowingText>
-              Next-Gen AI Infrastructure
-            </GlowingText>
-          </h2>
-          
-          <p className="text-purple-200/70 text-lg max-w-2xl mx-auto">
-            Complete decentralized infrastructure for autonomous AI agents
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <Shield className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">Identity Registry</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  On-chain identity management with unique identifiers and metadata storage
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <TrendingUp className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">Reputation System</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  Dynamic scoring from 0-10,000 based on validation history and success rates
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <CheckCircle2 className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">Validation Registry</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  Trustless task verification with on-chain evidence and validator tracking
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <Coins className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">Reward System</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  Reputation-based rewards with multipliers (1x-5x) for high-performing agents
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <Network className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">Commission System</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  Configurable validation fees (1-10%) to sustain the network ecosystem
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-
-          <GradientBorder className="group transition-all duration-300 hover:scale-[1.02]">
-            <Card className="border-0 bg-transparent">
-              <CardHeader>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 w-fit mb-4 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300">
-                  <Zap className="h-7 w-7 text-purple-200" />
-                </div>
-                <CardTitle className="text-xl text-purple-200">High Performance</CardTitle>
-                <CardDescription className="text-base text-purple-200/70">
-                  Built on Solana for maximum throughput and minimal transaction costs
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </GradientBorder>
-        </div>
-      </section>
-
-      {/* Architecture Section */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
-              <Code2 className="w-4 h-4 mr-2 text-purple-400" />
-              Protocol Architecture
+      {/* Use Cases - Interactive Cards */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <Badge className="bg-green-100 text-green-700 mb-4">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Real-World Applications
             </Badge>
-            
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <GlowingText>How SPL-8004 Works</GlowingText>
-            </h2>
-            
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
-              A complete on-chain infrastructure for AI agent identity and reputation management
+            <h2 className="text-4xl font-bold mb-4">Enterprise Use Cases</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Proven ROI across multiple industries
             </p>
           </div>
-
-          <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg mb-8 p-8">
-            <div className="overflow-x-auto md:scale-95 lg:scale-100 origin-top-left">
-              <pre className="mermaid">
-{`%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '12px', 'primaryColor': '#7c3aed', 'primaryTextColor': '#e9d5ff', 'lineColor': '#a78bfa' }, 'flowchart': { 'htmlLabels': true } } }%%
-graph LR
-    Start([Agent Owner]) --> Register[Register Agent<br/>agent_id + metadata_uri]
-    Register --> Identity[(Identity Registry<br/>PDA)]
-    Register --> Reputation[(Reputation Registry<br/>Score: 5000)]
-    Register --> RewardPool[(Reward Pool<br/>0 SOL)]
-    
-    Identity --> Task[Execute Task]
-    Task --> Validator([Validator])
-    Validator --> Submit[Submit Validation<br/>task_hash + approved]
-    Submit --> ValidationReg[(Validation Registry<br/>Evidence + Result)]
-    
-    ValidationReg --> Update[Update Reputation]
-    Update --> ScoreCheck{Approved?}
-    
-    ScoreCheck -->|Yes +25 to +100| IncScore[Increase Score<br/>Based on Success Rate]
-    ScoreCheck -->|No -50 to -150| DecScore[Decrease Score<br/>Based on Failure Rate]
-    
-    IncScore --> CalcReward[Calculate Reward<br/>Base × Multiplier]
-    CalcReward --> AddReward[Add to Reward Pool]
-    
-    DecScore --> NextTask[Continue]
-    AddReward --> NextTask
-    
-    NextTask --> Claim{24h Passed?}
-    Claim -->|Yes| ClaimReward[Claim Rewards]
-    Claim -->|No| Wait[Wait]
-    
-    ClaimReward --> Transfer[Transfer SOL<br/>to Agent Owner]
-    Transfer --> End([Complete])
-    Wait --> NextTask
-    
-    style Start fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff
-    style Register fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
-    style Identity fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
-    style Reputation fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
-    style RewardPool fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
-    style Validator fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff
-    style Submit fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
-    style ValidationReg fill:#3b82f6,stroke:#2563eb,stroke-width:1px,color:#fff
-    style Update fill:#7c3aed,stroke:#6d28d9,stroke-width:1px,color:#fff
-    style ScoreCheck fill:#f59e0b,stroke:#d97706,stroke-width:1px,color:#fff
-    style IncScore fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
-    style DecScore fill:#ef4444,stroke:#dc2626,stroke-width:1px,color:#fff
-    style CalcReward fill:#8b5cf6,stroke:#7c3aed,stroke-width:1px,color:#fff
-    style ClaimReward fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
-    style Transfer fill:#10b981,stroke:#059669,stroke-width:1px,color:#fff
-    style End fill:#9333ea,stroke:#7c3aed,stroke-width:2px,color:#fff`}
-              </pre>
-            </div>
-          </Card>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="border border-primary/20 bg-card/50 backdrop-blur p-6">
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
-                Data Flow
-              </h3>
-              <ol className="space-y-3 text-sm text-muted-foreground">
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">1</span>
-                  <span>Agent registers identity with metadata URI (Arweave/IPFS)</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">2</span>
-                  <span>Validators submit task results with evidence</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">3</span>
-                  <span>Protocol updates reputation score (0-10000)</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">4</span>
-                  <span>Rewards calculated based on score multiplier (1x-5x)</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">5</span>
-                  <span>Agent claims accumulated rewards (24h interval)</span>
-                </li>
-              </ol>
+          
+          <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-700 group-hover:scale-110 transition-transform">
+                    <TrendingUp className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-green-100 text-green-700">DeFi</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Trading Bots</CardTitle>
+                <CardDescription>High-frequency DeFi execution with verifiable performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-green-700 mb-1">$500K-2M</div>
+                  <div className="text-sm text-green-600">Annual Revenue per Agent</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span>Automated trading strategies</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span>On-chain performance history</span>
+                  </li>
+                </ul>
+              </CardContent>
             </Card>
-
-            <Card className="border border-primary/20 bg-card/50 backdrop-blur p-6">
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" />
-                Security Model
-              </h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>PDA-based account security (no private keys needed)</span>
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Owner-only operations (metadata, deactivation, claims)</span>
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Immutable validation history on-chain</span>
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Commission-based sustainability (3% default)</span>
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Arithmetic overflow protection throughout</span>
-                </li>
-              </ul>
+            
+            <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 group-hover:scale-110 transition-transform">
+                    <Network className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-700">Platform</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Task Marketplaces</CardTitle>
+                <CardDescription>Decentralized work coordination and agent hiring</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-blue-700 mb-1">5-15%</div>
+                  <div className="text-sm text-blue-600">Platform Fee on Volume</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                    <span>Escrow & payment automation</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                    <span>Reputation-based matching</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-purple-200 hover:border-purple-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-purple-400 to-purple-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 group-hover:scale-110 transition-transform">
+                    <Database className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-purple-100 text-purple-700">Data</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Data Providers</CardTitle>
+                <CardDescription>Real-time data feeds with usage-based billing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-purple-700 mb-1">$100-500</div>
+                  <div className="text-sm text-purple-600">Monthly per Agent</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                    <span>API monetization</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                    <span>Micropayment streaming</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-cyan-200 hover:border-cyan-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-cyan-400 to-cyan-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-700 group-hover:scale-110 transition-transform">
+                    <Users className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-cyan-100 text-cyan-700">Support</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Customer Support</CardTitle>
+                <CardDescription>24/7 AI-powered support with quality tracking</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-cyan-50 border-2 border-cyan-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-cyan-700 mb-1">70%</div>
+                  <div className="text-sm text-cyan-600">Cost Reduction</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-cyan-600" />
+                    <span>Performance scoring</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-cyan-600" />
+                    <span>Multi-language support</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-yellow-200 hover:border-yellow-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-700 group-hover:scale-110 transition-transform">
+                    <BarChart3 className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-yellow-100 text-yellow-700">Analytics</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Business Intelligence</CardTitle>
+                <CardDescription>Automated insights with data provenance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-yellow-700 mb-1">$200-1K</div>
+                  <div className="text-sm text-yellow-600">Per Client Monthly</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-yellow-600" />
+                    <span>Real-time dashboards</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-yellow-600" />
+                    <span>Predictive analytics</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-pink-200 hover:border-pink-400 hover:shadow-2xl transition-all group overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-pink-400 to-pink-600"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-pink-700 group-hover:scale-110 transition-transform">
+                    <FileCode className="h-8 w-8 text-white" />
+                  </div>
+                  <Badge className="bg-pink-100 text-pink-700">Content</Badge>
+                </div>
+                <CardTitle className="text-xl mb-2">Content Creators</CardTitle>
+                <CardDescription>Automated publishing with attribution tracking</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-pink-50 border-2 border-pink-200 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-pink-700 mb-1">$50-300</div>
+                  <div className="text-sm text-pink-600">Monthly per Agent</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-pink-600" />
+                    <span>Multi-platform distribution</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-pink-600" />
+                    <span>Copyright protection</span>
+                  </li>
+                </ul>
+              </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* ERC-8004 Comparison */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="bg-purple-900/50 text-purple-200 border-purple-500/50 backdrop-blur mb-4">
-              <Network className="w-4 h-4 mr-2 text-purple-400" />
-              Cross-Chain Standard
+      {/* Roadmap - Timeline Visualization */}
+      <section className="py-24 bg-gradient-to-br from-slate-900 to-purple-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 1px, transparent 1px)',
+            backgroundSize: '30px 30px'
+          }}></div>
+        </div>
+        
+        <div className="container mx-auto px-6 relative">
+          <div className="text-center mb-16">
+            <Badge className="bg-purple-500 text-white mb-4">
+              <Calendar className="w-4 h-4 mr-2" />
+              Development Timeline
             </Badge>
-            
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <GlowingText>ERC-8004 Compatible</GlowingText>
-            </h2>
-            
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              SPL-8004 implements the same core concepts as Ethereum's ERC-8004, 
-              optimized for Solana's high-performance architecture
+            <h2 className="text-4xl font-bold mb-4">Product Roadmap</h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              From foundation to full protocol stack
             </p>
           </div>
-
-          <Card className="border-2 border-primary/30 bg-gradient-card shadow-glow-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-primary/10 border-b border-primary/20">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Feature</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">ERC-8004 (Ethereum)</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">SPL-8004 (Solana)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-primary/10">
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Identity Storage</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">Mapping-based</td>
-                    <td className="px-6 py-4 text-sm text-green-400">PDA-based accounts ✓</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Reputation Scoring</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">0-10000 scale</td>
-                    <td className="px-6 py-4 text-sm text-green-400">0-10000 scale ✓</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Validation System</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">On-chain validation</td>
-                    <td className="px-6 py-4 text-sm text-green-400">On-chain + evidence URI ✓</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Transaction Speed</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">~15 TPS</td>
-                    <td className="px-6 py-4 text-sm text-green-400">65,000+ TPS ⚡</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Confirmation Time</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">~12-15 seconds</td>
-                    <td className="px-6 py-4 text-sm text-green-400">~400ms ⚡</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Transaction Cost</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">$0.50 - $5.00</td>
-                    <td className="px-6 py-4 text-sm text-green-400">~$0.00025 💰</td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="px-6 py-4 font-medium">Scalability</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">Limited by gas</td>
-                    <td className="px-6 py-4 text-sm text-green-400">Native parallelization 🚀</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Code Examples */}
-      <section className="container mx-auto px-4 pb-20">
-        
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 pb-20">
-        <GradientBorder className="overflow-hidden">
-          <div className="relative p-12 md:p-16">
-            {/* Background Effects */}
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+          
+          {/* Timeline */}
+          <div className="max-w-5xl mx-auto relative">
+            {/* Timeline Line */}
+            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 via-blue-500 to-purple-500 transform -translate-x-1/2"></div>
             
-            <div className="relative text-center">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                <GlowingText className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
-                  Ready to Build the Future?
-                </GlowingText>
-              </h2>
+            <div className="space-y-12">
+              {/* Phase 0 */}
+              <div className="relative">
+                <div className="md:grid md:grid-cols-2 md:gap-8 items-center">
+                  <div className="md:text-right mb-4 md:mb-0">
+                    <Card className="bg-gradient-to-br from-green-900 to-green-950 border-2 border-green-500 hover:scale-105 transition-transform">
+                      <CardHeader>
+                        <div className="flex items-center justify-between md:flex-row-reverse">
+                          <Badge className="bg-green-500 text-white">✓ Complete</Badge>
+                          <CardTitle className="text-white">Phase 0: Foundation</CardTitle>
+                        </div>
+                        <CardDescription className="text-green-200">Nov-Dec 2025</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="text-sm text-green-100 space-y-1">
+                          <li>• SPL-8004 program deployed (Devnet)</li>
+                          <li>• Web platform & agent registration</li>
+                          <li>• TypeScript SDK & documentation</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="hidden md:flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-green-500 border-4 border-slate-900 flex items-center justify-center">
+                      <CheckCircle2 className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
               
-              <p className="text-purple-200/70 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-                Start building with the first Solana standard for AI agent reputation. 
-                Join the ecosystem and contribute to the future of autonomous agents.
-              </p>
+              {/* Phase 1 */}
+              <div className="relative">
+                <div className="md:grid md:grid-cols-2 md:gap-8 items-center">
+                  <div className="md:col-start-2">
+                    <Card className="bg-gradient-to-br from-blue-900 to-blue-950 border-2 border-blue-500 hover:scale-105 transition-transform">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <Badge className="bg-blue-500 text-white animate-pulse">🔨 In Progress</Badge>
+                          <CardTitle className="text-white">Phase 1: Monetization</CardTitle>
+                        </div>
+                        <CardDescription className="text-blue-200">Jan-Feb 2026</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="text-sm text-blue-100 space-y-1">
+                          <li>• Solana Pay integration (USDC)</li>
+                          <li>• API key system with rate limiting</li>
+                          <li>• Pay-as-you-go pricing model</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="hidden md:flex items-center justify-center md:col-start-1 md:row-start-1">
+                    <div className="w-8 h-8 rounded-full bg-blue-500 border-4 border-slate-900 flex items-center justify-center animate-pulse">
+                      <Cpu className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
               
-              <div className="flex flex-wrap gap-4 justify-center">
-                <Link to="/dashboard">
-                  <Button size="lg" className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white text-lg px-8 py-6 shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300">
-                    Launch Dashboard
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                
-                <Button size="lg" variant="outline" className="border-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/10 text-lg px-8 py-6 transition-all duration-300" onClick={() => window.open('https://docs.lovable.dev', '_blank')}>
-                  <ExternalLink className="mr-2 h-5 w-5" />
-                  Read Documentation
-                </Button>
+              {/* Phase 2 */}
+              <div className="relative">
+                <div className="md:grid md:grid-cols-2 md:gap-8 items-center">
+                  <div className="md:text-right">
+                    <Card className="bg-gradient-to-br from-purple-900 to-purple-950 border-2 border-purple-500 hover:scale-105 transition-transform">
+                      <CardHeader>
+                        <div className="flex items-center justify-between md:flex-row-reverse">
+                          <Badge className="border border-purple-400 text-purple-300" variant="outline">📅 Q1 2026</Badge>
+                          <CardTitle className="text-white">Phase 2: Communication</CardTitle>
+                        </div>
+                        <CardDescription className="text-purple-200">Q1 2026</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="text-sm text-purple-100 space-y-1">
+                          <li>• SPL-ACP protocol development</li>
+                          <li>• P2P messaging between agents</li>
+                          <li>• Multi-agent coordination</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="hidden md:flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-purple-500 border-4 border-slate-900 flex items-center justify-center">
+                      <MessageSquare className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Phase 3-4 */}
+              <div className="relative">
+                <div className="md:grid md:grid-cols-2 md:gap-8 items-center">
+                  <div className="md:col-start-2">
+                    <Card className="bg-gradient-to-br from-cyan-900 to-cyan-950 border-2 border-cyan-500 hover:scale-105 transition-transform">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <Badge className="border border-cyan-400 text-cyan-300" variant="outline">📅 Q2 2026</Badge>
+                          <CardTitle className="text-white">Phase 3-4: Full Stack</CardTitle>
+                        </div>
+                        <CardDescription className="text-cyan-200">Q2 2026</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="text-sm text-cyan-100 space-y-1">
+                          <li>• SPL-TAP & SPL-FCP protocols</li>
+                          <li>• Tool marketplace & orchestration</li>
+                          <li>• Mainnet deployment & partnerships</li>
+                          <li>• Cross-chain bridge research</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="hidden md:flex items-center justify-center md:col-start-1 md:row-start-1">
+                    <div className="w-8 h-8 rounded-full bg-cyan-500 border-4 border-slate-900 flex items-center justify-center">
+                      <Globe className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </GradientBorder>
+        </div>
       </section>
-    </div>;
+
+      <section className="py-24 bg-gradient-to-br from-purple-900 via-blue-900 to-slate-900 text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Build?
+          </h2>
+          <p className="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
+            Join the enterprise AI agent infrastructure on Solana
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link to="/agents">
+              <Button size="lg" className="bg-white text-purple-900">
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }

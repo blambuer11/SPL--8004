@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { PROGRAM_CONSTANTS, formatSOL, getScoreChangeRange } from '@/lib/program-constants';
+import { getExplorerTxUrl } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { CheckCircle2, XCircle, Shield } from 'lucide-react';
+import { CheckCircle2, XCircle, Shield, Info } from 'lucide-react';
 import bs58 from 'bs58';
 
 export default function Validation() {
@@ -59,6 +60,13 @@ export default function Validation() {
       return;
     }
 
+    // Validate Agent ID (should be base58 characters only)
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+    if (!base58Regex.test(agentId.trim())) {
+      toast.error('Agent ID contains invalid characters. Use only base58 characters (A-Z, a-z, 1-9, no 0, O, I, l)');
+      return;
+    }
+
     if (evidenceUri && evidenceUri.length > PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN) {
       toast.error(`Evidence URI must be max ${PROGRAM_CONSTANTS.MAX_EVIDENCE_URI_LEN} characters`);
       return;
@@ -66,10 +74,22 @@ export default function Validation() {
 
     setIsSubmitting(true);
     try {
+      // Submit validation directly to Solana (pays SOL fee on-chain)
       toast.info('Submitting validation to Solana...');
       const taskHashBuffer = await toTaskHash32(taskHash);
       const sig = await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
-      toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}". Tx: ${sig.slice(0,8)}...`);
+      toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}"`, {
+        description: (
+          <a
+            href={getExplorerTxUrl(sig)}
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2 text-blue-600 hover:text-blue-700"
+          >
+            View transaction on Explorer
+          </a>
+        ),
+      });
       setAgentId('');
       setTaskHash('');
       setEvidenceUri('');
@@ -87,10 +107,10 @@ export default function Validation() {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <div className="p-4 rounded-full bg-gradient-primary inline-block animate-pulse-glow">
-            <Shield className="h-12 w-12 text-primary-foreground" />
+          <div className="p-4 rounded-full border border-border inline-block">
+            <Shield className="h-12 w-12 text-foreground" />
           </div>
-          <h1 className="text-4xl font-bold glow-text">Connect Your Wallet</h1>
+          <h1 className="text-4xl font-bold text-foreground">Connect Your Wallet</h1>
           <p className="text-muted-foreground text-lg">
             Please connect your Solana wallet to submit validations.
           </p>
@@ -102,7 +122,7 @@ export default function Validation() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
-        <h1 className="text-4xl font-bold glow-text mb-2">Submit Validation</h1>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">Submit Validation</h1>
         <p className="text-muted-foreground">
           Validate agent task completion and update reputation
         </p>
@@ -118,17 +138,26 @@ export default function Validation() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-900">
+                  <p className="font-medium mb-1">Agent must be registered first</p>
+                  <p className="text-blue-700">
+                    Visit the <a href="/agents" className="underline font-medium">Agents page</a> to register a new agent before submitting validations. Use the "Register Sample (Devnet)" button for testing.
+                  </p>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="agent-id">Agent ID *</Label>
                 <Input
                   id="agent-id"
-                  placeholder="agent-123"
+                  placeholder="myAgent123 (base58 format - no spaces, 0, O, I, l)"
                   value={agentId}
                   onChange={(e) => setAgentId(e.target.value)}
                   className="bg-input border-border/50"
                 />
                 <p className="text-xs text-muted-foreground">
-                  The unique identifier of the agent being validated
+                  The unique identifier of the agent (only base58 characters: A-Z, a-z, 1-9, excluding 0, O, I, l)
                 </p>
               </div>
 

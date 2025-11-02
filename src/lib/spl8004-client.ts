@@ -6,8 +6,13 @@ import { Buffer } from "buffer";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { PROGRAM_CONSTANTS } from "./program-constants";
 
-// Program ID (Devnet)
-export const SPL8004_PROGRAM_ID = new PublicKey("G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW");
+// Program ID (configurable via env; defaults to known Devnet ID)
+const PROGRAM_ID_FROM_ENV = import.meta.env?.VITE_PROGRAM_ID as string | undefined;
+export const SPL8004_PROGRAM_ID = new PublicKey(
+  (PROGRAM_ID_FROM_ENV && PROGRAM_ID_FROM_ENV.trim().length > 0)
+    ? PROGRAM_ID_FROM_ENV.trim()
+    : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
+);
 
 // PDA Seeds
 const CONFIG_SEED = "config";
@@ -21,6 +26,15 @@ export class SPL8004Client {
   private wallet: AnchorWallet;
   private provider: AnchorProvider;
   private programId: PublicKey;
+
+    // Public getters for connection and programId
+    public getConnection(): Connection {
+      return this.connection;
+    }
+
+    public getProgramId(): PublicKey {
+      return this.programId;
+    }
 
   constructor(connection: Connection, wallet: AnchorWallet, programId?: PublicKey) {
     this.connection = connection;
@@ -109,6 +123,39 @@ export class SPL8004Client {
     // Anchor global instruction discriminator = sha256("global:<name>") first 8 bytes
     const h = await this.sha256(`global:${name}`);
     return h.slice(0, 8);
+  }
+
+  private async accountDiscriminator(name: string): Promise<Uint8Array> {
+    // Anchor account discriminator = sha256("account:<name>") first 8 bytes
+    const h = await this.sha256(`account:${name}`);
+    return h.slice(0, 8);
+  }
+
+  // Network-wide metrics
+  async getValidationCount(): Promise<number> {
+    try {
+      const disc = await this.accountDiscriminator("ValidationRegistry");
+      const accounts = await this.connection.getProgramAccounts(this.programId, {
+        filters: [{ memcmp: { offset: 0, bytes: bs58.encode(disc) } }],
+      });
+      return accounts.length;
+    } catch (e) {
+      console.warn("getValidationCount failed", e);
+      return 0;
+    }
+  }
+
+  async getRewardPoolsTotalLamports(): Promise<number> {
+    try {
+      const disc = await this.accountDiscriminator("RewardPool");
+      const accounts = await this.connection.getProgramAccounts(this.programId, {
+        filters: [{ memcmp: { offset: 0, bytes: bs58.encode(disc) } }],
+      });
+      return accounts.reduce((sum, a) => sum + (a.account.lamports ?? 0), 0);
+    } catch (e) {
+      console.warn("getRewardPoolsTotalLamports failed", e);
+      return 0;
+    }
   }
 
   private encodeString(str: string): Uint8Array {
@@ -276,25 +323,28 @@ export class SPL8004Client {
         try {
           // Parse IdentityRegistry structure
           const data = account.data;
-          if (data.length < 8) continue; // Not an identity account
+          if (data.length < 8 + 32 + 4) continue; // basic checks
+          const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
           // Layout: [disc(8)][owner(32)][agent_id_len(4)][agent_id][metadata_uri_len(4)][metadata_uri][created(8)][updated(8)][is_active(1)][bump(1)]
           let offset = 8 + 32; // skip disc + owner
-          const agentIdLen = data.readUInt32LE(offset);
+          const agentIdLen = view.getUint32(offset, true);
           offset += 4;
           if (offset + agentIdLen > data.length) continue;
           const agentId = new TextDecoder().decode(data.slice(offset, offset + agentIdLen));
           offset += agentIdLen;
 
-          const metadataUriLen = data.readUInt32LE(offset);
+          if (offset + 4 > data.length) continue;
+          const metadataUriLen = view.getUint32(offset, true);
           offset += 4;
           if (offset + metadataUriLen > data.length) continue;
           const metadataUri = new TextDecoder().decode(data.slice(offset, offset + metadataUriLen));
           offset += metadataUriLen;
 
-          const createdAt = data.readBigInt64LE(offset);
+          if (offset + 8 + 8 + 1 > data.length) continue;
+          const createdAt = Number(view.getBigInt64(offset, true));
           offset += 8;
-          const updatedAt = data.readBigInt64LE(offset);
+          const updatedAt = Number(view.getBigInt64(offset, true));
           offset += 8;
           const isActive = data[offset] === 1;
 
@@ -331,6 +381,96 @@ export class SPL8004Client {
       return agents;
     } catch (error) {
       console.error("Error fetching user agents:", error);
+      return [];
+    }
+  }
+
+  async getAllNetworkAgents() {
+    try {
+      // Filter by IdentityRegistry account discriminator at offset 0
+      const disc = await this.accountDiscriminator("IdentityRegistry");
+      let accounts = await this.connection.getProgramAccounts(this.programId, {
+        filters: [
+          {
+            memcmp: {
+              offset: 0,
+              bytes: bs58.encode(disc),
+            },
+          },
+        ],
+      });
+
+      // Fallback: if none returned (RPC quirk or program changes), scan all and match discriminator manually
+      if (!accounts || accounts.length === 0) {
+        const all = await this.connection.getProgramAccounts(this.programId);
+        accounts = all.filter((a) => a.account.data?.length >= 8 && bs58.encode(a.account.data.slice(0, 8)) === bs58.encode(disc));
+      }
+
+      const agents: Array<{
+        agentId: string;
+        owner: string;
+        metadataUri: string;
+        isActive: boolean;
+        createdAt?: number;
+        updatedAt?: number;
+        score?: number;
+        totalTasks?: number;
+        successfulTasks?: number;
+        failedTasks?: number;
+      }> = [];
+
+      for (const { pubkey, account } of accounts) {
+        try {
+          const data = account.data;
+          if (!data || data.length < 8 + 32) continue;
+          const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+          let offset = 8; // discriminator
+          const owner = new PublicKey(data.slice(offset, offset + 32));
+          offset += 32;
+
+          if (offset + 4 > data.length) continue;
+          const agentIdLen = view.getUint32(offset, true);
+          offset += 4;
+          if (offset + agentIdLen > data.length) continue;
+          const agentId = new TextDecoder().decode(data.slice(offset, offset + agentIdLen));
+          offset += agentIdLen;
+
+          if (offset + 4 > data.length) continue;
+          const metadataUriLen = view.getUint32(offset, true);
+          offset += 4;
+          if (offset + metadataUriLen > data.length) continue;
+          const metadataUri = new TextDecoder().decode(data.slice(offset, offset + metadataUriLen));
+          offset += metadataUriLen;
+
+          // Read created_at and updated_at
+          if (offset + 8 + 8 + 1 > data.length) continue;
+          const createdAt = Number(view.getBigInt64(offset, true));
+          offset += 8;
+          const updatedAt = Number(view.getBigInt64(offset, true));
+          offset += 8;
+          const isActive = data[offset] === 1;
+
+          const rep = await this.getReputation(agentId);
+          agents.push({
+            agentId,
+            owner: owner.toBase58(),
+            metadataUri,
+            isActive,
+            createdAt,
+            updatedAt,
+            score: rep?.score ?? 5000,
+            totalTasks: rep?.totalTasks ?? 0,
+            successfulTasks: rep?.successfulTasks ?? 0,
+            failedTasks: rep?.failedTasks ?? 0,
+          });
+        } catch (e) {
+          console.warn("Failed to parse identity account:", pubkey.toBase58(), e);
+        }
+      }
+
+      return agents;
+    } catch (error) {
+      console.error("Error fetching network agents:", error);
       return [];
     }
   }
@@ -551,6 +691,25 @@ export class SPL8004Client {
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data: Buffer.from(data),
+    });
+
+    return this.send([ix]);
+  }
+
+  /**
+   * Sponsor an agent by funding its reward pool with native SOL.
+   * This performs a SystemProgram.transfer to the agent's RewardPool PDA.
+   * Note: Program may account for lamports on-chain when claiming/rewarding.
+   */
+  async fundRewardPool(agentId: string, lamports: number): Promise<string> {
+    if (lamports <= 0) throw new Error("Amount must be > 0");
+    const cleanId = this.normalizeAgentId(agentId);
+    const [rewardPoolPda] = this.findRewardPoolPda(cleanId);
+
+    const ix = SystemProgram.transfer({
+      fromPubkey: this.wallet.publicKey,
+      toPubkey: rewardPoolPda,
+      lamports,
     });
 
     return this.send([ix]);

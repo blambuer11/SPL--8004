@@ -2,23 +2,36 @@ import { useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { createSPL8004Client, SPL8004Client } from '@/lib/spl8004-client';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
+import { Keypair } from '@solana/web3.js';
 
 export function useSPL8004() {
   const { connection } = useConnection();
   const wallet = useWallet();
 
   const client = useMemo(() => {
-    if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) {
-      return null;
+    // When wallet is connected, use real wallet
+    if (wallet.publicKey && wallet.signTransaction && wallet.signAllTransactions) {
+      const anchorWallet: AnchorWallet = {
+        publicKey: wallet.publicKey,
+        signTransaction: wallet.signTransaction,
+        signAllTransactions: wallet.signAllTransactions,
+      };
+      return createSPL8004Client(connection, anchorWallet);
     }
 
-    const anchorWallet: AnchorWallet = {
-      publicKey: wallet.publicKey,
-      signTransaction: wallet.signTransaction,
-      signAllTransactions: wallet.signAllTransactions,
-    };
+    // Fallback: create a read-only client for public data fetching
+    const kp = Keypair.generate();
+    const readonlyWallet: AnchorWallet = {
+      publicKey: kp.publicKey,
+      async signTransaction() {
+        throw new Error('Wallet not connected');
+      },
+      async signAllTransactions() {
+        throw new Error('Wallet not connected');
+      },
+    } as unknown as AnchorWallet;
 
-    return createSPL8004Client(connection, anchorWallet);
+    return createSPL8004Client(connection, readonlyWallet);
   }, [connection, wallet.publicKey, wallet.signTransaction, wallet.signAllTransactions]);
 
   return {
