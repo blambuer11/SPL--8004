@@ -29,6 +29,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       // localStorage may not be available
     }
     const envNet = (import.meta.env?.VITE_SOLANA_NETWORK as Network | undefined) || 'devnet';
+    console.log('🌐 NetworkProvider initialized with network:', envNet);
     return envNet;
   });
 
@@ -41,25 +42,34 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   }, [network]);
 
   const endpoint = useMemo(() => {
-    // Prefer explicit env endpoints per network if provided
-    const byNet = (n: Network) => {
-      if (n === 'mainnet-beta' && import.meta.env?.VITE_SOLANA_MAINNET_RPC) return String(import.meta.env.VITE_SOLANA_MAINNET_RPC);
-      if (n === 'testnet' && import.meta.env?.VITE_SOLANA_TESTNET_RPC) return String(import.meta.env.VITE_SOLANA_TESTNET_RPC);
-      if (n === 'devnet' && import.meta.env?.VITE_SOLANA_DEVNET_RPC) return String(import.meta.env.VITE_SOLANA_DEVNET_RPC);
-      const map: Record<Network, WalletAdapterNetwork> = {
-        'devnet': WalletAdapterNetwork.Devnet,
-        'mainnet-beta': WalletAdapterNetwork.Mainnet,
-        'testnet': WalletAdapterNetwork.Testnet,
+    try {
+      // Prefer explicit env endpoints per network if provided
+      const byNet = (n: Network) => {
+        if (n === 'mainnet-beta' && import.meta.env?.VITE_SOLANA_MAINNET_RPC) return String(import.meta.env.VITE_SOLANA_MAINNET_RPC);
+        if (n === 'testnet' && import.meta.env?.VITE_SOLANA_TESTNET_RPC) return String(import.meta.env.VITE_SOLANA_TESTNET_RPC);
+        if (n === 'devnet' && import.meta.env?.VITE_SOLANA_DEVNET_RPC) return String(import.meta.env.VITE_SOLANA_DEVNET_RPC);
+        const map: Record<Network, WalletAdapterNetwork> = {
+          'devnet': WalletAdapterNetwork.Devnet,
+          'mainnet-beta': WalletAdapterNetwork.Mainnet,
+          'testnet': WalletAdapterNetwork.Testnet,
+        };
+        return clusterApiUrl(map[n]);
       };
-      return clusterApiUrl(map[n]);
-    };
-    // Global override
-    const globalRpc = (import.meta.env?.VITE_SOLANA_RPC as string | undefined) || (import.meta.env?.VITE_RPC_ENDPOINT as string | undefined);
-    return globalRpc || byNet(network);
+      // Global override
+      const globalRpc = (import.meta.env?.VITE_SOLANA_RPC as string | undefined) || (import.meta.env?.VITE_RPC_ENDPOINT as string | undefined);
+      return globalRpc || byNet(network);
+    } catch (err) {
+      console.error('NetworkProvider endpoint error:', err);
+      return 'https://api.devnet.solana.com'; // Fallback to safe default
+    }
   }, [network]);
 
   const setNet = useCallback((n: Network) => setNetwork(n), []);
 
-  const value = useMemo(() => ({ network, endpoint, setNetwork: setNet }), [network, endpoint, setNet]);
+  const value = useMemo(() => {
+    console.log('🔗 NetworkProvider context update:', { network, endpoint });
+    return { network, endpoint, setNetwork: setNet };
+  }, [network, endpoint, setNet]);
+  
   return <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>;
 }

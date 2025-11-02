@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-// import AppTest from "./App.test.tsx"; // Uncomment to test minimal app
+// import App from "./App.test.tsx"; // Uncomment to test minimal app
 import "./index.css";
 // Minimal Buffer polyfill for browser
 import { Buffer } from "buffer";

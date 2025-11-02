@@ -13,6 +13,7 @@ interface WalletProviderProps {
 // Inner component that uses the hook
 const WalletProviderInner: FC<WalletProviderProps> = ({ children }) => {
   const { endpoint } = useNetwork();
+  console.log('💼 WalletProvider received endpoint:', endpoint);
 
   const wallets = useMemo(
     () => [
