@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Play,
   Terminal,
-  BookOpen
+  BookOpen,
+  Network
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useWallet, AnchorWallet } from '@solana/wallet-adapter-react';
@@ -70,7 +71,7 @@ export default function LaunchApp() {
   async function toTaskHash32(input: string): Promise<Uint8Array> {
     const enc = new TextEncoder();
     const data = enc.encode(input.trim());
-    const digest = await crypto.subtle.digest('SHA-256', data);
+    const digest = await crypto.subtle.digest('SHA-256', data.buffer as ArrayBuffer);
     return new Uint8Array(digest);
   }
 

@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Agents() {
   const { client, connected, publicKey } = useSPL8004();
@@ -135,7 +136,8 @@ export default function Agents() {
     });
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <DashboardLayout>
+    <div className="container mx-auto px-4 py-8 space-y-6 min-h-screen">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2 text-gray-900">AI Agents</h1>
@@ -313,5 +315,6 @@ export default function Agents() {
         )}
       </div>
     </div>
+    </DashboardLayout>
   );
 }

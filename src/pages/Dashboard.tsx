@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Plus, Coins, Shield, TrendingUp } from 'lucide-react';
 import { StatsCard } from '@/components/StatsCard';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Dashboard() {
   const { connected } = useWallet();
@@ -121,29 +123,34 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold mb-2 text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Manage your AI agents and track their performance</p>
-      </div>
+    <DashboardLayout>
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground">Manage your AI agents and track their performance</p>
+          </div>
+          <WalletMultiButton className="!bg-gradient-to-r !from-emerald-500 !to-cyan-500 hover:!from-emerald-600 hover:!to-cyan-600" />
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <StatsCard title="My Agents" value={myAgents.length.toString()} icon={Shield} description="Total registered agents" />
-        <StatsCard title="Total Rewards" value={`${formatSOL(totalRewards)} SOL`} icon={Coins} description="Claimable rewards" />
-        <StatsCard
-          title="Avg. Reputation"
-          value={myAgents.length > 0 ? Math.round(myAgents.reduce((s, a) => s + a.reputation.score, 0) / myAgents.length).toString() : '5000'}
-          icon={TrendingUp}
-          description="Average score across agents"
-        />
-      </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <StatsCard title="My Agents" value={myAgents.length.toString()} icon={Shield} description="Total registered agents" />
+          <StatsCard title="Total Rewards" value={`${formatSOL(totalRewards)} SOL`} icon={Coins} description="Claimable rewards" />
+          <StatsCard
+            title="Avg. Reputation"
+            value={myAgents.length > 0 ? Math.round(myAgents.reduce((s, a) => s + a.reputation.score, 0) / myAgents.length).toString() : '5000'}
+            icon={TrendingUp}
+            description="Average score across agents"
+          />
+        </div>
 
-      <div className="flex flex-wrap gap-3">
-        <a href="/agents" className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800">Manage Agents</a>
-        <a href="/validation" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Submit Validation</a>
-        <a href="/payments" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">X402 Payments</a>
-        <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
-      </div>
+        {/* Mobile navigation */}
+        <div className="lg:hidden flex flex-wrap gap-3">
+          <a href="/agents" className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800">Manage Agents</a>
+          <a href="/validation" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Submit Validation</a>
+          <a href="/payments" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">X402 Payments</a>
+          <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
+        </div>
 
       <Tabs defaultValue="register" className="space-y-6">
         <TabsList className="bg-muted/50">
@@ -282,7 +289,8 @@ export default function Dashboard() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
  

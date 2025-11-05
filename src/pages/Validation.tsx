@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { CheckCircle2, XCircle, Shield, Info } from 'lucide-react';
 import bs58 from 'bs58';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Validation() {
   const { connected } = useWallet();
@@ -120,6 +121,7 @@ export default function Validation() {
   }
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
         <h1 className="text-4xl font-bold mb-2 text-foreground">Submit Validation</h1>
@@ -286,5 +288,6 @@ export default function Validation() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

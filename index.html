@@ -24,22 +24,6 @@
 
   <body>
     <div id="root"></div>
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-      // Expose mermaid to window so SPA routes can trigger re-render (mermaid.run)
-      window.mermaid = mermaid;
-      mermaid.initialize({ 
-        startOnLoad: true,
-        theme: 'base',
-        themeVariables: {
-          primaryColor: '#e5e7eb',
-          primaryTextColor: '#111827',
-          primaryBorderColor: '#d1d5db',
-          lineColor: '#9ca3af',
-          background: 'transparent'
-        }
-      });
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

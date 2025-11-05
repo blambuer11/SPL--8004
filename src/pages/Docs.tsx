@@ -15,7 +15,7 @@ type NavItem = {
 
 const nav: NavItem[] = [
   { id: 'introduction', title: 'Introduction', icon: BookOpen },
-  { id: 'what-is-noema', title: 'What is Noema Protocol?', icon: Sparkles },
+  { id: 'what-is-noema', title: 'What is Noema?', icon: Sparkles },
   {
     id: 'platform-pages',
     title: 'Platform Pages',
@@ -31,10 +31,11 @@ const nav: NavItem[] = [
     title: 'Protocol Stack',
     icon: Network,
     children: [
-      { id: 'spl-8004', title: 'SPL-8004 (Live)' },
-      { id: 'spl-acp', title: 'SPL-ACP (Q1 2026)' },
-      { id: 'spl-tap', title: 'SPL-TAP (Q2 2026)' },
-      { id: 'spl-fcp', title: 'SPL-FCP (Q2 2026)' },
+      { id: 'spl-8004', title: 'SPL-8004 (Identity) - Live' },
+      { id: 'spl-acp', title: 'SPL-ACP (Comms) - Q1 2026' },
+      { id: 'spl-tap', title: 'SPL-TAP (Tools) - Q2 2026' },
+      { id: 'spl-fcp', title: 'SPL-FCP (Functions) - Q3 2026' },
+      { id: 'spl-pay', title: 'X402 Payments - Q4 2026' },
     ],
   },
   {
@@ -241,70 +242,74 @@ export default function Docs() {
               </section>
 
               <section id="what-is-noema" className="scroll-mt-24">
-                <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 mb-4">
+                <Badge className="bg-slate-900 text-white border-0 mb-4">
                   <Sparkles className="w-4 h-4 mr-2" />
                   What is Noema?
                 </Badge>
-                <h2 className="text-4xl font-bold mb-6 text-gray-900">What is Noema Protocol?</h2>
+                <h2 className="text-4xl font-bold mb-6 text-slate-900">Noema Protocol: Payment Infrastructure for AI Agents</h2>
                 
-                <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white p-8 shadow-xl mb-6">
-                  <h3 className="text-2xl font-bold mb-4 text-blue-900">The Stripe of AI Agent Identity</h3>
-                  <p className="text-lg text-gray-700 mb-4">
-                    Just like <strong>Stripe</strong> made payments simple for developers, 
-                    <strong className="text-purple-600"> Noema Protocol</strong> makes AI agent infrastructure simple.
+                <Card className="border border-slate-200 bg-white p-8 shadow-sm mb-6">
+                  <h3 className="text-2xl font-bold mb-4 text-slate-900">Complete Infrastructure for AI Agents</h3>
+                  <p className="text-lg text-slate-700 mb-4">
+                    <strong className="text-slate-900">Noema Protocol</strong> provides payment and identity infrastructure for AI agents: 
+                    on-chain identity, autonomous payments, and reputation. Built on <strong>SPL-X protocols</strong>.
                   </p>
                   
-                  <div className="bg-white rounded-lg p-6 border border-blue-100 mb-4">
-                    <code className="text-sm text-gray-800">
-                      <span className="text-gray-500">// From this (complex blockchain code)</span><br/>
+                  <div className="bg-slate-50 rounded-lg p-6 border border-slate-200 mb-4">
+                    <code className="text-sm text-slate-800">
+                      <span className="text-slate-500">// From this (complex blockchain code)</span><br/>
                       <span className="text-red-600">❌ PublicKey.findProgramAddress(['identity', Buffer.from(agentId)])</span><br/>
                       <span className="text-red-600">❌ transaction.add(createInstruction(...))</span><br/>
                       <span className="text-red-600">❌ await sendAndConfirmTransaction(...)</span><br/><br/>
                       
-                      <span className="text-gray-500">// To this (simple API)</span><br/>
-                      <span className="text-green-600">✅ npm install @noema/sdk</span><br/>
-                      <span className="text-green-600">✅ const agent = await noema.agents.create({'{'} name: "Bot" {'}'})</span>
+                      <span className="text-slate-500">// To this (simple SDK)</span><br/>
+                      <span className="text-emerald-600">✅ npm install @noema/sdk</span><br/>
+                      <span className="text-emerald-600">✅ const agent = await noema.agents.create({'{'} name: "Bot" {'}'})</span>
                     </code>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-semibold text-sm mb-2 text-gray-900">🔧 Technical Layer</h4>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        <li>• <strong>SPL-8004:</strong> Token standard (like ERC-721)</li>
-                        <li>• <strong>X402:</strong> Micropayment protocol</li>
-                        <li>• <strong>Kora:</strong> Gasless transactions</li>
+                      <h4 className="font-semibold text-sm mb-2 text-slate-900">🏗️ Protocol Stack</h4>
+                      <ul className="text-sm text-slate-700 space-y-1">
+                        <li>• <strong>SPL-8004:</strong> Identity & reputation</li>
+                        <li>• <strong>SPL-ACP:</strong> Communication (Q1 2026)</li>
+                        <li>• <strong>SPL-TAP:</strong> Tool abstraction (Q2 2026)</li>
+                        <li>• <strong>SPL-FCP:</strong> Function calls (Q3 2026)</li>
+                        <li>• <strong>X402:</strong> Payment protocol (Q4 2026)</li>
+                        <li>• <strong>SDK:</strong> TypeScript + Anchor</li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm mb-2 text-gray-900">💼 Business Layer</h4>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        <li>• <strong>TypeScript SDK:</strong> $99-999/mo</li>
-                        <li>• <strong>REST API:</strong> $0.001/call</li>
-                        <li>• <strong>No-Code Kit:</strong> $29-499/mo</li>
+                      <h4 className="font-semibold text-sm mb-2 text-slate-900">💼 Built on Solana</h4>
+                      <ul className="text-sm text-slate-700 space-y-1">
+                        <li>• <strong>SPL-8004:</strong> On-chain identity standard</li>
+                        <li>• <strong>X402:</strong> HTTP payment protocol</li>
+                        <li>• <strong>400ms finality:</strong> Solana speed</li>
+                        <li>• <strong>Gasless:</strong> No SOL needed</li>
                       </ul>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white p-6 shadow-lg">
-                  <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <Network className="h-5 w-5 text-purple-600" />
+                <Card className="border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-slate-900">
+                    <Network className="h-5 w-5 text-slate-900" />
                     Why Solana?
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <h4 className="font-semibold text-sm mb-2">❌ Ethereum (ERC-8004)</h4>
-                      <ul className="text-xs text-gray-600 space-y-1">
+                    <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                      <h4 className="font-semibold text-sm mb-2 text-slate-900">❌ Ethereum (ERC-8004)</h4>
+                      <ul className="text-xs text-slate-600 space-y-1">
                         <li>• ~15 transactions/second</li>
                         <li>• $5-50 gas fees per tx</li>
                         <li>• 12-15s confirmation time</li>
                         <li>• Too slow for AI agents</li>
                       </ul>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg p-4 border-2 border-purple-300">
-                      <h4 className="font-semibold text-sm mb-2 text-purple-900">✅ Solana (SPL-8004)</h4>
-                      <ul className="text-xs text-gray-900 space-y-1">
+                    <div className="bg-slate-50 rounded-lg p-4 border-2 border-slate-900">
+                      <h4 className="font-semibold text-sm mb-2 text-slate-900">✅ Solana (SPL-8004)</h4>
+                      <ul className="text-xs text-slate-700 space-y-1">
                         <li>• 65,000+ transactions/second</li>
                         <li>• $0.00025 per transaction</li>
                         <li>• 400ms confirmation time</li>
@@ -568,90 +573,90 @@ export default function Docs() {
 
               {/* Protocol Stack */}
               <section id="protocol-stack" className="scroll-mt-24">
-                <Badge className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 mb-4">
+                <Badge className="bg-slate-900 text-white border-0 mb-4">
                   <Network className="w-4 h-4 mr-2" />
                   Protocol Stack
                 </Badge>
-                <h2 className="text-4xl font-bold mb-6 text-gray-900">Noema Protocol Stack</h2>
-                <p className="text-lg text-gray-600 mb-8">
-                  Noema is building a complete trust infrastructure for AI agents through four complementary protocols:
+                <h2 className="text-4xl font-bold mb-6 text-slate-900">SPL-X Protocol Standards</h2>
+                <p className="text-lg text-slate-600 mb-8">
+                  Four integrated protocol standards built on Solana for complete agent infrastructure:
                 </p>
 
                 {/* Architecture Diagram */}
-                <Card className="border-2 border-gray-200 bg-white p-8 shadow-xl mb-8">
-                  <h3 className="text-2xl font-bold mb-6 text-center text-gray-900">Architecture Overview</h3>
+                <Card className="border border-slate-200 bg-white p-8 shadow-sm mb-8">
+                  <h3 className="text-2xl font-bold mb-6 text-center text-slate-900">Architecture Overview</h3>
                   <div className="space-y-4">
                     {/* Application Layer */}
-                    <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg p-4 border-2 border-purple-300">
-                      <h4 className="font-bold text-sm mb-2 text-purple-900">🎯 Application Layer</h4>
-                      <p className="text-xs text-gray-700">TypeScript SDK • REST API • No-Code Kit • Agent Dashboard</p>
+                    <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                      <h4 className="font-bold text-sm mb-2 text-slate-900">🎯 Application Layer</h4>
+                      <p className="text-xs text-slate-700">TypeScript SDK • REST API • No-Code Kit • Agent Dashboard</p>
                     </div>
 
                     {/* Protocol Layer */}
-                    <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-6 border-2 border-blue-300">
-                      <h4 className="font-bold text-sm mb-3 text-blue-900">🔧 Protocol Layer</h4>
+                    <div className="bg-slate-50 rounded-lg p-6 border-2 border-slate-900">
+                      <h4 className="font-bold text-sm mb-3 text-slate-900">🏗️ Protocol Stack</h4>
                       <div className="grid md:grid-cols-4 gap-3 text-xs">
-                        <div className="bg-white rounded p-3 border border-green-200">
-                          <strong className="text-green-700">SPL-8004</strong>
-                          <p className="text-gray-600 mt-1">Identity • Reputation</p>
+                        <div className="bg-white rounded p-3 border-2 border-slate-900">
+                          <strong className="text-slate-900">SPL-8004</strong>
+                          <p className="text-slate-600 mt-1">Identity • Live</p>
                         </div>
-                        <div className="bg-white rounded p-3 border border-gray-200">
-                          <strong className="text-gray-400">SPL-ACP</strong>
-                          <p className="text-gray-400 mt-1">Capabilities</p>
+                        <div className="bg-white rounded p-3 border border-slate-300">
+                          <strong className="text-slate-900">SPL-ACP</strong>
+                          <p className="text-slate-500 mt-1">Comms • Q1 '26</p>
                         </div>
-                        <div className="bg-white rounded p-3 border border-gray-200">
-                          <strong className="text-gray-400">SPL-TAP</strong>
-                          <p className="text-gray-400 mt-1">Attestations</p>
+                        <div className="bg-white rounded p-3 border border-slate-300">
+                          <strong className="text-slate-900">SPL-TAP</strong>
+                          <p className="text-slate-500 mt-1">Tools • Q2 '26</p>
                         </div>
-                        <div className="bg-white rounded p-3 border border-gray-200">
-                          <strong className="text-gray-400">SPL-FCP</strong>
-                          <p className="text-gray-400 mt-1">Finality</p>
+                        <div className="bg-white rounded p-3 border border-slate-300">
+                          <strong className="text-slate-900">SPL-FCP</strong>
+                          <p className="text-slate-500 mt-1">Functions • Q3 '26</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Infrastructure Layer */}
-                    <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg p-4 border-2 border-gray-300">
-                      <h4 className="font-bold text-sm mb-2 text-gray-900">⚡ Infrastructure Layer</h4>
-                      <p className="text-xs text-gray-700">Solana Blockchain • X402 Payments • Kora Gasless • IPFS/Arweave Storage</p>
+                    <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                      <h4 className="font-bold text-sm mb-2 text-slate-900">⚡ Infrastructure Layer</h4>
+                      <p className="text-xs text-slate-700">Solana Blockchain • X402 Payments • Gasless Transactions • IPFS Storage</p>
                     </div>
                   </div>
                 </Card>
 
                 {/* SPL-8004 */}
-                <Card id="spl-8004" className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white p-8 shadow-xl mb-8 scroll-mt-24">
+                <Card id="spl-8004" className="border border-slate-200 bg-white p-8 shadow-sm mb-8 scroll-mt-24">
                   <div className="flex items-center gap-3 mb-4">
-                    <Badge className="bg-green-500 text-white">Live on Devnet</Badge>
-                    <h3 className="text-2xl font-bold text-green-900">SPL-8004: Identity & Reputation</h3>
+                    <Badge className="bg-slate-900 text-white">Live on Devnet</Badge>
+                    <h3 className="text-2xl font-bold text-slate-900">SPL-8004 (Identity)</h3>
                   </div>
                   
-                  <p className="text-gray-700 mb-6">
-                    <strong>Purpose:</strong> On-chain identity registry and dynamic reputation scoring for AI agents.
+                  <p className="text-slate-700 mb-6">
+                    <strong>Identity & Reputation System:</strong> On-chain identity registry and dynamic reputation scoring built on SPL-8004 protocol.
                   </p>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-semibold text-lg mb-3">✅ Features</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>Agent Registration:</strong> Create unique on-chain identity</li>
+                      <h4 className="font-semibold text-lg mb-3 text-slate-900">✅ Features</h4>
+                      <ul className="space-y-2 text-sm text-slate-700">
+                        <li>• <strong>Agent Registration:</strong> Unique on-chain identity</li>
                         <li>• <strong>Reputation System:</strong> Dynamic 0-10,000 scoring</li>
-                        <li>• <strong>Validation Registry:</strong> Trustless task verification</li>
-                        <li>• <strong>Reward Pools:</strong> Performance-based incentives</li>
+                        <li>• <strong>Validation Registry:</strong> Trustless verification</li>
+                        <li>• <strong>Reward Pools:</strong> Performance incentives</li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-lg mb-3">📦 Program Details</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>Program ID:</strong> <code className="bg-green-100 px-2 py-1 rounded text-xs">G8iYmvncvWsf...</code></li>
-                        <li>• <strong>Network:</strong> Solana Devnet</li>
+                      <h4 className="font-semibold text-lg mb-3 text-slate-900">📦 Technical Details</h4>
+                      <ul className="space-y-2 text-sm text-slate-700">
+                        <li>• <strong>Protocol:</strong> SPL-8004 (Solana)</li>
+                        <li>• <strong>Network:</strong> Devnet (Live)</li>
                         <li>• <strong>Status:</strong> ✅ Production Ready</li>
-                        <li>• <strong>Mainnet:</strong> Q2 2025</li>
+                        <li>• <strong>Mainnet:</strong> Q1 2026</li>
                       </ul>
                     </div>
                   </div>
 
                   <CodeExample
-                    title="Register an Agent"
+                    title="Register an Agent with SPL-8004"
                     language="typescript"
                     code={`import { createSPL8004Client } from '@noema/sdk';
 

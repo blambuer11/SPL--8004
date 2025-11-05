@@ -7,138 +7,185 @@ import { Shield, ArrowRight, CheckCircle2, Code2, TrendingUp, MessageSquare, Wre
 export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-950 via-slate-900 to-blue-950 text-white">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-        </div>
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full blur-3xl opacity-20" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20" />
-        <div className="relative container mx-auto px-6 py-24 text-center">
-          <Badge variant="outline" className="mb-6 border-purple-400 text-purple-300 px-4 py-2">
-            <Bot className="w-4 h-4 mr-2 inline" />
-            Solana AI Agent Infrastructure
-          </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            The AWS of AI Agents
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto">
-            Enterprise-grade protocol infrastructure for autonomous agents
-          </p>
-          <div className="flex gap-4 justify-center mb-8">
-            <Link to="/launch">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600">
-                Start Building <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/docs">
-              <Button size="lg" variant="outline" className="border-purple-400 text-purple-300">
-                Documentation
-              </Button>
-            </Link>
+      <section className="relative overflow-hidden bg-white">
+        <div className="container mx-auto px-6 py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left - Content */}
+            <div>
+              <Badge className="mb-6 bg-slate-100 text-slate-900 border-slate-200">
+                <Bot className="w-4 h-4 mr-2" />
+                Live on Devnet
+              </Badge>
+              
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-slate-900 leading-tight">
+                Payment Infrastructure
+                <br />
+                <span className="text-slate-600">for AI Agents</span>
+              </h1>
+              
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+                Let your AI agents pay automatically, own on-chain identity, and build reputation. All on-chain. Fully autonomous.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <Link to="/app">
+                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white px-8">
+                    <ArrowRight className="mr-2 h-5 w-5" />
+                    Start Building
+                  </Button>
+                </Link>
+                <Link to="/docs">
+                  <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-slate-50 px-8">
+                    Documentation
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Live Stats */}
+              <div className="grid grid-cols-3 gap-6">
+                <div>
+                  <div className="text-3xl font-bold text-slate-900">1,000+</div>
+                  <div className="text-sm text-slate-600 mt-1">Active Agents</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-slate-900">$10K+</div>
+                  <div className="text-sm text-slate-600 mt-1">Volume</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-slate-900">99.9%</div>
+                  <div className="text-sm text-slate-600 mt-1">Uptime</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Visual */}
+            <div className="relative">
+              <div className="space-y-4">
+                {/* Agent Request */}
+                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-white font-bold">
+                    AI
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-slate-900">Agent Request</div>
+                    <div className="text-xs text-slate-600">Accessing paid API...</div>
+                  </div>
+                </div>
+
+                {/* Auto Payment */}
+                <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+                    ✓
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-emerald-900">Auto Payment</div>
+                    <div className="text-xs text-emerald-700">0.0001 USDC • Confirmed</div>
+                  </div>
+                </div>
+
+                {/* Data Received */}
+                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                    📊
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-blue-900">Data Received</div>
+                    <div className="text-xs text-blue-700">Task completed successfully</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-6">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16">
-            <Badge className="mb-4">Protocol Stack</Badge>
-            <h2 className="text-4xl font-bold mb-4">Four Protocol Standards</h2>
+      <section className="py-20 px-6 bg-slate-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-slate-900 text-white">Protocol Stack</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Built on SPL-X Protocols</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Four integrated standards for complete agent infrastructure</p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border-2 hover:border-purple-500 transition-colors">
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-white border-slate-200">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-purple-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-slate-900" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl">SPL-8004</CardTitle>
-                    <Badge variant="outline" className="text-emerald-600 border-emerald-600">Live on Devnet</Badge>
+                    <CardTitle className="text-2xl text-slate-900">SPL-8004</CardTitle>
+                    <Badge className="bg-slate-900 text-white">LIVE</Badge>
                   </div>
                 </div>
-                <CardDescription>Identity & Reputation Registry</CardDescription>
+                <CardDescription className="text-slate-600">Identity & Reputation Registry</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>PDA-based identity storage</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Dynamic reputation (0-10K scale)</span>
-                  </div>
-                </div>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li>• PDA-based identity storage</li>
+                  <li>• Dynamic reputation (0-10K scale)</li>
+                </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-blue-500 transition-colors">
+            <Card className="bg-white border-slate-200">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-slate-900" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl">SPL-ACP</CardTitle>
-                    <Badge variant="outline" className="text-amber-600 border-amber-600">Q1 2026</Badge>
+                    <CardTitle className="text-2xl text-slate-900">SPL-ACP</CardTitle>
+                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q1 2026</Badge>
                   </div>
                 </div>
-                <CardDescription>Agent Communication Protocol</CardDescription>
+                <CardDescription className="text-slate-600">Agent Communication Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-amber-600" />
-                    <span>Private & broadcast channels</span>
-                  </div>
-                </div>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li>• Private & broadcast channels</li>
+                </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-cyan-500 transition-colors">
+            <Card className="bg-white border-slate-200">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                    <Wrench className="w-6 h-6 text-cyan-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Wrench className="w-6 h-6 text-slate-900" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl">SPL-TAP</CardTitle>
-                    <Badge variant="outline" className="text-amber-600 border-amber-600">Q2 2026</Badge>
+                    <CardTitle className="text-2xl text-slate-900">SPL-TAP</CardTitle>
+                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q2 2026</Badge>
                   </div>
                 </div>
-                <CardDescription>Tool Abstraction Protocol</CardDescription>
+                <CardDescription className="text-slate-600">Tool Abstraction Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-amber-600" />
-                    <span>JSON schema validation</span>
-                  </div>
-                </div>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li>• JSON schema validation</li>
+                </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-emerald-500 transition-colors">
+            <Card className="bg-white border-slate-200">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Code2 className="w-6 h-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <Code2 className="w-6 h-6 text-slate-900" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl">SPL-FCP</CardTitle>
-                    <Badge variant="outline" className="text-amber-600 border-amber-600">Q2 2026</Badge>
+                    <CardTitle className="text-2xl text-slate-900">SPL-FCP</CardTitle>
+                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q2 2026</Badge>
                   </div>
                 </div>
-                <CardDescription>Function Call Protocol</CardDescription>
+                <CardDescription className="text-slate-600">Function Call Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-amber-600" />
-                    <span>OpenAI/Claude compatible</span>
-                  </div>
-                </div>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li>• OpenAI/Claude compatible</li>
+                </ul>
               </CardContent>
             </Card>
           </div>
@@ -219,18 +266,18 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20 px-6 bg-gradient-to-br from-purple-950 via-slate-900 to-blue-950 text-white">
+      <section className="py-20 px-6 bg-slate-50">
         <div className="container mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Build?</h2>
-          <p className="text-xl text-slate-300 mb-8">Join the future of autonomous AI agents on Solana</p>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900">Ready to Build?</h2>
+          <p className="text-xl text-slate-600 mb-8">Join the future of autonomous AI agents on Solana</p>
           <div className="flex gap-4 justify-center">
             <Link to="/app">
-              <Button size="lg" className="bg-white text-purple-900">
+              <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white">
                 Launch Dashboard <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/docs">
-              <Button size="lg" variant="outline" className="border-white text-white">
+              <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
                 Read Documentation
               </Button>
             </Link>

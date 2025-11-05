@@ -1,0 +1,616 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import {
+  Shield, ArrowRight, CheckCircle2, Bot, Zap, Wallet, Code, 
+  Users, TrendingUp, Sparkles, Terminal, Package, BookOpen, 
+  Play, Check, Activity
+} from 'lucide-react';
+
+export default function Index() {
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 text-white">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        
+        <div className="relative container mx-auto px-6 py-24">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-6 bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+              <Activity className="w-4 h-4 mr-2" />
+              Live • Running on Devnet
+            </Badge>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              Payment Infrastructure for{' '}
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                AI Agents
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
+              Let your AI agents pay automatically, own on-chain identity, and build reputation.
+              <br className="hidden md:block" />
+              <span className="text-emerald-300 font-semibold">All on-chain. Fully autonomous.</span>
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Link to="/app">
+                <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8">
+                  <Play className="mr-2 h-5 w-5" />
+                  Get Started
+                </Button>
+              </Link>
+              <a href="#how-it-works">
+                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8">
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  How it works
+                </Button>
+              </a>
+            </div>
+
+            {/* Live Stats */}
+            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-emerald-400">1,000+</div>
+                <div className="text-sm text-blue-200 mt-1">Active Agents</div>
+              </div>
+              <div className="text-center border-x border-white/20">
+                <div className="text-3xl font-bold text-cyan-400">$10K+</div>
+                <div className="text-sm text-blue-200 mt-1">Volume Processed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400">50K+</div>
+                <div className="text-sm text-blue-200 mt-1">Confirmed Txns</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+  {/* What We Built - Live Products */}
+      <section className="py-20 px-6 bg-slate-50" id="products">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-700">Live Today</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">What You Can Use Right Now</h2>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+              SPL-8004 provides the on-chain identity and autonomous payments rails that AI agents need to operate safely and independently.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* 1. Autonomous Payments */}
+            <Card className="border-2 border-emerald-200 hover:border-emerald-400 transition-all hover:shadow-lg">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">Autonomous Payments</CardTitle>
+                      <Badge className="mt-1 bg-emerald-500 text-white">✓ Live</Badge>
+                    </div>
+                  </div>
+                </div>
+                <CardDescription className="text-base mt-4">
+                  Your agents can pay in USDC automatically without human intervention.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">HTTP 402 detection with auto-payment</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Real transactions on Solana Devnet</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">0 SOL gas via Kora integration</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <code className="text-xs bg-slate-900 text-emerald-400 px-3 py-2 rounded block">
+                    6+ transactions completed • Agent Alpha active
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 2. On-chain Identity */}
+            <Card className="border-2 border-blue-200 hover:border-blue-400 transition-all hover:shadow-lg">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">On-chain Identity</CardTitle>
+                      <Badge className="mt-1 bg-blue-500 text-white">✓ Live</Badge>
+                    </div>
+                  </div>
+                </div>
+                <CardDescription className="text-base mt-4">
+                  Each agent has a unique on-chain identity and a dynamic reputation score.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">PDA-based identity via SPL-8004</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Dynamic reputation score (0–10,000)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Payment history and activity tracking</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <code className="text-xs bg-slate-900 text-blue-400 px-3 py-2 rounded block">
+                    Config PDA: 2VYQzU6...otsw • Initialized ✓
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 3. TypeScript SDK */}
+            <Card className="border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Code className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">Developer SDK</CardTitle>
+                      <Badge className="mt-1 bg-purple-500 text-white">✓ Ready</Badge>
+                    </div>
+                  </div>
+                </div>
+                <CardDescription className="text-base mt-4">
+                  Install in minutes. Fully typed TypeScript SDK.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">@spl-8004/sdk npm package</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Auto-pay logic with 402 handling</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Full TypeScript types</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t bg-slate-900 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
+                  <code className="text-xs text-emerald-400 block">
+                    npm install @spl-8004/sdk
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 4. Dashboard */}
+            <Card className="border-2 border-cyan-200 hover:border-cyan-400 transition-all hover:shadow-lg">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                      <Activity className="w-6 h-6 text-cyan-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">Dashboard</CardTitle>
+                      <Badge className="mt-1 bg-cyan-500 text-white">✓ Live</Badge>
+                    </div>
+                  </div>
+                </div>
+                <CardDescription className="text-base mt-4">
+                  Manage agents, track transactions, and view balances.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-cyan-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Agent list and detail view</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-cyan-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Transaction history and live tracking</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-cyan-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Phantom wallet integration</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <Link to="/app">
+                    <Button className="w-full bg-cyan-600 hover:bg-cyan-700">
+                      Open Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 px-6" id="how-it-works">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-4">How it works</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">3 Simple Steps</h2>
+            <p className="text-lg text-slate-600">
+              Connect your AI agent to the blockchain in minutes.
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {/* Step 1 */}
+            <Card className="border-2 hover:border-emerald-300 transition-all">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 text-2xl font-bold text-emerald-600">
+                    1
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
+                      <Bot className="w-6 h-6 text-emerald-600" />
+                      Register Your Agent
+                    </h3>
+                    <p className="text-slate-600 mb-4">
+                      Create a unique on-chain identity via the dashboard or SDK. All actions are tracked.
+                    </p>
+                    <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm">
+                      <span className="text-emerald-400">const</span> agent = <span className="text-cyan-400">createAgent</span>({'{'}
+                      <br />
+                      &nbsp;&nbsp;agentId: <span className="text-amber-400">'my-bot'</span>,
+                      <br />
+                      &nbsp;&nbsp;privateKey: process.env.<span className="text-purple-400">AGENT_KEY</span>
+                      <br />
+                      {'}'});
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 2 */}
+            <Card className="border-2 hover:border-blue-300 transition-all">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 text-2xl font-bold text-blue-600">
+                    2
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
+                      <Wallet className="w-6 h-6 text-blue-600" />
+                      Fund with USDC
+                    </h3>
+                    <p className="text-slate-600 mb-4">
+                      Send USDC to your agent wallet. It will pay automatically. No SOL needed—gas is covered by Kora.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                        <div className="text-sm text-slate-600 mb-1">Current Balance</div>
+                        <div className="text-2xl font-bold text-emerald-600">9.9994 USDC</div>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="text-sm text-slate-600 mb-1">Gas Cost</div>
+                        <div className="text-2xl font-bold text-blue-600">0 SOL</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 3 */}
+            <Card className="border-2 hover:border-purple-300 transition-all">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 text-2xl font-bold text-purple-600">
+                    3
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
+                      <Sparkles className="w-6 h-6 text-purple-600" />
+                      Let it run
+                    </h3>
+                    <p className="text-slate-600 mb-4">
+                      Your agent now runs autonomously. It pays for premium APIs, earns reputation, and logs all activity on-chain.
+                    </p>
+                    <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm">
+                      <span className="text-gray-500">// Ajan otomatik ödeme yapar</span>
+                      <br />
+                      <span className="text-emerald-400">const</span> data = <span className="text-blue-400">await</span> agent.<span className="text-cyan-400">accessProtectedEndpoint</span>(
+                      <br />
+                      &nbsp;&nbsp;<span className="text-amber-400">'/api/premium-data'</span>
+                      <br />
+                      );
+                      <br />
+                      <span className="text-gray-500">// ✓ Ödeme yapıldı, data alındı!</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 px-6 bg-gradient-to-br from-slate-50 to-blue-50" id="pricing">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-4">Pricing</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Start Free</h2>
+            <p className="text-lg text-slate-600">
+              Free for testing, affordable for production.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Free Tier */}
+            <Card className="border-2 hover:border-emerald-400 transition-all">
+              <CardHeader>
+                <CardTitle className="text-2xl">Free</CardTitle>
+                <div className="text-4xl font-bold mt-4">$0</div>
+                <CardDescription className="mt-2">For testing and learning</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">100 transactions / month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">1 agent</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">SDK access</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Community support</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-6" variant="outline">
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Developer */}
+            <Card className="border-2 border-blue-500 shadow-lg scale-105 relative">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500">
+                Popüler
+              </Badge>
+              <CardHeader>
+                <CardTitle className="text-2xl">Developer</CardTitle>
+                <div className="text-4xl font-bold mt-4">$99</div>
+                <CardDescription className="mt-2">For serious projects</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">10,000 transactions / month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">5 agents</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Email support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">99.9% SLA</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700">
+                  Purchase
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise */}
+            <Card className="border-2 hover:border-purple-400 transition-all">
+              <CardHeader>
+                <CardTitle className="text-2xl">Enterprise</CardTitle>
+                <div className="text-4xl font-bold mt-4">Custom</div>
+                <CardDescription className="mt-2">For large scale</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Unlimited transactions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Unlimited agents</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Dedicated support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">99.99% SLA</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-6" variant="outline">
+                  Contact Us
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <p className="text-center text-sm text-slate-500 mt-8">
+            All plans include a 2.5% processing fee • Subject to change at mainnet launch
+          </p>
+        </div>
+      </section>
+
+      {/* Developer Resources */}
+      <section className="py-20 px-6" id="developers">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-4">Developer Tools</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Everything You Need</h2>
+            <p className="text-lg text-slate-600">
+              SDK, docs, and examples to get started in minutes.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Package className="w-6 h-6 text-emerald-600" />
+                  <CardTitle>NPM Package</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Fully typed TypeScript SDK with auto-complete support.
+                </p>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm">
+                  npm install @spl-8004/sdk
+                </div>
+                <Button variant="link" className="mt-2 p-0 h-auto text-emerald-600">
+                  View on NPM →
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <BookOpen className="w-6 h-6 text-blue-600" />
+                  <CardTitle>Documentation</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Step-by-step guides, API reference, and examples.
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <span>Quick Start (5 minutes)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <span>API Reference</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <span>Validation Bot Example</span>
+                  </li>
+                </ul>
+                <Button variant="link" className="mt-2 p-0 h-auto text-blue-600">
+                  Read the Docs →
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Terminal className="w-6 h-6 text-purple-600" />
+                  <CardTitle>CLI Tools</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Manage agents and track transactions from the command line.
+                </p>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm space-y-1">
+                  <div>splx register-agent my-bot</div>
+                  <div>splx check-balance</div>
+                  <div>splx list-transactions</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Users className="w-6 h-6 text-cyan-600" />
+                  <CardTitle>Community</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600 mb-4">
+                  Discord, GitHub, and weekly developer office hours.
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    Discord
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    GitHub
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Twitter
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 text-white">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Financial Freedom for Your AI Agents
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            On-chain identity, reputation, and autonomous payments—everything agents need to participate in the economy.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/app">
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-lg px-8">
+                <Play className="mr-2 h-5 w-5" />
+                Open Dashboard
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8">
+              <BookOpen className="mr-2 h-5 w-5" />
+              Documentation
+            </Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

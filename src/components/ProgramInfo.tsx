@@ -6,6 +6,7 @@ import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
 export function ProgramInfo() {
   const programId = SPL8004_PROGRAM_ID.toString();
   const explorerUrl = `https://explorer.solana.com/address/${programId}?cluster=devnet`;
+  const techDocUrl = `https://github.com/blambuer11/SPL--8004/blob/main/docs/SPL-X-Framework.md`;
   
   return (
     <Card className="border-border/50 bg-card/50 backdrop-blur">
@@ -73,6 +74,16 @@ export function ProgramInfo() {
             className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-muted/50 transition-colors group"
           >
             <span className="text-sm">Documentation</span>
+            <FileText className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+          </a>
+
+          <a
+            href={techDocUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+          >
+            <span className="text-sm">SPL-X Technical Architecture</span>
             <FileText className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </a>
         </div>
