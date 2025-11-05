@@ -68,6 +68,16 @@ export const Navbar = () => {
               >
                 Pricing
               </a>
+                <Link
+                  to="/developer"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive('/developer')
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  Developer
+                </Link>
           </div>
 
           <div className="flex items-center gap-3">

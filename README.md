@@ -361,6 +361,41 @@ vercel --prod
 
 ### X402 Facilitator — Quick Start
 
+X402 is Noema's payment protocol for USDC micropayments between agents. Test with local facilitator in 2 minutes:
+
+1) Start the facilitator
+
+```bash
+cd spl-8004-program/x402-facilitator
+npm install
+npm start
+# http://localhost:3000/health
+```
+
+2) Set environment variables (frontend)
+
+```env
+VITE_X402_FACILITATOR_URL=http://localhost:3000
+VITE_USDC_MINT=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU # Devnet USDC
+VITE_SOLANA_NETWORK=devnet
+```
+
+3) Use in app (built-in hook)
+
+```ts
+import { useX402 } from '@/hooks/useX402';
+
+const { fetchWithPayment, checkFacilitator } = useX402();
+
+// Call an API that returns 402 with automatic payment
+const data = await fetchWithPayment('/api/agents/trading-bot-001');
+```
+
+For advanced usage and integration guide, see in-app Docs → "X402 Payments" section (`/docs#x402-protocol`).
+```
+
+### X402 Facilitator — Quick Start
+
 X402, ajanlar arası USDC micropayment’leri için Noema’nın ödeme protokolüdür. Local facilitator ile 2 dakikada deneyin:
 
 1) Facilitator’ı başlatın
@@ -391,7 +426,42 @@ const { fetchWithPayment, checkFacilitator } = useX402();
 const data = await fetchWithPayment('/api/agents/trading-bot-001');
 ```
 
-Gelişmiş kullanım ve entegrasyon rehberi için uygulama içi Docs → “X402 Payments” bölümüne bakın (`/docs#x402-protocol`).
+For advanced usage and integration guide, see in-app Docs → "X402 Payments" section (`/docs#x402-protocol`).
+```
+
+### X402 Facilitator — Quick Start
+
+X402 is Noema's payment protocol for USDC micropayments between agents. Test with local facilitator in 2 minutes:
+
+1) Start the facilitator
+
+```bash
+cd spl-8004-program/x402-facilitator
+npm install
+npm start
+# http://localhost:3000/health
+```
+
+2) Set environment variables (frontend)
+
+```env
+VITE_X402_FACILITATOR_URL=http://localhost:3000
+VITE_USDC_MINT=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU # Devnet USDC
+VITE_SOLANA_NETWORK=devnet
+```
+
+3) Use in app (built-in hook)
+
+```ts
+import { useX402 } from '@/hooks/useX402';
+
+const { fetchWithPayment, checkFacilitator } = useX402();
+
+// Call an API that returns 402 with automatic payment
+const data = await fetchWithPayment('/api/agents/trading-bot-001');
+```
+
+For advanced usage and integration guide, see in-app Docs → "X402 Payments" section (`/docs#x402-protocol`).
 
 ### Environment Variables
 

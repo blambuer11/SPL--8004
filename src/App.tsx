@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Payments from './pages/Payments';
 import Profile from './pages/Profile';
 import Docs from './pages/Docs';
+import Developer from './pages/Developer';
 import NoCodeTool from './pages/NoCodeTool';
 import NotFound from './pages/NotFound';
 import { Footer } from "./components/Footer";
@@ -53,6 +54,7 @@ const App = () => {
                   <Route path="/validation" element={<ErrorBoundary><Validation /></ErrorBoundary>} />
                   <Route path="/payments" element={<ErrorBoundary><Payments /></ErrorBoundary>} />
                   <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+                    <Route path="/developer" element={<ErrorBoundary><Developer /></ErrorBoundary>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <ErrorBoundary>
