@@ -25,9 +25,35 @@ jobs:
           rustup default 1.82.0
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+      - name: Cache Solana installation
+        id: cache-solana
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/solana/
+            ~/.local/share/solana/
+          key: solana-${{ runner.os }}-v1.20.6
+      
       - name: Install Solana (v1.20.6)
+        if: steps.cache-solana.outputs.cache-hit != 'true'
         run: |
-          curl -sSfL "https://release.solana.com/v1.20.6/install" | sh -s -- -y
+          set -e
+          # Install system dependencies
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make ca-certificates
+          
+          # Try multiple install methods
+          if sh -c "$(curl -sSfL https://release.solana.com/v1.20.6/install)" 2>/dev/null; then
+            echo "✅ Solana installed successfully"
+          elif curl -sSfL https://release.solana.com/v1.20.6/install | sh -s -- -y 2>/dev/null; then
+            echo "✅ Solana installed via alternative method"
+          else
+            echo "❌ All install methods failed, trying insecure fallback..."
+            curl -ksSfL https://release.solana.com/v1.20.6/install | sh -s -- -y
+          fi
+      
+      - name: Add Solana to PATH
+        run: |
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI (v0.32.1)

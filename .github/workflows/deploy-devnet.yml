@@ -18,12 +18,17 @@ jobs:
           node-version: '18'
       - name: Install Solana CLI (retry)
         run: |
-          set -euo pipefail
+          set -e
+          # Install dependencies first
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make
+          
+          # Try installing Solana with retries
           for i in 1 2 3; do
-            if sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"; then
+            if sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)" 2>/dev/null; then
               echo "solana install succeeded" && break
             else
-              echo "solana install attempt $i failed, retrying..." && sleep 3
+              echo "solana install attempt $i failed, retrying..." && sleep 5
             fi
           done
       - name: Add Solana to PATH
@@ -44,7 +49,8 @@ jobs:
         with:
           repository: blambuer11/SPL--8004
           path: spl-8004-program
-      # Deploy program (anchor)
+      
+      - name: Deploy program (anchor)
         env:
           SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
           ANCHOR_WALLET: /tmp/deploy-keypair.json
