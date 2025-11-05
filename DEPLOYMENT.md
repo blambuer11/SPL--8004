@@ -1,8 +1,8 @@
 # SPL-8004 Deployment Guide
 
-Tam deployment rehberi - Solana programından frontend'e kadar.
+Complete deployment guide - from Solana program to frontend.
 
-## 🛠️ Gereksinimler
+## 🛠️ Prerequisites
 
 ### Solana & Anchor
 
@@ -192,13 +192,13 @@ echo "Program ID: $PROGRAM_ID"
 solana program set-upgrade-authority <PROGRAM_ID> --final
 ```
 
-### 2. IDL Yayınla
+### 2. Publish IDL
 
 ```bash
-# IDL'i zincire yükle (opsiyonel ama önerilen)
+# Upload IDL to chain (optional but recommended)
 anchor idl init <PROGRAM_ID> -f target/idl/spl_8004.json --provider.cluster mainnet-beta
 
-# IDL'i güncelle
+# Update IDL
 anchor idl upgrade <PROGRAM_ID> -f target/idl/spl_8004.json --provider.cluster mainnet-beta
 ```
 
