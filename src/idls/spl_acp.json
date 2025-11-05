@@ -1,0 +1,232 @@
+{
+  "version": "0.1.0",
+  "name": "spl_acp",
+  "instructions": [
+    {
+      "name": "initializeConfig",
+      "docs": [
+        "Initialize global config for ACP protocol"
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "authority",
+          "type": "publicKey"
+        },
+        {
+          "name": "registrationFee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "declareCapability",
+      "docs": [
+        "Declare agent capabilities (requires SPL-8004 identity)"
+      ],
+      "accounts": [
+        {
+          "name": "capability",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "agentId",
+          "type": "string"
+        },
+        {
+          "name": "capabilityType",
+          "type": "string"
+        },
+        {
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "name": "metadataUri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "updateCapability",
+      "docs": [
+        "Update capability metadata"
+      ],
+      "accounts": [
+        {
+          "name": "capability",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newVersion",
+          "type": "string"
+        },
+        {
+          "name": "newMetadataUri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "revokeCapability",
+      "docs": [
+        "Revoke capability"
+      ],
+      "accounts": [
+        {
+          "name": "capability",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GlobalConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "registrationFee",
+            "type": "u64"
+          },
+          {
+            "name": "totalCapabilities",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CapabilityRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agentId",
+            "type": "string"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "capabilityType",
+            "type": "string"
+          },
+          {
+            "name": "version",
+            "type": "string"
+          },
+          {
+            "name": "metadataUri",
+            "type": "string"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "name": "declaredAt",
+            "type": "i64"
+          },
+          {
+            "name": "updatedAt",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AgentIdTooLong",
+      "msg": "Agent ID too long (max 32 chars)"
+    },
+    {
+      "code": 6001,
+      "name": "CapabilityTypeTooLong",
+      "msg": "Capability type too long (max 64 chars)"
+    },
+    {
+      "code": 6002,
+      "name": "VersionTooLong",
+      "msg": "Version string too long (max 16 chars)"
+    },
+    {
+      "code": 6003,
+      "name": "MetadataUriTooLong",
+      "msg": "Metadata URI too long (max 200 chars)"
+    },
+    {
+      "code": 6004,
+      "name": "CapabilityNotActive",
+      "msg": "Capability is not active"
+    }
+  ],
+  "metadata": {
+    "address": "FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK"
+  }
+}

@@ -20,12 +20,19 @@
 
 Noema is the **complete infrastructure stack** for AI agents on Solana. We combine **four protocol standards** to provide everything autonomous agents need:
 
-| Protocol | Purpose | Status |
-|----------|---------|--------|
-| **SPL-8004** | Identity & Reputation | ✅ Live (Devnet) |
-| **SPL-ACP** | Agent Communication | 📅 Q1 2026 |
-| **SPL-TAP** | Tool Abstraction | 📅 Q2 2026 |
-| **SPL-FCP** | Function Calls | 📅 Q2 2026 |
+| Protocol | Purpose | Status | Program ID |
+|----------|---------|--------|------------|
+| **SPL-8004** | Identity & Reputation | ✅ Live (Devnet) | `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW` |
+| **SPL-ACP** | Agent Communication | ✅ Live (Devnet) | `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK` |
+| **SPL-TAP** | Tool Attestation | ✅ Live (Devnet) | `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4` |
+| **SPL-FCP** | Function Calls | ✅ Live (Devnet) | `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR` |
+
+### 🚀 Live Deployment
+
+- **Frontend**: [agent-aura-sovereign.vercel.app](https://agent-aura-sovereign.vercel.app)
+- **Network**: Solana Devnet
+- **RPC**: `https://api.devnet.solana.com`
+- **Status**: All 4 protocols deployed and initialized
 
 ### 💡 The Vision
 
@@ -71,9 +78,11 @@ await client.submitValidation({
 ---
 
 ### 2. SPL-ACP: Agent Communication Protocol
-**Status: 📅 Q1 2026**
+**Status: ✅ Live on Devnet**
+**Program ID**: `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`
+**Config PDA**: `BcTM5qX7PPNToi7r48gJ12EhDc5o9SxaUnor7GZwQzuY`
 
-Standardized inter-agent messaging with RESTful JSON schema.
+On-chain message registry enabling agent-to-agent communication. 0.01 SOL registration fee.
 
 ```typescript
 // Initiate communication channel
@@ -99,10 +108,12 @@ await client.sendMessage("bot-A", {
 
 ---
 
-### 3. SPL-TAP: Tool Abstraction Protocol
-**Status: 📅 Q2 2026**
+### 3. SPL-TAP: Tool Attestation Protocol
+**Status: ✅ Live on Devnet**
+**Program ID**: `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`
+**Config PDA**: `8SfDQJn3xRyiNsBMHNQcZJCk7aDdbaRrARiaB3etnRxy`
 
-Plug-and-play tool registry for agents to discover and invoke external APIs.
+On-chain tool registry with quality attestations. 1 SOL stake for issuers.
 
 ```typescript
 // Register a tool
@@ -129,9 +140,11 @@ const price = await client.invokeTool("get_crypto_price", {
 ---
 
 ### 4. SPL-FCP: Function Call Protocol
-**Status: 📅 Q2 2026**
+**Status: ✅ Live on Devnet**
+**Program ID**: `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`
+**Config PDA**: `13yAidKG2PEYTvFNyKh2fQpoVTFw8NoYa2jrLc1JLtTz`
 
-LLM-native function calling for agents (OpenAI tools format compatible).
+Multi-validator consensus for AI agent workflows. 2 SOL stake for validators.
 
 ```typescript
 // Define a function
@@ -237,36 +250,40 @@ console.log(`Score: ${rep.score}/10000`);
 
 ## 🗺️ Roadmap
 
-### Phase 0: Foundation ✅
-**Nov 2025 (Current)**
-- SPL-8004 live on Devnet
-- SDK, REST API, No-Code dashboard
-- X402 + Kora integrations
+### Phase 0: Foundation ✅ COMPLETED
+**Nov 2025**
+- ✅ SPL-8004 deployed on Devnet (`G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`)
+- ✅ SDK, REST API, No-Code dashboard
+- ✅ X402 + Kora integrations
 
-### Phase 1: Research & Design 🔨
-**Dec 2025**
-- Adapt ACP/TAP/FCP specs to Solana
-- Design PDA schemas
-- Whitepaper + UML diagrams
+### Phase 1: Protocol Deployment ✅ COMPLETED
+**Nov 2025**
+- ✅ SPL-ACP deployed & initialized (`FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`)
+- ✅ SPL-TAP deployed & initialized (`DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`)
+- ✅ SPL-FCP deployed & initialized (`A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`)
+- ✅ Frontend deployed on Vercel
+- ✅ All configs initialized on-chain
 
-### Phase 2: Development 📅
-**Q1 2026 (Jan-Mar)**
-- SPL-ACP implementation
-- SPL-TAP implementation
-- SPL-FCP implementation
-- Beta SDK release
+### Phase 2: Beta Testing & Community �
+**Dec 2025 - Jan 2026 (Current)**
+- 🔨 Community beta program launch
+- 🔨 Early adopter onboarding
+- 🔨 Bug fixes and optimizations
+- 🔨 Developer documentation expansion
 
-### Phase 3: Integration & Audit 🔒
-**Q2 2026 (Apr-May)**
-- Security audit (PeckShield)
-- Community beta program
-- Full integration into Noema dashboard
+### Phase 3: Integration & Audit �
+**Q1 2026 (Feb-Mar)**
+- Security audit (PeckShield/OtterSec)
+- Full SDK integration
+- Advanced analytics dashboard
+- Performance tuning
 
 ### Phase 4: Mainnet Launch 🚀
-**Q2 2026 (Jun-Jul)**
-- Mainnet deployment (all protocols)
-- Performance tuning
+**Q2 2026 (Apr-Jun)**
+- Mainnet deployment (all 4 protocols)
+- Data migration from devnet
 - Marketing campaign
+- Partnership announcements
 
 [Full roadmap →](https://noema.ai/roadmap)
 
@@ -280,9 +297,13 @@ console.log(`Score: ${rep.score}/10000`);
 - **Solana Wallet Adapter** (Phantom, Solflare)
 
 ### Blockchain
-- **Solana Devnet** (mainnet ready)
+- **Solana Devnet** (all protocols live)
 - **Anchor Framework** (Rust programs)
-- **SPL-8004 Program:** `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
+- **Deployed Programs:**
+  - SPL-8004: `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
+  - SPL-ACP: `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`
+  - SPL-TAP: `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`
+  - SPL-FCP: `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`
 
 ### Integrations
 - **Kora** — Gasless transactions
@@ -324,11 +345,18 @@ cd SPL--8004/agent-aura-sovereign
 # Install dependencies
 npm install
 
+# Configure environment
+cp .env.example .env
+# Edit .env with deployed program IDs (see below)
+
 # Start dev server
 npm run dev
 
 # Build for production
 npm run build
+
+# Deploy to Vercel
+vercel --prod
 ```
 
 ### X402 Facilitator — Quick Start
@@ -368,16 +396,47 @@ Gelişmiş kullanım ve entegrasyon rehberi için uygulama içi Docs → “X402
 ### Environment Variables
 
 ```env
-# Frontend
+# Frontend (.env in agent-aura-sovereign/)
 VITE_SOLANA_NETWORK=devnet
 VITE_RPC_ENDPOINT=https://api.devnet.solana.com
-VITE_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW
+
+# Deployed Program IDs (Devnet)
+VITE_SPL8004_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW
+VITE_SPL_ACP_PROGRAM_ID=FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK
+VITE_SPL_TAP_PROGRAM_ID=DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4
+VITE_SPL_FCP_PROGRAM_ID=A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR
+
+# Config PDAs
+VITE_SPL_ACP_CONFIG_PDA=BcTM5qX7PPNToi7r48gJ12EhDc5o9SxaUnor7GZwQzuY
+VITE_SPL_TAP_CONFIG_PDA=8SfDQJn3xRyiNsBMHNQcZJCk7aDdbaRrARiaB3etnRxy
+VITE_SPL_FCP_CONFIG_PDA=13yAidKG2PEYTvFNyKh2fQpoVTFw8NoYa2jrLc1JLtTz
+
+# X402 Configuration
+VITE_X402_FACILITATOR_URL=http://localhost:3000
+VITE_USDC_MINT=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 
 # Serverless API (for production)
 UPSTREAM_SOLANA_RPC=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 KEY_SECRET=your_hmac_secret
 UPSTASH_REDIS_REST_URL=https://...
 UPSTASH_REDIS_REST_TOKEN=***
+```
+
+### Vercel Deployment
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to production
+cd agent-aura-sovereign
+vercel --prod
+
+# Set environment variables in Vercel Dashboard
+# Settings → Environment Variables → Add all VITE_* variables
 ```
 
 ---

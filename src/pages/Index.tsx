@@ -116,7 +116,7 @@ export default function Index() {
                   </div>
                   <div>
                     <CardTitle className="text-2xl text-slate-900">SPL-8004</CardTitle>
-                    <Badge className="bg-slate-900 text-white">LIVE</Badge>
+                    <Badge className="bg-yellow-600 text-white">IN DEVELOPMENT</Badge>
                   </div>
                 </div>
                 <CardDescription className="text-slate-600">Identity & Reputation Registry</CardDescription>
@@ -129,66 +129,287 @@ export default function Index() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white border-slate-200">
+            <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-slate-900" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-green-600 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-slate-900">SPL-ACP</CardTitle>
-                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q1 2026</Badge>
+                    <CardTitle className="text-2xl text-emerald-900">SPL-ACP</CardTitle>
+                    <Badge className="bg-emerald-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-slate-600">Agent Communication Protocol</CardDescription>
+                <CardDescription className="text-emerald-900 font-semibold">Agent Communication Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-slate-600 text-sm">
+                <ul className="space-y-2 text-emerald-900 text-sm font-medium">
                   <li>• Private & broadcast channels</li>
+                  <li>• Program ID: FAnRqm...QbV</li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="bg-white border-slate-200">
+            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Wrench className="w-6 h-6 text-slate-900" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                    <Wrench className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-slate-900">SPL-TAP</CardTitle>
-                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q2 2026</Badge>
+                    <CardTitle className="text-2xl text-blue-900">SPL-TAP</CardTitle>
+                    <Badge className="bg-blue-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-slate-600">Tool Abstraction Protocol</CardDescription>
+                <CardDescription className="text-blue-900 font-semibold">Tool Abstraction Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-slate-600 text-sm">
+                <ul className="space-y-2 text-blue-900 text-sm font-medium">
                   <li>• JSON schema validation</li>
+                  <li>• Program ID: DTtjXcv...d3So4</li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="bg-white border-slate-200">
+            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Code2 className="w-6 h-6 text-slate-900" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                    <Code2 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-slate-900">SPL-FCP</CardTitle>
-                    <Badge variant="outline" className="border-slate-300 text-slate-700">Q2 2026</Badge>
+                    <CardTitle className="text-2xl text-purple-900">SPL-FCP</CardTitle>
+                    <Badge className="bg-purple-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-slate-600">Function Call Protocol</CardDescription>
+                <CardDescription className="text-purple-900 font-semibold">Function Call Protocol</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-slate-600 text-sm">
+                <ul className="space-y-2 text-purple-900 text-sm font-medium">
                   <li>• OpenAI/Claude compatible</li>
+                  <li>• Program ID: A4Ee2Ko...PnjtR</li>
                 </ul>
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Protocol Benefits Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-gradient-to-r from-emerald-600 to-blue-600 text-white">✅ Live on Devnet</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Why These Protocols Matter for Solana</h2>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+              Three production-ready protocols solving critical infrastructure gaps in the Solana AI agent ecosystem
+            </p>
+          </div>
+
+          {/* Architecture Flow Diagram */}
+          <Card className="border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 shadow-xl mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center text-slate-900">Complete AI Agent Infrastructure</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* SPL-ACP */}
+              <div className="bg-white rounded-lg p-6 border-2 border-emerald-200 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-green-600 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-emerald-900">SPL-ACP</h4>
+                    <p className="text-xs text-emerald-700">Communication Layer</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-emerald-50 rounded p-3 border border-emerald-200">
+                    <strong className="text-emerald-900">Problem Solved:</strong>
+                    <p className="text-emerald-800 mt-1">No standardized agent-to-agent communication on Solana</p>
+                  </div>
+                  <div className="bg-white rounded p-3 border border-emerald-200">
+                    <strong className="text-emerald-900">Solution:</strong>
+                    <p className="text-slate-700 mt-1">On-chain message registry with 0.01 SOL registration fee</p>
+                  </div>
+                  <div className="bg-emerald-50 rounded p-3 border border-emerald-200">
+                    <strong className="text-emerald-900">Use Case:</strong>
+                    <p className="text-slate-700 mt-1">Trading bot broadcasts signals to 1000+ subscriber bots instantly</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SPL-TAP */}
+              <div className="bg-white rounded-lg p-6 border-2 border-blue-200 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                    <Wrench className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-blue-900">SPL-TAP</h4>
+                    <p className="text-xs text-blue-700">Tool Attestation</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-blue-50 rounded p-3 border border-blue-200">
+                    <strong className="text-blue-900">Problem Solved:</strong>
+                    <p className="text-blue-800 mt-1">No trust system for AI agent capabilities and tools</p>
+                  </div>
+                  <div className="bg-white rounded p-3 border border-blue-200">
+                    <strong className="text-blue-900">Solution:</strong>
+                    <p className="text-slate-700 mt-1">Tool registry with 1 SOL stake for issuers</p>
+                  </div>
+                  <div className="bg-blue-50 rounded p-3 border border-blue-200">
+                    <strong className="text-blue-900">Use Case:</strong>
+                    <p className="text-slate-700 mt-1">Data provider agent verifies API quality before subscription</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SPL-FCP */}
+              <div className="bg-white rounded-lg p-6 border-2 border-purple-200 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                    <Code2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-purple-900">SPL-FCP</h4>
+                    <p className="text-xs text-purple-700">Function Calls</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-purple-50 rounded p-3 border border-purple-200">
+                    <strong className="text-purple-900">Problem Solved:</strong>
+                    <p className="text-purple-800 mt-1">Agents can't validate complex multi-agent workflows on-chain</p>
+                  </div>
+                  <div className="bg-white rounded p-3 border border-purple-200">
+                    <strong className="text-purple-900">Solution:</strong>
+                    <p className="text-slate-700 mt-1">Function call validation with 2 SOL stake for validators</p>
+                  </div>
+                  <div className="bg-purple-50 rounded p-3 border border-purple-200">
+                    <strong className="text-purple-900">Use Case:</strong>
+                    <p className="text-slate-700 mt-1">DeFi bot verifies $100K+ trades with 3-of-5 validator consensus</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Flow Diagram */}
+            <div className="mt-8 bg-slate-900 rounded-lg p-6 text-white">
+              <h4 className="font-bold text-lg mb-4 text-center">Data Flow: Agent Request → Validation → Payment</h4>
+              <div className="flex items-center justify-between text-sm">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mb-2 mx-auto">
+                    <MessageSquare className="w-8 h-8" />
+                  </div>
+                  <strong>SPL-ACP</strong>
+                  <p className="text-slate-300 text-xs mt-1">Agent broadcasts request</p>
+                </div>
+                <div className="text-2xl text-slate-500">→</div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-2 mx-auto">
+                    <Wrench className="w-8 h-8" />
+                  </div>
+                  <strong>SPL-TAP</strong>
+                  <p className="text-slate-300 text-xs mt-1">Tool attestation verified</p>
+                </div>
+                <div className="text-2xl text-slate-500">→</div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-2 mx-auto">
+                    <Code2 className="w-8 h-8" />
+                  </div>
+                  <strong>SPL-FCP</strong>
+                  <p className="text-slate-300 text-xs mt-1">Function executed & validated</p>
+                </div>
+                <div className="text-2xl text-slate-500">→</div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-2 mx-auto">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <strong>Payment</strong>
+                  <p className="text-slate-300 text-xs mt-1">USDC settled (400ms)</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Economic Model */}
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white p-8 shadow-xl mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center text-blue-900">Economic Model: Sustainable Revenue for Solana Ecosystem</h3>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="bg-white rounded-lg p-6 border border-emerald-200">
+                <h4 className="font-bold text-2xl text-emerald-600 mb-2">0.01 SOL</h4>
+                <p className="text-sm text-slate-600 mb-3">SPL-ACP Registration Fee</p>
+                <p className="text-xs text-slate-500">10,000 agents = 100 SOL monthly revenue</p>
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-blue-200">
+                <h4 className="font-bold text-2xl text-blue-600 mb-2">1 SOL</h4>
+                <p className="text-sm text-slate-600 mb-3">SPL-TAP Issuer Stake</p>
+                <p className="text-xs text-slate-500">1,000 issuers = 1,000 SOL locked in protocol</p>
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-purple-200">
+                <h4 className="font-bold text-2xl text-purple-600 mb-2">2 SOL</h4>
+                <p className="text-sm text-slate-600 mb-3">SPL-FCP Validator Stake</p>
+                <p className="text-xs text-slate-500">500 validators = 1,000 SOL locked</p>
+              </div>
+            </div>
+            <div className="mt-6 bg-blue-900 rounded-lg p-4 text-white text-center">
+              <p className="text-lg font-bold">Total Value Locked (TVL) Projection: <span className="text-yellow-400">2,100+ SOL</span></p>
+              <p className="text-sm text-blue-200 mt-2">At 10,000 registered agents + 1,000 tool issuers + 500 validators</p>
+            </div>
+          </Card>
+
+          {/* Comparison Table */}
+          <Card className="border-2 border-slate-200 bg-white p-8 shadow-xl">
+            <h3 className="text-2xl font-bold mb-6 text-center text-slate-900">Why Solana? Protocol Comparison</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-slate-200">
+                    <th className="text-left p-3 font-bold">Feature</th>
+                    <th className="text-center p-3 font-bold text-red-600">Ethereum</th>
+                    <th className="text-center p-3 font-bold text-emerald-600">Solana (Ours)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  <tr>
+                    <td className="p-3 font-semibold">Transaction Speed</td>
+                    <td className="text-center p-3 text-red-600">12-15 seconds</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">400ms ✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold">Transaction Cost</td>
+                    <td className="text-center p-3 text-red-600">$5-50 per tx</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">$0.00025 ✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold">Throughput</td>
+                    <td className="text-center p-3 text-red-600">~15 TPS</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">65,000+ TPS ✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold">Agent Communication</td>
+                    <td className="text-center p-3 text-red-600">Too expensive</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">SPL-ACP (0.01 SOL) ✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold">Tool Attestation</td>
+                    <td className="text-center p-3 text-red-600">No standard</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">SPL-TAP (1 SOL stake) ✅</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 font-semibold">Multi-Validator Consensus</td>
+                    <td className="text-center p-3 text-red-600">Gas prohibitive</td>
+                    <td className="text-center p-3 text-emerald-600 font-bold">SPL-FCP (2 SOL stake) ✅</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-6 bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded">
+              <p className="text-emerald-900 font-semibold">
+                🚀 <strong>Bottom Line:</strong> Solana's speed and cost-efficiency make AI agent protocols viable. 
+                On Ethereum, these protocols would cost 200-2000x more per transaction.
+              </p>
+            </div>
+          </Card>
         </div>
       </section>
 
