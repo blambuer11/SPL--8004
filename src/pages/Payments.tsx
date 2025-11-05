@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useX402 } from '@/hooks/useX402';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Payments() {
+  const { connected } = useWallet();
   const { checkFacilitator, getFacilitatorInfo, fetchWithPayment, isPaymentProcessing } = useX402();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('0.1');
@@ -29,11 +32,18 @@ export default function Payments() {
   }, [checkFacilitator, getFacilitatorInfo]);
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2 text-foreground">X402 Micropayments</h1>
-        <p className="text-muted-foreground">Send & receive USDC instantly — gasless via Kora</p>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">💳 Noema Pay™</h1>
+        <p className="text-muted-foreground">Micropayment & Gasless Protocol — Send & receive USDC instantly via X402</p>
       </div>
+
+      <Card className="border-border/50 bg-green-50">
+        <CardContent className="py-4 text-sm text-green-900">
+          No Phantom required: Noema Pay™ (X402) works via a Facilitator service that settles payments on Solana using USDC. Ideal for server-to-server and no-code clients.
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -58,25 +68,45 @@ export default function Payments() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">0.1% platform fee • ~400ms settlement</p>
+              
+              {health === 'down' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-900">
+                  ⚠️ Facilitator service is offline. Payment functionality requires a running facilitator at <code className="bg-yellow-100 px-1 py-0.5 rounded">{import.meta.env.VITE_X402_FACILITATOR_URL || 'http://localhost:3000'}</code>
+                </div>
+              )}
+
               <Button
-                disabled={isPaymentProcessing || !recipient || Number(amount) <= 0}
+                disabled={!connected || isPaymentProcessing || !recipient || Number(amount) <= 0 || health === 'down'}
                 onClick={async () => {
                   // Demo flow: call a protected endpoint to trigger 402 payment flow if configured
                   try {
-                    toast.info('Initiating X402 flow…');
+                    toast.info('Initiating Noema Pay™ (X402) flow…');
                     const res = await fetchWithPayment<unknown>(probeUrl, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ recipient, amount: Number(amount), memo }),
                     });
-                    toast.success('Payment completed', { description: JSON.stringify(res) });
+                    toast.success('Payment completed successfully!', { 
+                      description: `Sent ${amount} USDC to ${recipient.slice(0, 8)}...`
+                    });
                   } catch (e) {
-                    toast.error((e as Error).message || 'Payment failed');
+                    const errorMsg = (e as Error).message || 'Payment failed';
+                    if (errorMsg.includes('Not Found') || errorMsg.includes('404')) {
+                      toast.error('Facilitator endpoint not found', {
+                        description: 'Please ensure the X402 facilitator service is running or update the protected URL below.'
+                      });
+                    } else if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                      toast.error('Cannot connect to facilitator', {
+                        description: 'Check if the facilitator service is running at the configured URL.'
+                      });
+                    } else {
+                      toast.error(errorMsg);
+                    }
                   }
                 }}
                 className="w-full bg-gradient-primary hover:shadow-glow"
               >
-                {isPaymentProcessing ? 'Processing…' : 'Send Payment'}
+                {!connected ? 'Connect wallet to pay (client mode)' : health === 'down' ? 'Facilitator Offline' : isPaymentProcessing ? 'Processing…' : 'Send Payment'}
               </Button>
             </CardContent>
           </Card>
@@ -84,24 +114,67 @@ export default function Payments() {
         <div className="space-y-6">
           <Card className="border-border/50 bg-card/50 backdrop-blur">
             <CardHeader>
-              <CardTitle>Facilitator</CardTitle>
+              <CardTitle>Server-side (No Wallet)</CardTitle>
+              <CardDescription>Use Facilitator from your server without Phantom</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">Send requests to a 402-protected endpoint; on 402, call Facilitator /verify and /settle, then retry with payment proof.</p>
+              <pre className="text-xs bg-muted/40 p-3 rounded border border-border/50 overflow-auto">
+{`# 1) Request data (gets 402)
+curl -i ${probeUrl}
+
+# 2) Verify and settle via Facilitator (server-side)
+curl -X POST $FACILITATOR/verify -d '{"transaction":"..."}'
+curl -X POST $FACILITATOR/settle -d '{"transaction":"..."}'
+
+# 3) Retry with payment headers
+curl -H 'x-payment-response: {...}' -H 'x-payment-signature: <sig>' ${probeUrl}`}
+              </pre>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-card/50 backdrop-blur">
+            <CardHeader>
+              <CardTitle>Facilitator Status</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className={`text-sm ${health === 'up' ? 'text-green-600' : health === 'down' ? 'text-red-600' : 'text-muted-foreground'}`}>
-                Status: {health === 'up' ? 'Online' : health === 'down' ? 'Offline' : 'Unknown'}
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${health === 'up' ? 'bg-green-500' : health === 'down' ? 'bg-red-500' : 'bg-gray-400'}`}></div>
+                <div className={`text-sm font-medium ${health === 'up' ? 'text-green-600' : health === 'down' ? 'text-red-600' : 'text-muted-foreground'}`}>
+                  {health === 'up' ? '✓ Online' : health === 'down' ? '✗ Offline' : 'Unknown'}
+                </div>
               </div>
+              
               <div className="space-y-2">
-                <Label>Protected URL (402)</Label>
-                <Input value={probeUrl} onChange={(e) => setProbeUrl(e.target.value)} />
-                <p className="text-xs text-muted-foreground">Used for the demo flow above</p>
+                <Label>Facilitator URL</Label>
+                <div className="text-xs bg-muted/40 p-2 rounded border border-border/50 font-mono">
+                  {import.meta.env.VITE_X402_FACILITATOR_URL || 'http://localhost:3000'}
+                </div>
               </div>
+
+              <div className="space-y-2">
+                <Label>Protected Endpoint (402)</Label>
+                <Input value={probeUrl} onChange={(e) => setProbeUrl(e.target.value)} className="font-mono text-xs" />
+                <p className="text-xs text-muted-foreground">Test endpoint that requires payment</p>
+              </div>
+
+              {health === 'down' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900">
+                  <strong>To start the facilitator:</strong>
+                  <pre className="mt-2 bg-blue-100 p-2 rounded overflow-x-auto">cd x402-facilitator && npm run dev</pre>
+                </div>
+              )}
+
               {info && (
-                <pre className="text-xs bg-muted/40 p-2 rounded border border-border/50 overflow-auto max-h-48">{JSON.stringify(info, null, 2)}</pre>
+                <details className="text-xs">
+                  <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground">Supported Payment Methods</summary>
+                  <pre className="mt-2 bg-muted/40 p-2 rounded border border-border/50 overflow-auto max-h-48">{JSON.stringify(info, null, 2)}</pre>
+                </details>
               )}
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

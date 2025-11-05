@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Coins, Shield, TrendingUp } from 'lucide-react';
+import { Plus, Coins, Shield, TrendingUp, HelpCircle } from 'lucide-react';
 import { StatsCard } from '@/components/StatsCard';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Dashboard() {
   const { connected } = useWallet();
@@ -31,6 +32,7 @@ export default function Dashboard() {
   };
   const [myAgents, setMyAgents] = useState<MyAgent[]>([]);
   const [totalRewards, setTotalRewards] = useState(0);
+  const [claimable, setClaimable] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (client && connected) {
@@ -49,10 +51,22 @@ export default function Dashboard() {
         return sum + rewardEstimate;
       }, 0);
       setTotalRewards(total);
+
+      // Load real reward pool balances (lamports) per agent
+      const map: Record<string, number> = {};
+      for (const a of agents) {
+        try {
+          map[a.agentId] = await client.getRewardPoolLamports(a.agentId);
+        } catch {
+          map[a.agentId] = 0;
+        }
+      }
+      setClaimable(map);
     } catch (error) {
       console.error('Error loading dashboard:', error);
       setMyAgents([]);
       setTotalRewards(0);
+      setClaimable({});
     }
   };
 
@@ -127,10 +141,10 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8 space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2 text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">Manage your AI agents and track their performance</p>
+            <h1 className="text-4xl font-bold mb-2 text-foreground">🆔 Noema ID Dashboard</h1>
+            <p className="text-muted-foreground">Manage your AI agents and track their performance on-chain</p>
           </div>
-          <WalletMultiButton className="!bg-gradient-to-r !from-emerald-500 !to-cyan-500 hover:!from-emerald-600 hover:!to-cyan-600" />
+          <WalletMultiButton className="!bg-gradient-to-r !from-purple-600 !to-blue-600 hover:!from-purple-700 hover:!to-blue-700" />
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -166,7 +180,7 @@ export default function Dashboard() {
                 <Plus className="h-5 w-5" />
                 Register New Agent
               </CardTitle>
-              <CardDescription>Register a new AI agent on the SPL-8004 network</CardDescription>
+              <CardDescription>Register a new AI agent on Noema ID™ (SPL-8004)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -241,6 +255,41 @@ export default function Dashboard() {
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-5 w-5" />
                 Claimable Rewards
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="ml-1 text-muted-foreground hover:text-foreground transition-colors">
+                      <HelpCircle className="h-4 w-4" />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Claim Rewards Requirements</DialogTitle>
+                      <DialogDescription className="space-y-3 text-sm text-left pt-2">
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-1">How to earn rewards:</h4>
+                          <ul className="list-disc ml-5 space-y-1">
+                            <li>Register an agent on SPL-8004</li>
+                            <li>Complete successful validations via <code className="bg-muted px-1 py-0.5 rounded">submit_validation</code></li>
+                            <li>Validators call <code className="bg-muted px-1 py-0.5 rounded">update_reputation</code> to deposit rewards into your pool</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-1">Claim conditions:</h4>
+                          <ul className="list-disc ml-5 space-y-1">
+                            <li>Reward pool balance must be &gt; 0 SOL</li>
+                            <li>24-hour cooldown between claims</li>
+                            <li>Agent must be active (not deactivated)</li>
+                          </ul>
+                        </div>
+                        <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-3">
+                          <p className="text-blue-900 text-xs">
+                            💡 <strong>Tip:</strong> Ask other users to validate your agent's work, or use the Validation page to submit validations and earn reputation.
+                          </p>
+                        </div>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
               </CardTitle>
               <CardDescription>Claim your earned rewards from agent validations (24h cooldown)</CardDescription>
             </CardHeader>
@@ -257,7 +306,9 @@ export default function Dashboard() {
                     <div key={agent.agentId} className="p-4 rounded-lg border border-border/50 flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold mb-1">{agent.agentId}</h3>
-                        <p className="text-sm text-muted-foreground">Simulated rewards: 0.0001 SOL</p>
+                        <p className="text-sm text-muted-foreground">
+                          Pool balance: {formatSOL((claimable[agent.agentId] || 0))} SOL
+                        </p>
                       </div>
                       <Button
                         onClick={async () => {
@@ -271,12 +322,17 @@ export default function Dashboard() {
                             await loadDashboardData();
                           } catch (error: unknown) {
                             const message = (error as Error)?.message || 'Failed to claim rewards';
-                            toast.error(message);
+                            if (message.includes('No rewards available') || message.includes('0x177a') || message.includes('6010')) {
+                              toast.info('No rewards available to claim yet.');
+                            } else {
+                              toast.error(message);
+                            }
                             console.error(error);
                           }
                         }}
                         variant="outline"
                         className="border-primary/50 hover:bg-primary/10"
+                        disabled={(claimable[agent.agentId] || 0) <= 0}
                       >
                         <Coins className="h-4 w-4 mr-2" />
                         Claim Rewards

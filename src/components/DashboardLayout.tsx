@@ -12,10 +12,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const isActive = (path: string) => location.pathname === path;
   
   const navItems = [
-    { path: '/app', label: 'Dashboard', icon: Shield },
+    { path: '/app', label: '🆔 Noema ID', icon: Shield },
     { path: '/agents', label: 'Manage Agents', icon: Shield },
     { path: '/validation', label: 'Submit Validation', icon: CheckCircle2 },
-    { path: '/payments', label: 'X402 Payments', icon: Coins },
+    { path: '/payments', label: '💳 Noema Pay', icon: Coins },
     { path: '/profile', label: 'Rewards & Profile', icon: TrendingUp },
   ];
 

@@ -99,12 +99,12 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20 px-6 bg-slate-50">
+  <section id="products" className="py-20 px-6 bg-slate-50">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <Badge className="mb-4 bg-slate-900 text-white">Protocol Stack</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Built on SPL-X Protocols</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Four integrated standards for complete agent infrastructure</p>
+            <Badge className="mb-4 bg-slate-900 text-white">The Noema Stack™</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Modular AI Infrastructure for Solana</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Five integrated protocols for autonomous agent infrastructure</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -115,16 +115,16 @@ export default function Index() {
                     <Shield className="w-6 h-6 text-slate-900" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-slate-900">SPL-8004</CardTitle>
-                    <Badge className="bg-yellow-600 text-white">IN DEVELOPMENT</Badge>
+                    <CardTitle className="text-2xl text-slate-900">🆔 Noema ID™</CardTitle>
+                    <Badge className="bg-emerald-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-slate-600">Identity & Reputation Registry</CardDescription>
+                <CardDescription className="text-slate-600">Agent Identity & Reputation System</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-slate-600 text-sm">
-                  <li>• PDA-based identity storage</li>
-                  <li>• Dynamic reputation (0-10K scale)</li>
+                  <li>• On-chain identity registry (SPL-8004)</li>
+                  <li>• Dynamic reputation scoring (0-10K)</li>
                 </ul>
               </CardContent>
             </Card>
@@ -136,15 +136,15 @@ export default function Index() {
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-emerald-900">SPL-ACP</CardTitle>
+                    <CardTitle className="text-2xl text-emerald-900">💬 Noema Link™</CardTitle>
                     <Badge className="bg-emerald-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-emerald-900 font-semibold">Agent Communication Protocol</CardDescription>
+                <CardDescription className="text-emerald-900 font-semibold">Agent-to-Agent Communication Layer</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-emerald-900 text-sm font-medium">
-                  <li>• Private & broadcast channels</li>
+                  <li>• Private & broadcast channels (SPL-ACP)</li>
                   <li>• Program ID: FAnRqm...QbV</li>
                 </ul>
               </CardContent>
@@ -157,15 +157,15 @@ export default function Index() {
                     <Wrench className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-blue-900">SPL-TAP</CardTitle>
+                    <CardTitle className="text-2xl text-blue-900">🛠️ Noema Cert™</CardTitle>
                     <Badge className="bg-blue-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-blue-900 font-semibold">Tool Abstraction Protocol</CardDescription>
+                <CardDescription className="text-blue-900 font-semibold">Tool Attestation & Quality Proof</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-blue-900 text-sm font-medium">
-                  <li>• JSON schema validation</li>
+                  <li>• JSON schema validation (SPL-TAP)</li>
                   <li>• Program ID: DTtjXcv...d3So4</li>
                 </ul>
               </CardContent>
@@ -178,15 +178,15 @@ export default function Index() {
                     <Code2 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-purple-900">SPL-FCP</CardTitle>
+                    <CardTitle className="text-2xl text-purple-900">⚡ Noema Core™</CardTitle>
                     <Badge className="bg-purple-600 text-white">✅ LIVE ON DEVNET</Badge>
                   </div>
                 </div>
-                <CardDescription className="text-purple-900 font-semibold">Function Call Protocol</CardDescription>
+                <CardDescription className="text-purple-900 font-semibold">Consensus & Function Call Validation</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-purple-900 text-sm font-medium">
-                  <li>• OpenAI/Claude compatible</li>
+                  <li>• OpenAI/Claude compatible (SPL-FCP)</li>
                   <li>• Program ID: A4Ee2Ko...PnjtR</li>
                 </ul>
               </CardContent>
@@ -200,9 +200,9 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <Badge className="mb-4 bg-gradient-to-r from-emerald-600 to-blue-600 text-white">✅ Live on Devnet</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Why These Protocols Matter for Solana</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Why the Noema Stack™ Matters for Solana</h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Three production-ready protocols solving critical infrastructure gaps in the Solana AI agent ecosystem
+              Production-ready protocols solving critical infrastructure gaps in the Solana AI agent ecosystem
             </p>
           </div>
 
@@ -210,14 +210,14 @@ export default function Index() {
           <Card className="border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 shadow-xl mb-8">
             <h3 className="text-2xl font-bold mb-6 text-center text-slate-900">Complete AI Agent Infrastructure</h3>
             <div className="grid md:grid-cols-3 gap-6">
-              {/* SPL-ACP */}
+              {/* Noema Link */}
               <div className="bg-white rounded-lg p-6 border-2 border-emerald-200 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-green-600 rounded-lg flex items-center justify-center">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-emerald-900">SPL-ACP</h4>
+                    <h4 className="font-bold text-emerald-900">💬 Noema Link™</h4>
                     <p className="text-xs text-emerald-700">Communication Layer</p>
                   </div>
                 </div>
@@ -237,14 +237,14 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* SPL-TAP */}
+              {/* Noema Cert */}
               <div className="bg-white rounded-lg p-6 border-2 border-blue-200 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
                     <Wrench className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-blue-900">SPL-TAP</h4>
+                    <h4 className="font-bold text-blue-900">🛠️ Noema Cert™</h4>
                     <p className="text-xs text-blue-700">Tool Attestation</p>
                   </div>
                 </div>
@@ -264,15 +264,15 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* SPL-FCP */}
+              {/* Noema Core */}
               <div className="bg-white rounded-lg p-6 border-2 border-purple-200 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
                     <Code2 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-purple-900">SPL-FCP</h4>
-                    <p className="text-xs text-purple-700">Function Calls</p>
+                    <h4 className="font-bold text-purple-900">⚡ Noema Core™</h4>
+                    <p className="text-xs text-purple-700">Function Validation</p>
                   </div>
                 </div>
                 <div className="space-y-3 text-sm">
@@ -300,7 +300,7 @@ export default function Index() {
                   <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mb-2 mx-auto">
                     <MessageSquare className="w-8 h-8" />
                   </div>
-                  <strong>SPL-ACP</strong>
+                  <strong>💬 Noema Link</strong>
                   <p className="text-slate-300 text-xs mt-1">Agent broadcasts request</p>
                 </div>
                 <div className="text-2xl text-slate-500">→</div>
@@ -308,7 +308,7 @@ export default function Index() {
                   <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-2 mx-auto">
                     <Wrench className="w-8 h-8" />
                   </div>
-                  <strong>SPL-TAP</strong>
+                  <strong>🛠️ Noema Cert</strong>
                   <p className="text-slate-300 text-xs mt-1">Tool attestation verified</p>
                 </div>
                 <div className="text-2xl text-slate-500">→</div>
@@ -316,7 +316,7 @@ export default function Index() {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-2 mx-auto">
                     <Code2 className="w-8 h-8" />
                   </div>
-                  <strong>SPL-FCP</strong>
+                  <strong>⚡ Noema Core</strong>
                   <p className="text-slate-300 text-xs mt-1">Function executed & validated</p>
                 </div>
                 <div className="text-2xl text-slate-500">→</div>
@@ -324,36 +324,79 @@ export default function Index() {
                   <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-2 mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <strong>Payment</strong>
-                  <p className="text-slate-300 text-xs mt-1">USDC settled (400ms)</p>
+                  <strong>💳 Noema Pay</strong>
+                  <p className="text-slate-300 text-xs mt-1">USDC settled (~400ms)</p>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* Economic Model */}
-          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white p-8 shadow-xl mb-8">
-            <h3 className="text-2xl font-bold mb-6 text-center text-blue-900">Economic Model: Sustainable Revenue for Solana Ecosystem</h3>
-            <div className="grid md:grid-cols-3 gap-6 text-center">
-              <div className="bg-white rounded-lg p-6 border border-emerald-200">
-                <h4 className="font-bold text-2xl text-emerald-600 mb-2">0.01 SOL</h4>
-                <p className="text-sm text-slate-600 mb-3">SPL-ACP Registration Fee</p>
-                <p className="text-xs text-slate-500">10,000 agents = 100 SOL monthly revenue</p>
+          {/* Noema Pay */}
+          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white p-8 shadow-xl mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center text-green-900">💳 Noema Pay™ — Micropayment & Gasless Protocol</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg p-6 border border-green-200">
+                <h4 className="font-bold text-lg text-green-700 mb-2">X402 Protocol (HTTP 402)</h4>
+                <ul className="list-disc ml-6 text-sm text-slate-700 space-y-1">
+                  <li>Paywalls via HTTP 402 for API/data access</li>
+                  <li>USDC settlement in ~400ms on Solana</li>
+                  <li>Works alongside The Noema Stack™</li>
+                </ul>
               </div>
-              <div className="bg-white rounded-lg p-6 border border-blue-200">
-                <h4 className="font-bold text-2xl text-blue-600 mb-2">1 SOL</h4>
-                <p className="text-sm text-slate-600 mb-3">SPL-TAP Issuer Stake</p>
-                <p className="text-xs text-slate-500">1,000 issuers = 1,000 SOL locked in protocol</p>
-              </div>
-              <div className="bg-white rounded-lg p-6 border border-purple-200">
-                <h4 className="font-bold text-2xl text-purple-600 mb-2">2 SOL</h4>
-                <p className="text-sm text-slate-600 mb-3">SPL-FCP Validator Stake</p>
-                <p className="text-xs text-slate-500">500 validators = 1,000 SOL locked</p>
+              <div className="bg-white rounded-lg p-6 border border-green-200">
+                <h4 className="font-bold text-lg text-green-700 mb-2">Facilitator Service (No Wallet Needed)</h4>
+                <ul className="list-disc ml-6 text-sm text-slate-700 space-y-1">
+                  <li>Gasless experience via Kora-backed facilitator</li>
+                  <li>Clients without Phantom can still pay</li>
+                  <li>Ideal for server-to-server and no-code flows</li>
+                </ul>
               </div>
             </div>
-            <div className="mt-6 bg-blue-900 rounded-lg p-4 text-white text-center">
-              <p className="text-lg font-bold">Total Value Locked (TVL) Projection: <span className="text-yellow-400">2,100+ SOL</span></p>
-              <p className="text-sm text-blue-200 mt-2">At 10,000 registered agents + 1,000 tool issuers + 500 validators</p>
+            <div className="mt-6 text-center">
+              <a href="/payments" className="inline-block px-6 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">Explore Noema Pay →</a>
+            </div>
+          </Card>
+
+          {/* Noema Protocol Architecture */}
+          <Card className="border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 shadow-xl mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center text-slate-900">Noema Protocol Architecture</h3>
+            <div className="grid md:grid-cols-4 gap-4 text-sm">
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <h4 className="font-semibold text-slate-900 mb-2">App Layer</h4>
+                <ul className="list-disc ml-5 text-slate-700 space-y-1">
+                  <li>SDK (React/TS)</li>
+                  <li>No-Code Builder</li>
+                  <li>REST API (Q1 2025)</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <h4 className="font-semibold text-slate-900 mb-2">Noema Stack™</h4>
+                <ul className="list-disc ml-5 text-slate-700 space-y-1">
+                  <li>🆔 Noema ID (SPL-8004)</li>
+                  <li>💬 Noema Link (SPL-ACP)</li>
+                  <li>🛠️ Noema Cert (SPL-TAP)</li>
+                  <li>⚡ Noema Core (SPL-FCP)</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <h4 className="font-semibold text-slate-900 mb-2">Payments</h4>
+                <ul className="list-disc ml-5 text-slate-700 space-y-1">
+                  <li>💳 Noema Pay (X402)</li>
+                  <li>USDC Settlement (~400ms)</li>
+                  <li>Facilitator: Gasless (Kora)</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <h4 className="font-semibold text-slate-900 mb-2">Base Layer</h4>
+                <ul className="list-disc ml-5 text-slate-700 space-y-1">
+                  <li>Solana L1</li>
+                  <li>Token Program</li>
+                  <li>RPC & Indexing</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-6 bg-slate-900 text-white rounded-lg p-4 text-center">
+              <p className="text-sm">Seamless data flow: Agent Request → Noema Cert → Noema Core → Noema Pay</p>
             </div>
           </Card>
 

@@ -697,6 +697,21 @@ export class SPL8004Client {
   }
 
   /**
+   * Get current lamports in the agent's reward pool PDA
+   */
+  async getRewardPoolLamports(agentId: string): Promise<number> {
+    const cleanId = this.normalizeAgentId(agentId);
+    const [rewardPoolPda] = this.findRewardPoolPda(cleanId);
+    try {
+      const balance = await this.connection.getBalance(rewardPoolPda, "confirmed");
+      return balance;
+    } catch (e) {
+      console.warn("getRewardPoolLamports failed", e);
+      return 0;
+    }
+  }
+
+  /**
    * Sponsor an agent by funding its reward pool with native SOL.
    * This performs a SystemProgram.transfer to the agent's RewardPool PDA.
    * Note: Program may account for lamports on-chain when claiming/rewarding.

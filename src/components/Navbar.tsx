@@ -16,12 +16,12 @@ export const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xl">
-              N
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+              ∩
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg text-slate-900">Noema</span>
-              <span className="text-xs text-slate-600 font-medium -mt-1">Protocol</span>
+              <span className="font-bold text-lg text-slate-900">Noema Protocol™</span>
+              <span className="text-xs text-slate-600 font-medium -mt-1">The Noema Stack</span>
             </div>
           </Link>
 
@@ -53,43 +53,38 @@ export const Navbar = () => {
                 Docs
               </Link>
               <Link
-                to="/no-code"
+                to="/developer"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/no-code')
+                  isActive('/developer')
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
-                No-Code
+                Developer
               </Link>
-              <a
-                href="/#pricing"
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                Pricing
-              </a>
-                <Link
-                  to="/developer"
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive('/developer')
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
-                >
-                  Developer
-                </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            {connected && publicKey ? (
+            {location.pathname === '/' ? (
               <Link
                 to="/app"
                 className="px-6 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-all"
               >
-                {formatAddress(publicKey.toString())}
+                Start Building →
               </Link>
             ) : (
-              <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-sm !font-medium !px-6 !py-2.5" />
+              <>
+                {connected && publicKey ? (
+                  <Link
+                    to="/app"
+                    className="px-6 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-all"
+                  >
+                    {formatAddress(publicKey.toString())}
+                  </Link>
+                ) : (
+                  <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-sm !font-medium !px-6 !py-2.5" />
+                )}
+              </>
             )}
           </div>
         </div>
