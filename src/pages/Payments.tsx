@@ -35,13 +35,18 @@ export default function Payments() {
     <DashboardLayout>
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2 text-foreground">💳 Noema Pay™</h1>
+        <h1 className="text-4xl font-bold mb-2 text-foreground">
+          💳 Noema Pay™ 
+          <span className="ml-3 text-sm font-normal px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 border border-yellow-300">
+            🚧 Beta - Coming Soon
+          </span>
+        </h1>
         <p className="text-muted-foreground">Micropayment & Gasless Protocol — Send & receive USDC instantly via X402</p>
       </div>
 
-      <Card className="border-border/50 bg-green-50">
-        <CardContent className="py-4 text-sm text-green-900">
-          No Phantom required: Noema Pay™ (X402) works via a Facilitator service that settles payments on Solana using USDC. Ideal for server-to-server and no-code clients.
+      <Card className="border-border/50 bg-blue-50">
+        <CardContent className="py-4 text-sm text-blue-900">
+          <strong>ℹ️ Note:</strong> X402 payment infrastructure is currently in beta testing. The core Noema Protocol (SPL-8004, SPL-ACP, SPL-TAP, SPL-FCP) is fully functional and deployed on Solana Devnet. Payment features will be available soon with Kora RPC integration.
         </CardContent>
       </Card>
 
@@ -76,19 +81,43 @@ export default function Payments() {
               )}
 
               <Button
-                disabled={!connected || isPaymentProcessing || !recipient || Number(amount) <= 0 || health === 'down'}
+                disabled={!recipient || Number(amount) <= 0 || health === 'down'}
                 onClick={async () => {
-                  // Demo flow: call a protected endpoint to trigger 402 payment flow if configured
                   try {
-                    toast.info('Initiating Noema Pay™ (X402) flow…');
-                    const res = await fetchWithPayment<unknown>(probeUrl, {
+                    toast.info('Initiating Noema Pay™ (X402) payment…');
+                    
+                    // Direct call to facilitator /payment endpoint
+                    const facilitatorUrl = import.meta.env.VITE_X402_FACILITATOR_URL || 'http://localhost:3001';
+                    const res = await fetch(`${facilitatorUrl}/payment`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ recipient, amount: Number(amount), memo }),
+                      body: JSON.stringify({ 
+                        recipient, 
+                        amount: Number(amount), 
+                        memo: memo || 'Noema Pay payment'
+                      }),
                     });
-                    toast.success('Payment completed successfully!', { 
-                      description: `Sent ${amount} USDC to ${recipient.slice(0, 8)}...`
-                    });
+                    
+                    if (!res.ok) {
+                      throw new Error(`Payment failed: ${res.statusText}`);
+                    }
+                    
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                      toast.success('Payment completed successfully!', { 
+                        description: (
+                          <div className="space-y-1">
+                            <div>Sent {amount} USDC to {recipient.slice(0, 12)}...</div>
+                            <a href={data.explorerUrl} target="_blank" rel="noreferrer" className="text-xs underline">
+                              View on Explorer
+                            </a>
+                          </div>
+                        )
+                      });
+                    } else {
+                      throw new Error(data.error || 'Payment failed');
+                    }
                   } catch (e) {
                     const errorMsg = (e as Error).message || 'Payment failed';
                     if (errorMsg.includes('Not Found') || errorMsg.includes('404')) {
@@ -106,7 +135,7 @@ export default function Payments() {
                 }}
                 className="w-full bg-gradient-primary hover:shadow-glow"
               >
-                {!connected ? 'Connect wallet to pay (client mode)' : health === 'down' ? 'Facilitator Offline' : isPaymentProcessing ? 'Processing…' : 'Send Payment'}
+                {health === 'down' ? 'Facilitator Offline' : 'Send Payment (Mock)'}
               </Button>
             </CardContent>
           </Card>

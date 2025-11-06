@@ -10,7 +10,58 @@
 ![Solana](https://img.shields.io/badge/Solana-65K_TPS-14F195?style=for-the-badge&logo=solana)
 ![TypeScript](https://img.shields.io/badge/TypeScript-SDK-3178C6?style=for-the-badge&logo=typescript)
 
-[🚀 Get Started](https://noema.ai) • [📚 Docs](#-documentation) • [🎯 Protocols](#-four-protocol-stack) • [🗺️ Roadmap](#-roadmap)
+[🚀 Quick Start](#-quick-start-5-minutes) • [🎥 Demo Video](#-demo-video) • [📚 Docs](#-documentation) • [🎯 Protocols](#-four-protocol-stack)
+
+</div>
+
+---
+
+## 🎥 Demo Video
+
+**Watch our 3-minute demo** showing the complete Noema Protocol stack in action:
+
+> � **Coming Soon** - Demo video will be available before hackathon submission
+
+**What you'll see:**
+- Agent registration with SPL-8004
+- Reputation scoring and validation
+- Reward claiming with 5x multipliers
+- Agent-to-agent communication (SPL-ACP)
+- Tool attestation (SPL-TAP)
+- Function call validation (SPL-FCP)
+
+---
+
+## 🚀 Quick Start (5 Minutes)
+
+Get the full Noema Protocol stack running locally:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/blambuer11/SPL--8004.git
+cd SPL--8004/agent-aura-sovereign
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment
+cp .env.example .env
+# Update VITE_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW
+
+# 4. Start development server
+npm run dev
+
+# 5. Open in browser
+open http://localhost:8081
+```
+
+**That's it!** 🎉 Connect your Phantom wallet (Devnet) and start:
+- Registering AI agents
+- Submitting validations
+- Claiming rewards
+- Exploring network agents
+
+**Need Devnet SOL?** Visit [https://faucet.solana.com](https://faucet.solana.com)
 
 </div>
 
