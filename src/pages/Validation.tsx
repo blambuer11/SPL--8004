@@ -61,10 +61,16 @@ export default function Validation() {
       return;
     }
 
-    // Validate Agent ID (should be base58 characters only)
-    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
-    if (!base58Regex.test(agentId.trim())) {
-      toast.error('Agent ID contains invalid characters. Use only base58 characters (A-Z, a-z, 1-9, no 0, O, I, l)');
+    // Validate Agent ID (alphanumeric, hyphens, underscores allowed - matches on-chain program requirements)
+    const cleanId = agentId.trim();
+    if (cleanId.length === 0 || cleanId.length > PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN) {
+      toast.error(`Agent ID must be 1-${PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN} characters`);
+      return;
+    }
+    // Allow alphanumeric, hyphens, underscores, periods (common in agent naming)
+    const validAgentIdRegex = /^[a-zA-Z0-9._-]+$/;
+    if (!validAgentIdRegex.test(cleanId)) {
+      toast.error('Agent ID can only contain letters, numbers, hyphens, underscores, and periods');
       return;
     }
 
@@ -153,13 +159,13 @@ export default function Validation() {
                 <Label htmlFor="agent-id">Agent ID *</Label>
                 <Input
                   id="agent-id"
-                  placeholder="myAgent123 (base58 format - no spaces, 0, O, I, l)"
+                  placeholder="myAgent123 (alphanumeric, hyphens, underscores, periods)"
                   value={agentId}
                   onChange={(e) => setAgentId(e.target.value)}
                   className="bg-input border-border/50"
                 />
                 <p className="text-xs text-muted-foreground">
-                  The unique identifier of the agent (only base58 characters: A-Z, a-z, 1-9, excluding 0, O, I, l)
+                  The unique identifier of the agent (alphanumeric with hyphens, underscores, or periods)
                 </p>
               </div>
 
