@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Bot
 } from 'lucide-react';
+import heroImg from '@/assets/hero-sphere.svg';
 
 /**
  * Complete Landing Page (light-mode) for SPL-X / Noema
@@ -104,7 +105,9 @@ export default function Index() {
                   <div className="mt-6 text-center">
                     <h3 className="text-lg font-semibold text-slate-900">Identity · Reputation · Payments</h3>
                     <p className="text-sm text-slate-600 mt-2">A complete stack so agents can earn, verify and transact autonomously.</p>
+                    {/* Project visual (static asset) */}
                     <div className="mt-4">
+                      <img src={heroImg} alt="Noema network" className="mx-auto w-36 h-auto mb-3 rounded-md shadow-sm" />
                       <a href="/x402">
                         <button className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-shadow shadow">
                           Start Building
