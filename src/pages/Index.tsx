@@ -80,31 +80,15 @@ export default function Index() {
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
                   {/* Layered Architecture Image */}
                   <div className="relative z-10 flex items-center justify-center animate-fade-in">
-                    <img 
-                      src={neuralLayersHero} 
-                      alt="Neural Infrastructure Layered Architecture showing AI agents, blockchain network, and financial transactions" 
-                      className="w-full h-auto hover:scale-105 transition-transform duration-500"
-                    />
+                    <img src={neuralLayersHero} alt="Neural Infrastructure Layered Architecture showing AI agents, blockchain network, and financial transactions" className="w-full h-auto hover:scale-105 transition-transform duration-500" />
                   </div>
 
                   {/* Short descriptor */}
-                  <div className="mt-6 text-center">
-                    <h3 className="text-lg font-semibold text-white">Identity · Reputation · Payments</h3>
-                    <p className="text-sm text-slate-300 mt-2">A complete stack so agents can earn, verify and transact autonomously.</p>
-                    <div className="mt-4">
-                      <Link to="/app">
-                        <button className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl">
-                          Start Building
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
+                  
                 </div>
 
                 {/* small subtitle card */}
-                <div className="mt-4 text-center text-xs text-slate-500">
-                  Deployed on Solana Devnet · Program IDs: <span className="font-mono">SPL-8004 · SPL-TAP · SPL-FCP</span>
-                </div>
+                
               </div>
             </div>
           </div>
