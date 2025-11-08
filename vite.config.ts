@@ -19,6 +19,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ["buffer"],
+    include: ["buffer", "react", "react-dom"],
   },
 }));
