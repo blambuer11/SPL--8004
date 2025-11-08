@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -18,7 +19,6 @@ import NoCodeTool from './pages/NoCodeTool';
 import NotFound from './pages/NotFound';
 import { Footer } from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
-import React, { Suspense } from "react";
 import FullApp from "./FullApp";
 
 const queryClient = new QueryClient();
