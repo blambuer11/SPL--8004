@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { clusterApiUrl } from '@solana/web3.js';
 
