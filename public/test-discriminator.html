@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Discriminator</title>
+</head>
+<body>
+    <h1>Discriminator Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function discriminator(name) {
+            const preimage = `global:${name}`;
+            const encoded = new TextEncoder().encode(preimage);
+            const hash = await crypto.subtle.digest("SHA-256", encoded);
+            return new Uint8Array(hash).slice(0, 8);
+        }
+        
+        async function testAll() {
+            const results = document.getElementById('results');
+            
+            const instructions = [
+                'registerIssuer',
+                'registerValidator', 
+                'declareCapability'
+            ];
+            
+            for (const name of instructions) {
+                const disc = await discriminator(name);
+                const hex = Array.from(disc).map(b => b.toString(16).padStart(2, '0')).join('');
+                const arr = Array.from(disc);
+                
+                results.innerHTML += `<h3>${name}</h3>`;
+                results.innerHTML += `<p>Hex: ${hex}</p>`;
+                results.innerHTML += `<p>Array: [${arr.join(', ')}]</p>`;
+                results.innerHTML += `<hr>`;
+            }
+        }
+        
+        testAll();
+    </script>
+</body>
+</html>

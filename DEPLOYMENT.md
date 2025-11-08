@@ -88,8 +88,8 @@ anchor init spl-8004
 # Devnet'e geç
 solana config set --url devnet
 
-# Cüzdan oluştur (yoksa)
-solana-keygen new --outfile ~/.config/solana/id.json
+# Create wallet (if not exists)
+solana-keygen new --outfile ~/.config/solana/devnet-wallet.json
 
 # Airdrop al
 solana airdrop 2

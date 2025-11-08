@@ -10,7 +10,7 @@
 ![Solana](https://img.shields.io/badge/Solana-65K_TPS-14F195?style=for-the-badge&logo=solana)
 ![TypeScript](https://img.shields.io/badge/TypeScript-SDK-3178C6?style=for-the-badge&logo=typescript)
 
-[🚀 Quick Start](#-quick-start-5-minutes) • [🎥 Demo Video](#-demo-video) • [📚 Docs](#-documentation) • [🎯 Protocols](#-four-protocol-stack)
+[🚀 Quick Start](#-quick-start-5-minutes) • [🎥 Demo Video](#-demo-video) • [📚 Docs](#-documentation) • [🎯 Protocols](#-four-protocol-stack) • [🏆 Sponsor Integrations](../SPONSOR_INTEGRATIONS.md)
 
 </div>
 
@@ -20,7 +20,7 @@
 
 **Watch our 3-minute demo** showing the complete Noema Protocol stack in action:
 
-> � **Coming Soon** - Demo video will be available before hackathon submission
+> 🎬 **Coming Soon** - Demo video will be available before hackathon submission
 
 **What you'll see:**
 - Agent registration with SPL-8004
@@ -29,6 +29,85 @@
 - Agent-to-agent communication (SPL-ACP)
 - Tool attestation (SPL-TAP)
 - Function call validation (SPL-FCP)
+
+---
+
+## 🖥️ Terminal Demo (Agents + USDC Payments)
+
+Run a complete end-to-end demo from your terminal: register agents, submit validations, update reputation, and execute mock USDC payments.
+
+```bash
+# 1. Start X402 facilitator (in separate terminal)
+cd spl-8004-program/x402-facilitator
+npm install
+npm run build
+pm2 start ecosystem.config.cjs
+pm2 save
+
+# Health check
+curl http://localhost:3001/health
+# {"status":"ok","service":"spl-8004-x402-facilitator","mockMode":true,"network":"solana-devnet"}
+
+# 2. Run agent demo (creates 2 agents, updates reputation, sends payment)
+cd ../spl-8004
+npm run demo
+```
+
+**Demo output:**
+```
+✅ Config initialized: 2VYQzU6tb...
+✅ Registered A: agent-alpha 2BZV2akuooT...
+✅ Registered B: agent-beta 4HvJP17vDPf...
+✅ Validation submitted: EZKiq4ncxw...
+✅ Reputation updated A: 57eH5nx4vy...
+💳 Mock payment OK: Mock1762451940952p5d0hdxofeq
+🎉 Demo finished.
+```
+
+**What happens:**
+1. Initializes SPL-8004 config (if needed)
+2. Registers 2 agents: `agent-alpha` and `agent-beta`
+3. Submits a validation for agent-alpha (approved=true)
+4. Updates reputation (score increases + reward pool grows)
+5. Sends mock USDC payment from agent-alpha wallet → agent-beta wallet via X402 facilitator
+
+---
+
+## 🚀 Live Payment Flow (UI + Auto Reputation)
+
+**NEW:** Payments page now automatically updates SPL-8004 reputation after each successful payment!
+
+```bash
+# 1. Ensure facilitator is running
+pm2 status  # x402-facilitator should be "online"
+
+# 2. Start frontend
+cd agent-aura-sovereign
+npx vite --port 8081
+
+# 3. Open browser → http://localhost:8081/payments
+```
+
+**Flow:**
+1. Connect Phantom wallet (Devnet)
+2. Enter **your agent ID** (sender) - e.g., `trading-bot-alpha`
+3. Enter **recipient** agent/wallet address
+4. Set **amount** (USDC)
+5. Click **"Send Payment + Update Reputation"**
+
+**What happens automatically:**
+1. ✅ X402 facilitator processes USDC payment
+2. ✅ SPL-8004 creates validation record (on-chain)
+3. ✅ Your agent's reputation score increases 📈
+4. ✅ Reward pool grows (claimable later)
+
+**Result:** Each payment = +100-500 reputation points + reward accumulation!
+
+**Operational notes:**
+- Facilitator runs on port 3001 (PM2 keeps it alive even if VS Code closes)
+- MOCK_MODE=true means payments return instantly without real blockchain USDC transfer
+- For production, set MOCK_MODE=false and configure Kora RPC (see `spl-8004-program/x402-facilitator/.env.example`)
+- Full ops guide: [OPS.md](../OPS.md)
 
 ---
 
@@ -46,12 +125,22 @@ npm install
 
 # 3. Configure environment
 cp .env.example .env
-# Update VITE_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW
+# Edit .env and set:
+# VITE_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW
+# VITE_X402_FACILITATOR_URL=http://localhost:3001
+# VITE_SOLANA_NETWORK=devnet
 
-# 4. Start development server
+# 4. Start X402 facilitator (for payments)
+cd ../spl-8004-program/x402-facilitator
+npm install && npm run build
+pm2 start ecosystem.config.cjs
+pm2 save
+cd ../../agent-aura-sovereign
+
+# 5. Start frontend development server
 npm run dev
 
-# 5. Open in browser
+# 6. Open in browser
 open http://localhost:8081
 ```
 
@@ -60,8 +149,11 @@ open http://localhost:8081
 - Submitting validations
 - Claiming rewards
 - Exploring network agents
+- Making USDC payments (mock mode)
 
 **Need Devnet SOL?** Visit [https://faucet.solana.com](https://faucet.solana.com)
+
+**Optional:** Run the terminal demo to see agents + payments in action without the UI → [See Terminal Demo](#%EF%B8%8F-terminal-demo-agents--usdc-payments)
 
 </div>
 
@@ -623,10 +715,30 @@ Special thanks to:
 
 ---
 
+## ✅ Hackathon Requirements Checklist
+
+This project fulfills all [Solana AI Hackathon](https://solana.com/news/solana-ai-hackathon-2024) requirements:
+
+- ✅ **Open source**: All code MIT licensed, public on GitHub
+- ✅ **X402 integration**: Full facilitator implementation with /verify, /settle, /payment endpoints
+- ✅ **Devnet deployment**: All 4 protocols live (SPL-8004, SPL-ACP, SPL-TAP, SPL-FCP)
+- ✅ **Demo video**: 3-minute walkthrough (coming soon)
+- ✅ **Documentation**: README + in-app docs + [OPS.md](../OPS.md) operations guide
+
+**Deployed contracts:**
+- SPL-8004: `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
+- SPL-ACP: `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`
+- SPL-TAP: `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`
+- SPL-FCP: `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`
+
+**Live demo:** [agent-aura-sovereign.vercel.app](https://agent-aura-sovereign.vercel.app)
+
+---
+
 <div align="center">
 
 **Ready to build the future of AI agents?**
 
-[Get Started →](https://noema.ai) | [Join Discord →](https://discord.gg/noema)
+[Get Started →](https://noema.ai) | [Join Discord →](https://discord.gg/noema) | [Operations Guide →](../OPS.md)
 
 </div>

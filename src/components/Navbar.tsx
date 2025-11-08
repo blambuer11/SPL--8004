@@ -16,13 +16,8 @@ export const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
-              ∩
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg text-slate-900">Noema Protocol™</span>
-              <span className="text-xs text-slate-600 font-medium -mt-1">The Noema Stack</span>
-            </div>
+            <img src="/logo.svg" alt="Noema Protocol" className="w-10 h-10" />
+            <span className="font-bold text-lg text-slate-900">Noema Protocol™</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -36,31 +31,15 @@ export const Navbar = () => {
               >
                 Home
               </Link>
-              <a
-                href="/#products"
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                Products
-              </a>
               <Link
-                to="/docs"
+                to="/x402"
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/docs')
+                  isActive('/x402')
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
-                Docs
-              </Link>
-              <Link
-                to="/developer"
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/developer')
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
-              >
-                Developer
+                X402 Payment
               </Link>
           </div>
 

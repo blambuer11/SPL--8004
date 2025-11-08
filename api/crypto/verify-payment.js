@@ -20,7 +20,8 @@ export default async function handler(req, res) {
     const { amount, memo, withinSeconds = 3600, recipient, usdcMint } = body;
 
     const rpcUrl = getEnv('UPSTREAM_SOLANA_RPC', 'https://api.mainnet-beta.solana.com');
-    const recipientAddr = recipient || getEnv('RECEIVING_SOLANA_ADDRESS');
+    // Treasury cüzdanı - tüm ödemeler buraya
+    const recipientAddr = recipient || getEnv('RECEIVING_SOLANA_ADDRESS', '3oxg7wVtdp9T3sx773SMmws8zrGyAJecqTruaXfiw3mN');
     const usdc = usdcMint || getEnv('USDC_MINT_MAINNET', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
     if (!recipientAddr) return res.status(501).json({ error: 'RECEIVING_SOLANA_ADDRESS not configured' });

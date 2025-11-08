@@ -34,34 +34,27 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <NoemaLogo size="md" />
-              <span className="font-semibold text-foreground">Noema</span>
+              <img src="/logo.svg" alt="Noema Protocol" className="w-6 h-6" />
+              <span className="font-semibold text-foreground">Noema Protocol</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-3">
               Trustless AI agent identity and reputation on Solana.
             </p>
+            <a href="mailto:info@noemaprotocol.xyz" className="text-xs text-muted-foreground hover:text-foreground">
+              info@noemaprotocol.xyz
+            </a>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/dashboard" className="hover:text-foreground">Dashboard</Link></li>
-              <li><Link to="/agents" className="hover:text-foreground">Agents</Link></li>
-              <li><Link to="/validation" className="hover:text-foreground">Validation</Link></li>
+              <li><Link to="/x402" className="hover:text-foreground">X402 Payment</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Developers</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <Link to="/docs" className="hover:text-foreground">Docs</Link>
-              </li>
-              <li className="flex items-center gap-2">
-                <Code2 className="h-4 w-4" />
-                <Link to="/docs#sdk" className="hover:text-foreground">SDK</Link>
-              </li>
               <li className="flex items-center gap-2">
                 <Github className="h-4 w-4" />
                 <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub</a>
@@ -74,10 +67,10 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <XIcon className="h-4 w-4" />
-                <a href="https://x404.ai" target="_blank" rel="noreferrer" className="hover:text-foreground">X404 Integration</a>
+                <a href="https://twitter.com/NoemaProtocol" target="_blank" rel="noreferrer" className="hover:text-foreground">@NoemaProtocol</a>
               </li>
-              <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-foreground">Terms of Service</Link></li>
+              <li><a href="https://github.com/blambuer11/SPL--8004/blob/main/docs/privacy-policy.md" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
+              <li><a href="https://github.com/blambuer11/SPL--8004/blob/main/docs/terms-of-service.md" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">Terms of Service</a></li>
             </ul>
           </div>
         </div>

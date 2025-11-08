@@ -7,14 +7,26 @@ import { WalletProvider } from "./components/WalletProvider";
 import { NetworkProvider } from "./components/NetworkProvider";
 import { Navbar } from "./components/Navbar";
 import Index from './pages/Index';
+import SPLXStack from './pages/NeomaStack';
 import Agents from './pages/Agents';
 import Validation from './pages/Validation';
 import Dashboard from './pages/Dashboard';
 import Payments from './pages/Payments';
 import Profile from './pages/Profile';
-import Docs from './pages/Docs';
+// import Docs from './pages/Docs';
 import Developer from './pages/Developer';
 import NoCodeTool from './pages/NoCodeTool';
+import NoCodeBuilder from './pages/NoCodeBuilder';
+import AgentAnalytics from './pages/AgentAnalytics';
+import Stake from './pages/Stake';
+import SPLXDashboard from './pages/SPLXDashboard';
+import AgentCreator from './pages/AgentCreator';
+import AgentDetails from './pages/AgentDetails';
+import AttestationHub from './pages/AttestationHub';
+import ConsensusManager from './pages/ConsensusManager';
+import Marketplace from './pages/Marketplace';
+import Settings from './pages/Settings';
+import X402Payment from './pages/X402Payment';
 import NotFound from './pages/NotFound';
 import { Footer } from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -47,15 +59,7 @@ const App = () => {
                 </ErrorBoundary>
                 <Routes>
                   <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
-                  <Route path="/app" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-                  <Route path="/docs" element={<ErrorBoundary><Docs /></ErrorBoundary>} />
-                  <Route path="/no-code" element={<ErrorBoundary><NoCodeTool /></ErrorBoundary>} />
-                  <Route path="/agents" element={<ErrorBoundary><Agents /></ErrorBoundary>} />
-                  <Route path="/validation" element={<ErrorBoundary><Validation /></ErrorBoundary>} />
-                  <Route path="/payments" element={<ErrorBoundary><Payments /></ErrorBoundary>} />
-                  <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
-                    <Route path="/developer" element={<ErrorBoundary><Developer /></ErrorBoundary>} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/x402" element={<ErrorBoundary><X402Payment /></ErrorBoundary>} />
                 </Routes>
                 <ErrorBoundary>
                   <Footer />

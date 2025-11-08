@@ -5,6 +5,7 @@ import bs58 from "bs58";
 import { Buffer } from "buffer";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { PROGRAM_CONSTANTS } from "./program-constants";
+import { getSplProgramIds } from "./spl-x-constants";
 
 // Program ID (configurable via env; defaults to known Devnet ID)
 const PROGRAM_ID_FROM_ENV = import.meta.env?.VITE_PROGRAM_ID as string | undefined;
@@ -21,26 +22,26 @@ const REPUTATION_SEED = "reputation";
 const VALIDATION_SEED = "validation";
 const REWARD_POOL_SEED = "reward_pool";
 
+
 export class SPL8004Client {
   private connection: Connection;
   private wallet: AnchorWallet;
   private provider: AnchorProvider;
   private programId: PublicKey;
 
-    // Public getters for connection and programId
-    public getConnection(): Connection {
-      return this.connection;
-    }
+  // Public getters for connection and programId
+  public getConnection(): Connection {
+    return this.connection;
+  }
 
-    public getProgramId(): PublicKey {
-      return this.programId;
-    }
+  public getProgramId(): PublicKey {
+    return this.programId;
+  }
 
-  constructor(connection: Connection, wallet: AnchorWallet, programId?: PublicKey) {
+  constructor(connection: Connection, wallet: AnchorWallet, programId: PublicKey) {
     this.connection = connection;
     this.wallet = wallet;
-    this.programId = programId || SPL8004_PROGRAM_ID;
-    
+    this.programId = programId;
     this.provider = new AnchorProvider(connection, wallet, {
       commitment: "confirmed",
     });
@@ -754,10 +755,13 @@ export class SPL8004Client {
   }
 }
 
-export const createSPL8004Client = (
+
+// network parametresi 'devnet' veya 'localhost' olmalı
+export function createSPL8004Client(
   connection: Connection,
   wallet: AnchorWallet,
-  programId?: PublicKey
-) => {
-  return new SPL8004Client(connection, wallet, programId);
-};
+  network: 'devnet' | 'localhost' = 'devnet'
+): SPL8004Client {
+  const { SPL_8004_PROGRAM_ID } = getSplProgramIds(network);
+  return new SPL8004Client(connection, wallet, SPL_8004_PROGRAM_ID);
+}

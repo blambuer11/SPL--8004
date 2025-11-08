@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { createX402Client, X402Client, X402PaymentError } from '@/lib/x402-client';
@@ -25,13 +25,15 @@ export function useX402(options?: UseX402Options) {
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [lastPaymentSignature, setLastPaymentSignature] = useState<string | null>(null);
 
-  // Create X402 client
-  const x402Client = createX402Client(connection, {
-    ...(options?.facilitatorUrl && { facilitatorUrl: options.facilitatorUrl }),
-    ...(options?.treasuryAddress && { treasuryAddress: new PublicKey(options.treasuryAddress) }),
-    ...(options?.usdcMint && { usdcMint: new PublicKey(options.usdcMint) }),
-    ...(options?.network && { network: options.network }),
-  });
+  // Create X402 client (memoized to prevent re-creation on every render)
+  const x402Client = useMemo(() => {
+    return createX402Client(connection, {
+      ...(options?.facilitatorUrl && { facilitatorUrl: options.facilitatorUrl }),
+      ...(options?.treasuryAddress && { treasuryAddress: new PublicKey(options.treasuryAddress) }),
+      ...(options?.usdcMint && { usdcMint: new PublicKey(options.usdcMint) }),
+      ...(options?.network && { network: options.network }),
+    });
+  }, [connection, options]);
 
   /**
    * Fetch with automatic payment handling

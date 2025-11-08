@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { createSPL8004Client, SPL8004Client } from '@/lib/spl8004-client';
+import { useNetwork } from '../components/NetworkProvider';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
 import { Keypair } from '@solana/web3.js';
+
 
 export function useSPL8004() {
   const { connection } = useConnection();
   const wallet = useWallet();
+  const { network } = useNetwork();
 
   const client = useMemo(() => {
     // When wallet is connected, use real wallet
@@ -16,7 +19,7 @@ export function useSPL8004() {
         signTransaction: wallet.signTransaction,
         signAllTransactions: wallet.signAllTransactions,
       };
-      return createSPL8004Client(connection, anchorWallet);
+      return createSPL8004Client(connection, anchorWallet, network === 'devnet' ? 'devnet' : 'localhost');
     }
 
     // Fallback: create a read-only client for public data fetching
@@ -31,8 +34,8 @@ export function useSPL8004() {
       },
     } as unknown as AnchorWallet;
 
-    return createSPL8004Client(connection, readonlyWallet);
-  }, [connection, wallet.publicKey, wallet.signTransaction, wallet.signAllTransactions]);
+    return createSPL8004Client(connection, readonlyWallet, network === 'devnet' ? 'devnet' : 'localhost');
+  }, [connection, wallet.publicKey, wallet.signTransaction, wallet.signAllTransactions, network]);
 
   return {
     client,

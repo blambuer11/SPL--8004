@@ -221,12 +221,38 @@ export class X402Client {
    */
   async checkFacilitator(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.config.facilitatorUrl}/health`, {
+      const url = `${this.config.facilitatorUrl}/health`;
+      console.log('🔍 Checking facilitator at:', url);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(url, {
         method: 'GET',
-        signal: AbortSignal.timeout(3000),
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
+      
+      clearTimeout(timeoutId);
+      console.log('✅ Facilitator response:', response.status, response.ok);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Facilitator data:', data);
+      }
+      
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error('❌ Facilitator check failed:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        });
+      }
       return false;
     }
   }
@@ -250,16 +276,23 @@ export function createX402Client(
   connection: Connection,
   config?: Partial<X402Config>
 ): X402Client {
+  const facilitatorUrl = import.meta.env.VITE_X402_FACILITATOR_URL || 'http://localhost:3001';
+  console.log('🔧 X402 Client Config:', {
+    facilitatorUrl,
+    envValue: import.meta.env.VITE_X402_FACILITATOR_URL,
+    treasury: import.meta.env.VITE_SPL8004_TREASURY,
+  });
+  
   const defaultConfig: X402Config = {
-    facilitatorUrl: import.meta.env.VITE_X402_FACILITATOR_URL || 'http://localhost:3000',
+    facilitatorUrl,
     treasuryAddress: new PublicKey(
       import.meta.env.VITE_SPL8004_TREASURY ||
-        '9x3TDBKE7qFHXmvUUhPMkkSBhLmzazRxQaKwzSrQwcXX'
+        '3oxg7wVtdp9T3sx773SMmws8zrGyAJecqTruaXfiw3mN'
     ),
     usdcMint: new PublicKey(
-      import.meta.env.VITE_USDC_MINT || '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'
+      import.meta.env.VITE_USDC_MINT || 'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     ),
-    network: import.meta.env.VITE_SOLANA_NETWORK || 'solana-devnet',
+    network: import.meta.env.VITE_SOLANA_NETWORK || 'devnet',
     ...config,
   };
 
