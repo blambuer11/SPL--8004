@@ -5,20 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import {
-  Shield,
-  ArrowRight,
-  CheckCircle2,
-  Code2,
-  TrendingUp,
-  MessageSquare,
-  Wrench,
-  Terminal,
-  FileCode,
-  Rocket,
-  HelpCircle,
-  Bot
-} from 'lucide-react';
+import { Shield, ArrowRight, CheckCircle2, Code2, TrendingUp, MessageSquare, Wrench, Terminal, FileCode, Rocket, HelpCircle, Bot } from 'lucide-react';
 
 /**
  * Complete Landing Page (light-mode) for SPL-X / Noema
@@ -32,8 +19,7 @@ import {
  */
 
 export default function Index() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+  return <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
       {/* HERO */}
       <section className="relative overflow-hidden bg-white">
         <div className="container mx-auto px-6 py-20">
@@ -87,40 +73,7 @@ export default function Index() {
             </div>
 
             {/* Right - Neural Sphere Visual + short pitch */}
-            <div className="relative flex items-center justify-center">
-              <div className="w-full max-w-md">
-                {/* Neural Sphere Card */}
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-gradient-to-br from-indigo-50 to-white p-6">
-                  {/* soft gradient backdrop */}
-                  <div className="absolute inset-0 pointer-events-none" aria-hidden>
-                    <div className="w-full h-full opacity-40 blur-2xl" style={{ background: 'radial-gradient(circle at 70% 30%, rgba(99,102,241,0.25), transparent 20%), radial-gradient(circle at 20% 80%, rgba(16,185,129,0.12), transparent 20%)' }} />
-                  </div>
-
-                  {/* SVG Neural Sphere */}
-                  <div className="relative z-10 flex items-center justify-center">
-                    <NeuralSphere className="w-full h-auto" />
-                  </div>
-
-                  {/* Short descriptor */}
-                  <div className="mt-6 text-center">
-                    <h3 className="text-lg font-semibold text-slate-900">Identity · Reputation · Payments</h3>
-                    <p className="text-sm text-slate-600 mt-2">A complete stack so agents can earn, verify and transact autonomously.</p>
-                    <div className="mt-4">
-                      <a href="/x402">
-                        <button className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-shadow shadow">
-                          Start Building
-                        </button>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* small subtitle card */}
-                <div className="mt-4 text-center text-xs text-slate-500">
-                  Deployed on Solana Devnet · Program IDs: <span className="font-mono">SPL-8004 · SPL-TAP · SPL-FCP</span>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </section>
@@ -412,8 +365,7 @@ export default function Index() {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 }
 
 /**
@@ -421,16 +373,12 @@ export default function Index() {
  * - self-contained; no external assets required
  * - scalable, accessible (aria-hidden)
  */
-function NeuralSphere({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 420 420"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-hidden="true"
-    >
+function NeuralSphere({
+  className
+}: {
+  className?: string;
+}) {
+  return <svg className={className} viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
       <defs>
         <radialGradient id="g1" cx="50%" cy="35%">
           <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.95" />
@@ -513,6 +461,5 @@ function NeuralSphere({ className }: { className?: string }) {
         svg { will-change: transform; }
         svg:hover { transform: scale(1.02) translateY(-2px); transition: transform 300ms ease; }
       `}</style>
-    </svg>
-  );
+    </svg>;
 }
