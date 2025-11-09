@@ -83,9 +83,24 @@ export default function Validation() {
     try {
       // Submit validation directly to Solana (pays SOL fee on-chain)
       toast.info('Submitting validation to Solana...');
+      console.log('Submitting validation with client:', client);
+      console.log('Agent ID:', cleanId, 'Approved:', approved);
+      
       const taskHashBuffer = await toTaskHash32(taskHash);
-      const sig = await client.submitValidation(agentId, taskHashBuffer, approved, evidenceUri);
-      toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${agentId}"`, {
+      console.log('Task hash (hex):', Array.from(taskHashBuffer).map(b => b.toString(16).padStart(2, '0')).join(''));
+      
+      // Extra preflight: ensure identity account exists before building tx
+      const identity = await client.getIdentity(cleanId);
+      if (!identity) {
+        toast.error('Agent not found on-chain. Register first.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const sig = await client.submitValidation(cleanId, taskHashBuffer, approved, evidenceUri);
+      console.log('Validation submitted, signature:', sig);
+      
+      toast.success(`Validation ${approved ? 'approved' : 'rejected'} for agent "${cleanId}"`, {
         description: (
           <a
             href={getExplorerTxUrl(sig)}
@@ -103,8 +118,8 @@ export default function Validation() {
       setComputedHexPreview('');
     } catch (error: unknown) {
       const message = (error as Error)?.message || 'Failed to submit validation';
+      console.error('Validation error:', error);
       toast.error(message);
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }

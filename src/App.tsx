@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,21 +7,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WalletProvider } from "./components/WalletProvider";
 import { NetworkProvider } from "./components/NetworkProvider";
 import { Navbar } from "./components/Navbar";
-import Index from './pages/Index';
-import Agents from './pages/Agents';
-import Validation from './pages/Validation';
-import Dashboard from './pages/Dashboard';
-import Payments from './pages/Payments';
-import Profile from './pages/Profile';
-import Docs from './pages/Docs';
-import Developer from './pages/Developer';
-import NoCodeTool from './pages/NoCodeTool';
-import SPLXStack from './pages/DocsSPLX';
-import X402Payment from './pages/X402Payment';
-import NotFound from './pages/NotFound';
-import { Footer } from "./components/Footer";
+import Home from './pages/Home';
+import AppLayout from './layouts/AppLayout';
+import Dashboard from './pages/app/Dashboard';
+import Agents from './pages/app/Agents';
+import AgentDetail from './pages/app/AgentDetail';
+import CreateAgent from './pages/app/CreateAgent';
+import Staking from './pages/app/Staking';
+import Validation from './pages/app/Validation';
+import Payments from './pages/app/Payments';
+import Attestations from './pages/app/Attestations';
+import Consensus from './pages/app/Consensus';
+import AnalyticsPage from './pages/app/Analytics';
+import Marketplace from './pages/app/Marketplace';
+import DocsPage from './pages/app/Docs';
+import SettingsPage from './pages/app/Settings';
 import ErrorBoundary from "./components/ErrorBoundary";
-import FullApp from "./FullApp";
+// Tek sayfa mimariye geçildi; diğer importlar kaldırıldı
 
 const queryClient = new QueryClient();
 
@@ -48,24 +50,26 @@ const App = () => {
                   <Navbar />
                 </ErrorBoundary>
                 <Routes>
-                  <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
-                  <Route path="/app" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-                  <Route path="/docs" element={<ErrorBoundary><Docs /></ErrorBoundary>} />
-                  <Route path="/splx" element={<ErrorBoundary><SPLXStack /></ErrorBoundary>} />
-                  <Route path="/x402" element={<ErrorBoundary><X402Payment /></ErrorBoundary>} />
-                  <Route path="/no-code" element={<ErrorBoundary><NoCodeTool /></ErrorBoundary>} />
-                  <Route path="/agents" element={<ErrorBoundary><Agents /></ErrorBoundary>} />
-                  <Route path="/validation" element={<ErrorBoundary><Validation /></ErrorBoundary>} />
-                  <Route path="/payments" element={<ErrorBoundary><Payments /></ErrorBoundary>} />
-                  <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
-                    <Route path="/developer" element={<ErrorBoundary><Developer /></ErrorBoundary>} />
-                  <Route path="/stake" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-                  <Route path="/staking" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-                  <Route path="*" element={<NotFound />} />
+                  {/* Home root */}
+                  <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+                  {/* App nested routes */}
+                  <Route path="/app" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/app/agents" element={<AppLayout><Agents /></AppLayout>} />
+                  <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetail /></AppLayout>} />
+                  <Route path="/app/create-agent" element={<AppLayout><CreateAgent /></AppLayout>} />
+                  <Route path="/app/staking" element={<AppLayout><Staking /></AppLayout>} />
+                  <Route path="/app/validation" element={<AppLayout><Validation /></AppLayout>} />
+                  <Route path="/app/payments" element={<AppLayout><Payments /></AppLayout>} />
+                  <Route path="/app/attestations" element={<AppLayout><Attestations /></AppLayout>} />
+                  <Route path="/app/consensus" element={<AppLayout><Consensus /></AppLayout>} />
+                  <Route path="/app/analytics" element={<AppLayout><AnalyticsPage /></AppLayout>} />
+                  <Route path="/app/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
+                  <Route path="/app/docs" element={<AppLayout><DocsPage /></AppLayout>} />
+                  <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+                  {/* Legacy fallback & redirect */}
+                  <Route path="/app/*" element={<Navigate to="/app/dashboard" replace />} />
                 </Routes>
-                <ErrorBoundary>
-                  <Footer />
-                </ErrorBoundary>
               </Suspense>
             </BrowserRouter>
           </TooltipProvider>

@@ -11,7 +11,7 @@ const PROGRAM_ID_FROM_ENV = import.meta.env?.VITE_PROGRAM_ID as string | undefin
 export const SPL8004_PROGRAM_ID = new PublicKey(
   (PROGRAM_ID_FROM_ENV && PROGRAM_ID_FROM_ENV.trim().length > 0)
     ? PROGRAM_ID_FROM_ENV.trim()
-    : "ErnVq9bZK58iJAFHLt1zoaHz8zycMeJ85pLMhuzfQzPV"
+  : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
 );
 
 // PDA Seeds

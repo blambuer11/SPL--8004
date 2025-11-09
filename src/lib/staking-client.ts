@@ -11,7 +11,7 @@ const STAKING_PROGRAM_ID_FROM_ENV = (import.meta as unknown as { env: ImportMeta
 export const STAKING_PROGRAM_ID = new PublicKey(
   (STAKING_PROGRAM_ID_FROM_ENV && STAKING_PROGRAM_ID_FROM_ENV.trim().length > 0)
     ? STAKING_PROGRAM_ID_FROM_ENV.trim()
-    : "Fg6PaFpoGXkYsidMpWxqSWYg8GbZ7qkWpwfXFZVbA3Jk"
+  : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
 );
 
 const CONFIG_SEED = "config";

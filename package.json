@@ -13,7 +13,10 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "auto-pay": "node api/automation/auto-pay.mjs",
+    "delivery-handshake:drone": "MODE=drone node api/automation/delivery-handshake.mjs",
+    "delivery-handshake:home": "MODE=home node api/automation/delivery-handshake.mjs"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",

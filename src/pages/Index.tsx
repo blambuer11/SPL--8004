@@ -7,10 +7,15 @@ import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Plus, Coins, Shield, TrendingUp, Bot, ArrowRight, CheckCircle2 } from 'lucide-react';
+import Analytics from '@/lib/analytics';
+import { MockModeBanner } from '@/components/MockModeBanner';
+import { FacilitatorHealth } from '@/components/FacilitatorHealth';
 
 export default function Index() {
   const { connected, publicKey } = useWallet();
@@ -35,6 +40,73 @@ export default function Index() {
   const [isStaking, setIsStaking] = useState(false);
   const [isUnstaking, setIsUnstaking] = useState(false);
   const [validatorStake, setValidatorStake] = useState(0);
+
+  // UI state
+  const [isConfirmRegisterOpen, setIsConfirmRegisterOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Notifications (in-app)
+  type AppNotification = { id: string; level: 'success'|'info'|'warning'|'error'; title: string; message?: string; time: string };
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const addNotification = (n: Omit<AppNotification,'id'|'time'>) => {
+    setNotifications(prev => [{ id: Math.random().toString(36).slice(2), time: new Date().toLocaleTimeString(), ...n }, ...prev].slice(0, 20));
+  };
+  const dismissNotification = (id: string) => setNotifications(prev => prev.filter(n => n.id !== id));
+  const clearNotifications = () => setNotifications([]);
+
+  // Auto-compound settings
+  type CompoundSettings = {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    thresholdSol: string; // as string input
+    applyAgent: boolean;
+    applyValidator: boolean;
+    applyLP: boolean;
+  };
+  const [compound, setCompound] = useState<CompoundSettings>({
+    enabled: false,
+    frequency: 'weekly',
+    thresholdSol: '0.1',
+    applyAgent: true,
+    applyValidator: true,
+    applyLP: false,
+  });
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('autoCompoundSettings');
+      if (raw) setCompound({ ...compound, ...JSON.parse(raw) });
+      // eslint-disable-next-line no-empty
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const saveCompound = () => {
+    localStorage.setItem('autoCompoundSettings', JSON.stringify(compound));
+    toast.success('Auto-compound settings saved');
+    Analytics.track('auto_compound_saved', { ...compound });
+  };
+
+  // Slashing alert (simulation)
+  const showSlashingAlert = () => {
+    toast.error(
+      <div className="space-y-2">
+        <div className="font-semibold">⚠️ Validator Slashing Alert</div>
+        <div className="text-sm text-slate-700">
+          Reason: Wrong validation detected<br />
+          Penalty: 2.5 SOL (5% of your stake)<br />
+          New Stake: 47.5 SOL<br />
+          Reputation: -500 points
+        </div>
+        <div className="flex gap-2 pt-1">
+          <Button size="sm" variant="outline">Appeal</Button>
+          <Button size="sm" variant="secondary">View Details</Button>
+        </div>
+      </div>,
+      { duration: 6000 }
+    );
+    addNotification({ level: 'error', title: 'Slashing alert', message: 'Penalty: 2.5 SOL — Reputation: -500' });
+    Analytics.track('slashing_alert');
+  };
 
   useEffect(() => {
     if (client && connected) {
@@ -110,11 +182,14 @@ export default function Index() {
           </a>
         ),
       });
+      addNotification({ level: 'success', title: 'Agent registered', message: `Agent ${agentId} is now on-chain` });
+      Analytics.track('agent_registered', { agentId, metadataUriLength: metadataUri.length });
       setAgentId('');
       setMetadataUri('');
       await loadAgentData();
     } catch (error: unknown) {
       toast.error((error as Error)?.message || 'Failed to register agent');
+      addNotification({ level: 'error', title: 'Registration failed', message: (error as Error)?.message });
       console.error(error);
     } finally {
       setIsRegistering(false);
@@ -147,8 +222,10 @@ export default function Index() {
       );
       setStakeAmount('');
       await loadValidatorData();
+      Analytics.track('stake_success', { amountSol: amount });
     } catch (error: unknown) {
       toast.error((error as Error)?.message || 'Failed to stake');
+      addNotification({ level: 'error', title: 'Stake failed', message: (error as Error)?.message });
       console.error(error);
     } finally {
       setIsStaking(false);
@@ -185,8 +262,10 @@ export default function Index() {
       );
       setUnstakeAmount('');
       await loadValidatorData();
+      Analytics.track('unstake_success', { amountSol: amount });
     } catch (error: unknown) {
       toast.error((error as Error)?.message || 'Failed to unstake');
+      addNotification({ level: 'error', title: 'Unstake failed', message: (error as Error)?.message });
       console.error(error);
     } finally {
       setIsUnstaking(false);
@@ -205,6 +284,8 @@ export default function Index() {
           </a>
         ),
       });
+      addNotification({ level: 'success', title: 'Rewards claimed', message: `Agent ${agentIdToClaim}` });
+  Analytics.track('rewards_claimed', { agentId: agentIdToClaim, lamports: claimable[agentIdToClaim] || 0 });
       await loadAgentData();
     } catch (error: unknown) {
       const message = (error as Error)?.message || 'Failed to claim rewards';
@@ -217,8 +298,31 @@ export default function Index() {
     }
   };
 
+  // Keyboard shortcuts (Cmd/Ctrl+K search, +N register, +P payment placeholder)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const meta = e.metaKey || e.ctrlKey;
+      if (meta && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (meta && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        document.getElementById('agent-id')?.focus();
+        window.location.hash = 'register';
+      }
+      if (meta && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        toast.info('Payment console coming soon');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+      <MockModeBanner />
       {/* HERO */}
       <section className="relative overflow-hidden bg-white border-b border-slate-200">
         <div className="container mx-auto px-6 py-20">
@@ -226,6 +330,9 @@ export default function Index() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-900 border border-slate-200">
               <Bot className="w-4 h-4" />
               <span className="text-sm font-medium">Live on Solana Devnet</span>
+            </div>
+            <div className="inline-flex ml-2 align-middle">
+              <FacilitatorHealth />
             </div>
 
             <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-slate-900">
@@ -243,15 +350,15 @@ export default function Index() {
                 <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-base !font-medium !px-8 !py-3" />
               </div>
             ) : (
-              <div className="flex justify-center gap-4 pt-4">
+              <div className="flex justify-center gap-4 pt-4 header-nav">
                 <a href="#register">
-                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800">
+                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800" aria-label="Go to Register Agent">
                     <ArrowRight className="mr-2 h-5 w-5" />
                     Register Agent
                   </Button>
                 </a>
                 <a href="#staking">
-                  <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
+                  <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50" aria-label="Go to Staking">
                     <Shield className="mr-2 h-5 w-5" />
                     Become Validator
                   </Button>
@@ -260,7 +367,7 @@ export default function Index() {
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8">
+            <div className="dashboard-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-2xl mx-auto pt-8" role="status" aria-live="polite" aria-atomic="true">
               <div>
                 <div className="text-3xl font-bold text-slate-900">{myAgents.length}</div>
                 <div className="text-sm text-slate-600 mt-1">Your Agents</div>
@@ -281,6 +388,20 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* SEARCH DIALOG */}
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Quick Search</DialogTitle>
+            <DialogDescription>Search agents by ID or metadata</DialogDescription>
+          </DialogHeader>
+          <Input placeholder="Search agents..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search agents" />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSearchOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* REGISTER AGENT */}
       <section id="register" className="py-20 px-6 bg-slate-50">
@@ -331,9 +452,33 @@ export default function Index() {
                     />
                   </div>
 
-                  <Button onClick={handleRegister} disabled={isRegistering || !agentId || !metadataUri} className="w-full bg-slate-900 hover:bg-slate-800">
-                    {isRegistering ? 'Registering...' : 'Register Agent'}
-                  </Button>
+                  <Dialog open={isConfirmRegisterOpen} onOpenChange={setIsConfirmRegisterOpen}>
+                    <DialogTrigger asChild>
+                      <Button aria-label="Confirm register agent" disabled={isRegistering || !agentId || !metadataUri} className="w-full bg-slate-900 hover:bg-slate-800">
+                        {isRegistering ? 'Registering...' : 'Register Agent'}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Confirm Registration</DialogTitle>
+                        <DialogDescription>
+                          You are about to register a new agent.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Agent ID:</span> {agentId}</div>
+                        <div><span className="font-medium">Metadata:</span> {metadataUri}</div>
+                        <div><span className="font-medium">Fee:</span> {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</div>
+                        <div className="text-slate-600">This will create Identity + Reputation + Reward Pool PDAs.</div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsConfirmRegisterOpen(false)}>Cancel</Button>
+                        <Button onClick={() => { setIsConfirmRegisterOpen(false); void handleRegister(); }}>
+                          Confirm & Sign
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
 
@@ -382,6 +527,46 @@ export default function Index() {
         </div>
       </section>
 
+      {/* VALIDATION SECTION */}
+      <section id="validation" className="py-20 px-6 bg-slate-50">
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold text-slate-900">Submit Validation</h2>
+            <p className="text-lg text-slate-600">Approve or reject agent task results</p>
+          </div>
+          <Card className="border-slate-200">
+            <CardHeader>
+              <CardTitle>Validation Console</CardTitle>
+              <CardDescription>Simple validation demo (on-chain wiring can be added)</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2 md:col-span-1">
+                  <Label htmlFor="val-agent">Agent ID</Label>
+                  <Input id="val-agent" placeholder="my-agent-001" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="val-result">Result</Label>
+                  <select id="val-result" className="w-full rounded-md border border-slate-300 bg-white h-10 px-3">
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div className="space-y-2 md:col-span-3">
+                  <Label htmlFor="val-note">Note</Label>
+                  <Textarea id="val-note" placeholder="Optional note..." rows={3} />
+                </div>
+              </div>
+              <div className="action-buttons">
+                <Button onClick={() => { toast.success('Validation submitted'); addNotification({ level: 'info', title: 'Validation submitted' }); }} aria-label="Submit validation">
+                  Submit Validation
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* VALIDATOR STAKING */}
       <section id="staking" className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-4xl space-y-8">
@@ -427,6 +612,9 @@ export default function Index() {
                         <span>Build reputation in the Noema ecosystem</span>
                       </li>
                     </ul>
+                    <div className="pt-3">
+                      <Button variant="outline" size="sm" onClick={showSlashingAlert}>Simulate Slashing Alert</Button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -493,6 +681,185 @@ export default function Index() {
               </Card>
             </>
           )}
+        </div>
+      </section>
+
+      {/* REWARDS SECTION */}
+      <section id="rewards" className="py-20 px-6 bg-slate-50">
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold text-slate-900">Claim Rewards</h2>
+            <p className="text-lg text-slate-600">Base staking, validator fees and more</p>
+          </div>
+          <div className="space-y-6">
+            {/* Agent rewards breakdown (mock UI using claimable map) */}
+            {myAgents.map((a) => (
+              <Card key={`rewards-${a.agentId}`} className="border-slate-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>🤖 Agent Staking Rewards — {a.agentId}</span>
+                    <Button
+                      size="sm"
+                      onClick={() => void handleClaimRewards(a.agentId)}
+                      disabled={(claimable[a.agentId] || 0) <= 0}
+                    >
+                      Claim
+                    </Button>
+                  </CardTitle>
+                  <CardDescription>Accrued Rewards: {formatSOL((claimable[a.agentId] || 0))} SOL</CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-slate-700">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-3 rounded border border-slate-200 bg-white">
+                      <div className="font-medium mb-1">Reward Breakdown</div>
+                      <ul className="list-disc ml-5 space-y-1">
+                        <li>Base staking rewards: {formatSOL(((claimable[a.agentId] || 0) * 0.85))} SOL</li>
+                        <li>Performance bonus: {formatSOL(((claimable[a.agentId] || 0) * 0.15))} SOL</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 rounded border border-slate-200 bg-white">
+                      <div className="font-medium mb-1">Claim Options</div>
+                      <ul className="space-y-2">
+                        <li><label className="flex items-center gap-2"><input type="radio" name={`claim-${a.agentId}`} defaultChecked /> <span>Claim to wallet</span></label></li>
+                        <li><label className="flex items-center gap-2"><input type="radio" name={`claim-${a.agentId}`} /> <span>Auto-compound</span></label></li>
+                        <li><label className="flex items-center gap-2"><input type="radio" name={`claim-${a.agentId}`} /> <span>Donate to treasury</span></label></li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {myAgents.length === 0 && (
+              <Card className="border-slate-200">
+                <CardContent className="py-8 text-center text-slate-600">No agents yet — register your first agent to start earning.</CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* AUTO-COMPOUND SETTINGS */}
+      <section id="auto-compound" className="py-20 px-6 bg-white">
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-3xl font-bold text-slate-900">Auto-Compound Settings</h2>
+            <p className="text-lg text-slate-600">Automatically restake your rewards</p>
+          </div>
+          <Card className="border-slate-200">
+            <CardHeader>
+              <CardTitle>Configuration</CardTitle>
+              <CardDescription>Choose when and how rewards are auto-compounded</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={compound.enabled} onChange={(e) => setCompound({ ...compound, enabled: e.target.checked })} />
+                <span>Enable auto-compound</span>
+              </label>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ac-frequency">Frequency</Label>
+                  <select id="ac-frequency" className="w-full rounded-md border border-slate-300 bg-white h-10 px-3" value={compound.frequency} onChange={(e) => setCompound({ ...compound, frequency: e.target.value as CompoundSettings['frequency'] })}>
+                    <option value="daily">Daily (gas intensive)</option>
+                    <option value="weekly">Weekly (recommended)</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ac-threshold">Minimum threshold (SOL)</Label>
+                  <Input id="ac-threshold" value={compound.thresholdSol} onChange={(e) => setCompound({ ...compound, thresholdSol: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Apply to</Label>
+                  <div className="space-y-2 text-sm p-3 rounded border border-slate-200">
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={compound.applyAgent} onChange={(e) => setCompound({ ...compound, applyAgent: e.target.checked })} /> Agent staking rewards</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={compound.applyValidator} onChange={(e) => setCompound({ ...compound, applyValidator: e.target.checked })} /> Validator fees</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={compound.applyLP} onChange={(e) => setCompound({ ...compound, applyLP: e.target.checked })} /> LP earnings</label>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Button onClick={saveCompound}>Save Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* LEADERBOARD (MOCK) */}
+      <section id="leaderboard" className="py-20 px-6 bg-slate-50">
+        <div className="container mx-auto max-w-5xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-3xl font-bold text-slate-900">Staking Leaderboard</h2>
+            <p className="text-lg text-slate-600">Top stakers and validators</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-slate-200">
+              <CardHeader>
+                <CardTitle>Top Stakers — Agent Category</CardTitle>
+                <CardDescription>Mock data for demo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm space-y-2">
+                  {[
+                    { rank: 1, name: 'alpha-whale.sol', staked: '250 SOL', mult: '3.0x', rep: '29,961' },
+                    { rank: 2, name: 'crypto-king.sol', staked: '180 SOL', mult: '3.0x', rep: '28,956' },
+                    { rank: 3, name: 'defi-master.sol', staked: '120 SOL', mult: '2.0x', rep: '18,400' },
+                  ].map((r) => (
+                    <div key={`stk-${r.rank}`} className="p-3 rounded border border-slate-200 flex items-center justify-between">
+                      <div>#{r.rank} {r.name}</div>
+                      <div className="text-slate-600">{r.staked} • {r.mult} • Rep {r.rep}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200">
+              <CardHeader>
+                <CardTitle>Top Validators — This Month</CardTitle>
+                <CardDescription>Mock data for demo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm space-y-2">
+                  {[
+                    { rank: 1, name: 'validator-alpha', validations: 2847, fees: '28.5 SOL', rep: 9999 },
+                    { rank: 2, name: 'validator-beta', validations: 2103, fees: '21.0 SOL', rep: 9854 },
+                    { rank: 3, name: 'validator-gamma', validations: 1956, fees: '19.6 SOL', rep: 9702 },
+                  ].map((r) => (
+                    <div key={`val-${r.rank}`} className="p-3 rounded border border-slate-200 flex items-center justify-between">
+                      <div>#{r.rank} {r.name}</div>
+                      <div className="text-slate-600">{r.validations} validations • {r.fees} • Rep {r.rep}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* NOTIFICATIONS PANEL */}
+      <section className="py-12 px-6 bg-white">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Notifications ({notifications.length})</h3>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={clearNotifications}>Mark All Read</Button>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {notifications.length === 0 ? (
+              <div className="text-slate-500 text-sm">No notifications yet</div>
+            ) : notifications.map(n => (
+              <div key={n.id} className="p-4 rounded-lg border border-slate-200 flex items-start justify-between">
+                <div>
+                  <div className="font-medium">{n.title}</div>
+                  {n.message && <div className="text-sm text-slate-600 mt-1">{n.message}</div>}
+                  <div className="text-xs text-slate-400 mt-1">{n.time}</div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => dismissNotification(n.id)}>Dismiss</Button>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
