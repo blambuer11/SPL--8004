@@ -20,6 +20,7 @@ const IDENTITY_SEED = "identity";
 const REPUTATION_SEED = "reputation";
 const VALIDATION_SEED = "validation";
 const REWARD_POOL_SEED = "reward_pool";
+const VALIDATOR_SEED = "validator";
 
 export class SPL8004Client {
   private connection: Connection;
@@ -81,6 +82,14 @@ export class SPL8004Client {
     const enc = new TextEncoder();
     return PublicKey.findProgramAddressSync(
       [enc.encode(REWARD_POOL_SEED), enc.encode(agentId)],
+      this.programId
+    );
+  }
+
+  findValidatorPda(validator: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
+    return PublicKey.findProgramAddressSync(
+      [enc.encode(VALIDATOR_SEED), validator.toBytes()],
       this.programId
     );
   }
@@ -746,6 +755,33 @@ export class SPL8004Client {
         { pubkey: identityPda, isSigner: false, isWritable: false },
         { pubkey: validationPda, isSigner: false, isWritable: false },
         { pubkey: rewardPoolPda, isSigner: false, isWritable: true },
+      ],
+      data: Buffer.from(data),
+    });
+
+    return this.send([ix]);
+  }
+
+  async stakeValidator(lamports: number): Promise<string> {
+    if (lamports < PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE) {
+      throw new Error(`Minimum stake is ${PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000} SOL`);
+    }
+
+    const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
+    const [configPda] = this.findConfigPda();
+
+    const disc = await this.discriminator("stake_validator");
+    const lamportsBytes = new ArrayBuffer(8);
+    new DataView(lamportsBytes).setBigUint64(0, BigInt(lamports), true);
+    const data = new Uint8Array([...disc, ...new Uint8Array(lamportsBytes)]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: validatorPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: configPda, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data: Buffer.from(data),
     });

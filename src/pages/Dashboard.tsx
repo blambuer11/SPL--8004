@@ -36,6 +36,8 @@ export default function Dashboard() {
   const [myAgents, setMyAgents] = useState<MyAgent[]>([]);
   const [totalRewards, setTotalRewards] = useState(0);
   const [claimable, setClaimable] = useState<Record<string, number>>({});
+  const [stakeAmount, setStakeAmount] = useState('');
+  const [isStaking, setIsStaking] = useState(false);
 
   useEffect(() => {
     if (client && connected) {
@@ -120,6 +122,52 @@ export default function Dashboard() {
       console.error(error);
     } finally {
       setIsRegistering(false);
+    }
+  };
+
+  const handleStake = async () => {
+    if (!connected || !client) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    const amount = parseFloat(stakeAmount);
+    if (!amount || amount < PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000) {
+      toast.error(`Minimum stake is ${formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL`);
+      return;
+    }
+
+    setIsStaking(true);
+    try {
+      toast.message('Opening wallet for signature…');
+      const lamports = Math.floor(amount * 1_000_000_000);
+      
+      // Call stake validator function
+      toast.info('Staking SOL to become validator...');
+      const sig = await client.stakeValidator(lamports);
+      
+      toast.success(
+        <div className="space-y-1">
+          <p className="font-semibold">Successfully staked {amount} SOL!</p>
+          <a 
+            href={getExplorerTxUrl(sig)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline"
+          >
+            View transaction →
+          </a>
+        </div>
+      );
+      
+      setStakeAmount('');
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Stake error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to stake. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsStaking(false);
     }
   };
 
@@ -291,15 +339,22 @@ export default function Dashboard() {
                     min={PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000}
                     placeholder={`Min: ${formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL`}
                     className="bg-input border-border/50"
+                    value={stakeAmount}
+                    onChange={(e) => setStakeAmount(e.target.value)}
+                    disabled={isStaking}
                   />
                   <p className="text-xs text-muted-foreground">
                     Minimum stake required: {formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL
                   </p>
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  onClick={handleStake}
+                  disabled={isStaking || !stakeAmount}
+                >
                   <Shield className="h-4 w-4 mr-2" />
-                  Stake to Become Validator
+                  {isStaking ? 'Staking...' : 'Stake to Become Validator'}
                 </Button>
 
                 <div className="p-4 rounded-lg bg-muted/50 border border-border/50 space-y-3">
