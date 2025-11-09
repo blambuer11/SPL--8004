@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useStaking } from '@/hooks/useStaking';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,8 +18,9 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Dashboard() {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const { client } = useSPL8004();
+  const { client: stakingClient } = useStaking();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'register';
   const [agentId, setAgentId] = useState('');
@@ -37,7 +39,10 @@ export default function Dashboard() {
   const [totalRewards, setTotalRewards] = useState(0);
   const [claimable, setClaimable] = useState<Record<string, number>>({});
   const [stakeAmount, setStakeAmount] = useState('');
+  const [unstakeAmount, setUnstakeAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
+  const [isUnstaking, setIsUnstaking] = useState(false);
+  const [validatorStake, setValidatorStake] = useState(0);
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   useEffect(() => {
@@ -49,8 +54,11 @@ export default function Dashboard() {
     if (client && connected) {
       void loadDashboardData();
     }
+    if (stakingClient && connected && publicKey) {
+      void loadValidatorData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, connected]);
+  }, [client, stakingClient, connected, publicKey]);
 
   const loadDashboardData = async () => {
     if (!client) return;
@@ -78,6 +86,21 @@ export default function Dashboard() {
       setMyAgents([]);
       setTotalRewards(0);
       setClaimable({});
+    }
+  };
+
+  const loadValidatorData = async () => {
+    if (!stakingClient || !publicKey) return;
+    try {
+      const validatorAccount = await stakingClient.getValidatorAccount(publicKey);
+      if (validatorAccount) {
+        setValidatorStake(validatorAccount.stakedAmount);
+      } else {
+        setValidatorStake(0);
+      }
+    } catch (error) {
+      console.error('Error loading validator data:', error);
+      setValidatorStake(0);
     }
   };
 
@@ -132,7 +155,7 @@ export default function Dashboard() {
   };
 
   const handleStake = async () => {
-    if (!connected || !client) {
+    if (!connected || !stakingClient) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -149,7 +172,7 @@ export default function Dashboard() {
       const lamports = Math.floor(amount * 1_000_000_000);
       
       toast.info('Staking SOL to become validator...');
-      const sig = await client.stakeValidator(lamports);
+      const sig = await stakingClient.stake(lamports);
       
       toast.success(
         <div className="space-y-1">
@@ -168,13 +191,65 @@ export default function Dashboard() {
       );
       
       setStakeAmount('');
-      await loadDashboardData();
+      await loadValidatorData();
     } catch (error) {
       console.error('Stake error:', error);
       const message = error instanceof Error ? error.message : 'Failed to stake. Please try again.';
       toast.error(message);
     } finally {
       setIsStaking(false);
+    }
+  };
+
+  const handleUnstake = async () => {
+    if (!connected || !stakingClient) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    const amount = parseFloat(unstakeAmount);
+    if (!amount || amount <= 0) {
+      toast.error('Amount must be greater than 0');
+      return;
+    }
+
+    if (amount > validatorStake / 1_000_000_000) {
+      toast.error('Insufficient staked balance');
+      return;
+    }
+
+    setIsUnstaking(true);
+    try {
+      toast.message('Opening wallet for signature…');
+      const lamports = Math.floor(amount * 1_000_000_000);
+      
+      toast.info('Unstaking SOL...');
+      const sig = await stakingClient.unstake(lamports);
+      
+      toast.success(
+        <div className="space-y-1">
+          <p className="font-semibold">✅ Successfully unstaked {amount} SOL!</p>
+          <p className="text-xs">7-day cooldown period started</p>
+          <a 
+            href={getExplorerTxUrl(sig)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline block"
+          >
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      
+      setUnstakeAmount('');
+      await loadValidatorData();
+    } catch (error) {
+      console.error('Unstake error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to unstake. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsUnstaking(false);
     }
   };
 
@@ -402,7 +477,7 @@ export default function Dashboard() {
                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                   <div className="p-3 rounded bg-muted/30">
                     <div className="text-xs text-muted-foreground mb-1">Your Stake</div>
-                    <div className="text-lg font-bold">0.00 SOL</div>
+                    <div className="text-lg font-bold">{formatSOL(validatorStake)} SOL</div>
                   </div>
                   <div className="p-3 rounded bg-muted/30">
                     <div className="text-xs text-muted-foreground mb-1">Validations</div>
@@ -413,6 +488,38 @@ export default function Dashboard() {
                     <div className="text-lg font-bold">0.00 SOL</div>
                   </div>
                 </div>
+
+                {validatorStake > 0 && (
+                  <div className="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Unstake Your SOL</h4>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="unstake-amount">Unstake Amount (SOL)</Label>
+                        <Input
+                          id="unstake-amount"
+                          type="number"
+                          step="0.1"
+                          max={validatorStake / 1_000_000_000}
+                          placeholder={`Max: ${formatSOL(validatorStake)} SOL`}
+                          className="bg-white border-blue-300"
+                          value={unstakeAmount}
+                          onChange={(e) => setUnstakeAmount(e.target.value)}
+                          disabled={isUnstaking}
+                        />
+                        <p className="text-xs text-blue-700">
+                          Available to unstake: {formatSOL(validatorStake)} SOL
+                        </p>
+                      </div>
+                      <Button 
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        onClick={handleUnstake}
+                        disabled={isUnstaking || !unstakeAmount}
+                      >
+                        {isUnstaking ? 'Unstaking...' : 'Unstake SOL'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

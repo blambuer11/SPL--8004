@@ -11,7 +11,7 @@ const PROGRAM_ID_FROM_ENV = import.meta.env?.VITE_PROGRAM_ID as string | undefin
 export const SPL8004_PROGRAM_ID = new PublicKey(
   (PROGRAM_ID_FROM_ENV && PROGRAM_ID_FROM_ENV.trim().length > 0)
     ? PROGRAM_ID_FROM_ENV.trim()
-    : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
+    : "ErnVq9bZK58iJAFHLt1zoaHz8zycMeJ85pLMhuzfQzPV"
 );
 
 // PDA Seeds
@@ -770,23 +770,35 @@ export class SPL8004Client {
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     const [configPda] = this.findConfigPda();
 
-    const disc = await this.discriminator("stake_validator");
     const lamportsBytes = new ArrayBuffer(8);
     new DataView(lamportsBytes).setBigUint64(0, BigInt(lamports), true);
-    const data = new Uint8Array([...disc, ...new Uint8Array(lamportsBytes)]);
+    const tryNames = ["stake_validator", "stake", "become_validator"]; // fallback isimler
 
-    const ix = new TransactionInstruction({
-      programId: this.programId,
-      keys: [
-        { pubkey: validatorPda, isSigner: false, isWritable: true },
-        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
-        { pubkey: configPda, isSigner: false, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-      ],
-      data: Buffer.from(data),
-    });
-
-    return this.send([ix]);
+    let lastErr: unknown = undefined;
+    for (const name of tryNames) {
+      try {
+        const disc = await this.discriminator(name);
+        const data = new Uint8Array([...disc, ...new Uint8Array(lamportsBytes)]);
+        const ix = new TransactionInstruction({
+          programId: this.programId,
+          keys: [
+            { pubkey: validatorPda, isSigner: false, isWritable: true },
+            { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+            { pubkey: configPda, isSigner: false, isWritable: false },
+            { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+          ],
+          data: Buffer.from(data),
+        });
+        return await this.send([ix]);
+      } catch (e: unknown) {
+        const msg = (e as Error)?.message || "";
+        const isIxMissing = msg.includes("0x65") || msg.toLowerCase().includes("instructionfallbacknotfound") || msg.toLowerCase().includes("unknown instruction") || msg.toLowerCase().includes("not found");
+        if (!isIxMissing) throw e; // farklı hata ise tekrar denemeyelim
+        lastErr = e;
+        // Diğer isimle tekrar deneyeceğiz
+      }
+    }
+    throw lastErr ?? new Error("Staking instruction failed for all known variants.");
   }
 }
 

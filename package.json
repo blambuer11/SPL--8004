@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:main": "vite",
+    "dev:agent": "npm --prefix agent-aura-sovereign run dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",

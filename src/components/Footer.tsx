@@ -84,7 +84,7 @@ export function Footer() {
 
         <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Noema. All rights reserved.</p>
-          <p className="text-xs text-muted-foreground">Program ID (devnet): G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW</p>
+          <p className="text-xs text-muted-foreground">Program ID (devnet): {import.meta.env.VITE_PROGRAM_ID || 'ErnVq9bZK58iJAFHLt1zoaHz8zycMeJ85pLMhuzfQzPV'}</p>
         </div>
       </div>
     </footer>
