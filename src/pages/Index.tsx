@@ -415,12 +415,10 @@ export default function Index() {
               Register AI agents, stake as validator, earn rewards — all on-chain with SPL-8004
             </p>
 
-            {!connected ? (
-              <div className="flex justify-center pt-4">
+            <div className="flex flex-col items-center gap-4 pt-4">
+              {!connected ? (
                 <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-base !font-medium !px-8 !py-3" />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4 pt-4">
+              ) : (
                 <div className="flex gap-4 header-nav">
                   <a href="#register">
                     <Button size="lg" className="bg-slate-900 hover:bg-slate-800" aria-label="Go to Register Agent">
@@ -435,14 +433,16 @@ export default function Index() {
                     </Button>
                   </a>
                 </div>
-                <a href="#autonomous-payment" className="animate-pulse">
-                  <Button size="lg" variant="default" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg">
-                    <Bot className="mr-2 h-5 w-5" />
-                    🚀 Otonom Ödeme Protokolü
-                  </Button>
-                </a>
-              </div>
-            )}
+              )}
+              
+              {/* Always visible autonomous payment button */}
+              <a href="#autonomous-payment" className="animate-pulse">
+                <Button size="lg" variant="default" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg">
+                  <Bot className="mr-2 h-5 w-5" />
+                  🚀 Otonom Ödeme Protokolü
+                </Button>
+              </a>
+            </div>
 
             {/* Stats */}
             <div className="dashboard-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-2xl mx-auto pt-8" role="status" aria-live="polite" aria-atomic="true">
