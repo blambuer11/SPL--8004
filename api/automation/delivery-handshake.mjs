@@ -12,17 +12,24 @@ import { readFileSync } from 'node:fs';
 import { Connection, PublicKey, Keypair, clusterApiUrl, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import nacl from 'tweetnacl';
+import { resolveAgentId as resolveAgentIdOnChain } from './spl8004-resolver.mjs';
 
 function env(key, def) { return process.env[key] ?? def; }
 function loadKeypair(path) { const raw = JSON.parse(readFileSync(path, 'utf8')); return Keypair.fromSecretKey(Uint8Array.from(raw)); }
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-// Placeholder: resolve agentId -> owner wallet (would query SPL-8004 program PDAs)
-async function resolveAgentId(agentId) {
-  // TODO: integrate actual on-chain lookup; for demo return env AGENT_OWNER_PUBKEY
-  const owner = env('AGENT_OWNER_PUBKEY');
-  if (!owner) throw new Error('AGENT_OWNER_PUBKEY missing; set to owner wallet for demo');
-  return new PublicKey(owner);
+// ✅ ON-CHAIN: Resolve agentId -> owner wallet via SPL-8004 Identity PDA
+async function resolveAgentId(agentId, connection) {
+  try {
+    return await resolveAgentIdOnChain(agentId, connection);
+  } catch (error) {
+    console.error(`Failed to resolve agentId on-chain: ${error.message}`);
+    // Fallback to env variable for testing/demo
+    const fallback = env('AGENT_OWNER_PUBKEY');
+    if (!fallback) throw error;
+    console.warn(`⚠️ Using fallback AGENT_OWNER_PUBKEY: ${fallback}`);
+    return new PublicKey(fallback);
+  }
 }
 
 function generateChallenge() {
@@ -65,15 +72,100 @@ async function watchForPayment({ connection, recipient, expectedAmountUsd, usdcM
   const start = Date.now();
   const decimals = 6;
   const targetAmount = Math.floor(expectedAmountUsd * 10 ** decimals);
+  const recipientAta = await getAssociatedTokenAddress(usdcMint, recipient);
+  
+  console.log(`👀 Watching for payment to ${recipientAta.toBase58()}`);
+  console.log(`   Expected amount: ${targetAmount} (${expectedAmountUsd} USDC)`);
+  console.log(`   Memo prefix: ${memoPrefix}`);
+  
+  let lastSignature = null;
+  
   while (Date.now() - start < timeoutMs) {
-    // Simplified: poll recent signatures for recipient token account
-    // In production: use websocket or indexer.
-    await sleep(4000);
-    // Placeholder: For brevity we skip actual parsing of token transfers here.
-    // You would fetch confirmed signatures and decode each transaction to find matching memo + amount.
-    // Return mock success after first loop.
-    return { found: true, signature: 'mock_sig_replace_with_real', amount: expectedAmountUsd };
+    try {
+      // Fetch recent signatures for recipient token account
+      const signatures = await connection.getSignaturesForAddress(recipientAta, {
+        limit: 10,
+        before: lastSignature,
+      });
+      
+      if (signatures.length === 0) {
+        await sleep(3000);
+        continue;
+      }
+      
+      // Process signatures newest-first
+      for (const sigInfo of signatures) {
+        if (sigInfo.err) continue; // skip failed transactions
+        
+        const tx = await connection.getParsedTransaction(sigInfo.signature, {
+          maxSupportedTransactionVersion: 0,
+        });
+        
+        if (!tx || !tx.meta || tx.meta.err) continue;
+        
+        // Check for SPL token transfer to our ATA
+        const postTokenBalances = tx.meta.postTokenBalances || [];
+        const preTokenBalances = tx.meta.preTokenBalances || [];
+        
+        // Find balance change for recipient ATA
+        const postBalance = postTokenBalances.find(b => b.mint === usdcMint.toBase58() && b.owner === recipient.toBase58());
+        const preBalance = preTokenBalances.find(b => b.mint === usdcMint.toBase58() && b.owner === recipient.toBase58());
+        
+        if (!postBalance || !preBalance) continue;
+        
+        const amountReceived = Number(postBalance.uiTokenAmount.amount) - Number(preBalance.uiTokenAmount.amount);
+        
+        if (amountReceived === targetAmount) {
+          // Check memo in transaction
+          const memoInstruction = tx.transaction.message.instructions.find(
+            ix => ix.programId.toBase58() === 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
+          );
+          
+          if (memoInstruction && 'parsed' in memoInstruction) {
+            // Parsed memo
+            const memoText = memoInstruction.parsed;
+            if (memoText && memoText.startsWith(memoPrefix)) {
+              console.log(`✅ Payment found! Signature: ${sigInfo.signature}`);
+              console.log(`   Amount: ${amountReceived} (${expectedAmountUsd} USDC)`);
+              console.log(`   Memo: ${memoText.substring(0, 100)}...`);
+              return {
+                found: true,
+                signature: sigInfo.signature,
+                amount: expectedAmountUsd,
+                memo: memoText,
+                blockTime: sigInfo.blockTime,
+              };
+            }
+          } else if (memoInstruction && 'data' in memoInstruction) {
+            // Raw memo data (base58 encoded)
+            const memoText = Buffer.from(memoInstruction.data, 'base64').toString('utf8');
+            if (memoText.startsWith(memoPrefix)) {
+              console.log(`✅ Payment found! Signature: ${sigInfo.signature}`);
+              return {
+                found: true,
+                signature: sigInfo.signature,
+                amount: expectedAmountUsd,
+                memo: memoText,
+                blockTime: sigInfo.blockTime,
+              };
+            }
+          }
+        }
+      }
+      
+      // Update lastSignature for pagination
+      if (signatures.length > 0) {
+        lastSignature = signatures[signatures.length - 1].signature;
+      }
+      
+      await sleep(3000);
+    } catch (err) {
+      console.error(`Error watching for payment: ${err.message}`);
+      await sleep(5000);
+    }
   }
+  
+  console.log('⏱️ Payment watch timeout');
   return { found: false };
 }
 
@@ -93,7 +185,8 @@ async function main() {
 
   if (mode === 'home') {
     // Home Robot side: issue challenge
-    const owner = await resolveAgentId(agentId);
+    const owner = await resolveAgentId(agentId, connection);
+    console.log(`🏠 Resolved agentId '${agentId}' -> owner: ${owner.toBase58()}`);
     const challenge = generateChallenge();
     console.log('Challenge issued:', challenge);
     console.log('Send challenge to drone (out-of-band). Await signature...');
@@ -116,7 +209,8 @@ async function main() {
   } else if (mode === 'drone') {
     // Drone side: receive challenge (simulate generation here), sign and pay
     const payer = loadKeypair(payerKeyPath);
-    const recipient = await resolveAgentId(agentId); // Home wallet
+    const recipient = await resolveAgentId(agentId, connection); // Home wallet
+    console.log(`🚁 Resolved agentId '${agentId}' -> recipient: ${recipient.toBase58()}`);
     const challenge = generateChallenge(); // In reality received from home
     const signatureHex = signChallenge(challenge, payer);
     console.log('Signed challenge (hex):', signatureHex.slice(0, 32) + '...');
