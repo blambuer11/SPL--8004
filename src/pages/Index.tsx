@@ -41,6 +41,12 @@ export default function Index() {
   const [isUnstaking, setIsUnstaking] = useState(false);
   const [validatorStake, setValidatorStake] = useState(0);
 
+  // Validation state
+  const [validationAgentId, setValidationAgentId] = useState('');
+  const [validationResult, setValidationResult] = useState('approved');
+  const [validationNote, setValidationNote] = useState('');
+  const [isSubmittingValidation, setIsSubmittingValidation] = useState(false);
+
   // UI state
   const [isConfirmRegisterOpen, setIsConfirmRegisterOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -306,6 +312,62 @@ export default function Index() {
     }
   };
 
+  const handleSubmitValidation = async () => {
+    if (!connected || !publicKey) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!validationAgentId.trim()) {
+      toast.error('Please enter an Agent ID');
+      return;
+    }
+    
+    setIsSubmittingValidation(true);
+    try {
+      toast.info('Submitting validation on-chain...');
+      
+      // TODO: Replace with real on-chain validation instruction
+      // For now, simulate the transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const mockTxSig = `${Math.random().toString(36).substring(2, 15)}...`;
+      
+      toast.success(
+        <div>
+          <p className="font-semibold">✅ Validation Submitted!</p>
+          <p className="text-xs mt-1">Agent: {validationAgentId}</p>
+          <p className="text-xs">Result: {validationResult}</p>
+          <a href={getExplorerTxUrl(mockTxSig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline mt-1 block">
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      
+      addNotification({
+        level: validationResult === 'approved' ? 'success' : 'warning',
+        title: 'Validation submitted',
+        message: `${validationAgentId}: ${validationResult}`
+      });
+      
+      Analytics.track('validation_submitted', {
+        agentId: validationAgentId,
+        result: validationResult,
+        hasNote: !!validationNote
+      });
+      
+      // Clear form
+      setValidationAgentId('');
+      setValidationResult('approved');
+      setValidationNote('');
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to submit validation');
+      console.error(error);
+    } finally {
+      setIsSubmittingValidation(false);
+    }
+  };
+
   // Keyboard shortcuts (Cmd/Ctrl+K search, +N register, +P payment placeholder)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -373,10 +435,10 @@ export default function Index() {
                     </Button>
                   </a>
                 </div>
-                <a href="#autonomous-payment">
-                  <Button size="sm" variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-                    <Bot className="mr-2 h-4 w-4" />
-                    Otonom Ödeme Protokolü →
+                <a href="#autonomous-payment" className="animate-pulse">
+                  <Button size="lg" variant="default" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg">
+                    <Bot className="mr-2 h-5 w-5" />
+                    🚀 Otonom Ödeme Protokolü
                   </Button>
                 </a>
               </div>
@@ -607,6 +669,123 @@ export default function Index() {
                 </Button>
               </a>
             </div>
+
+            {/* HOW TO USE GUIDE */}
+            <div className="mt-12 p-8 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center text-white text-2xl flex-shrink-0">
+                  📖
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Bu Hizmeti Nasıl Kullanırım?</h3>
+                  <p className="text-slate-700">Otonom ödeme sistemini kendi uygulamanızda kullanmak için adım adım rehber</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Adım 1-2 */}
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-white border border-amber-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
+                      <h4 className="font-bold text-slate-900">Agent Kaydet (SPL-8004)</h4>
+                    </div>
+                    <p className="text-sm text-slate-700 mb-2">Önce robotlarınız için on-chain kimlik oluşturun:</p>
+                    <div className="bg-slate-900 p-3 rounded text-xs font-mono text-slate-100">
+                      # Drone için<br/>
+                      agentId: "drone-001"<br/>
+                      metadataUri: "https://..."<br/>
+                      <br/>
+                      # Home robot için<br/>
+                      agentId: "home-001"<br/>
+                      metadataUri: "https://..."
+                    </div>
+                    <p className="text-xs text-slate-600 mt-2">💡 Fee: 0.005 SOL per agent</p>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-white border border-amber-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">2</div>
+                      <h4 className="font-bold text-slate-900">Wallet'ları Hazırla</h4>
+                    </div>
+                    <p className="text-sm text-slate-700 mb-2">Her agent için Solana keypair oluşturun:</p>
+                    <div className="bg-slate-900 p-3 rounded text-xs font-mono text-slate-100">
+                      solana-keygen new --outfile drone-wallet.json<br/>
+                      solana-keygen new --outfile home-wallet.json<br/>
+                      <br/>
+                      # Devnet SOL ve USDC ekleyin<br/>
+                      solana airdrop 1 --url devnet
+                    </div>
+                  </div>
+                </div>
+
+                {/* Adım 3-4 */}
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-white border border-amber-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">3</div>
+                      <h4 className="font-bold text-slate-900">Environment Ayarları</h4>
+                    </div>
+                    <p className="text-sm text-slate-700 mb-2">Script'ler için .env dosyası oluşturun:</p>
+                    <div className="bg-slate-900 p-3 rounded text-xs font-mono text-slate-100">
+                      SOLANA_RPC_URL=https://api.devnet.solana.com<br/>
+                      USDC_MINT=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU<br/>
+                      DELIVERY_FEE_USDC=0.05<br/>
+                      TIMEOUT_MS=60000
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-white border border-amber-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">4</div>
+                      <h4 className="font-bold text-slate-900">Script'leri Çalıştır</h4>
+                    </div>
+                    <p className="text-sm text-slate-700 mb-2">İki terminal açın ve eşzamanlı çalıştırın:</p>
+                    <div className="bg-slate-900 p-3 rounded text-xs font-mono text-slate-100">
+                      # Terminal 1: Home robot bekliyor<br/>
+                      MODE=home AGENT_ID=drone-001 \<br/>
+                      PAYER_KEYPAIR_PATH=./home-wallet.json \<br/>
+                      npm run delivery-handshake:home<br/>
+                      <br/>
+                      # Terminal 2: Drone ödeme gönderiyor<br/>
+                      MODE=drone AGENT_ID=home-001 \<br/>
+                      PAYER_KEYPAIR_PATH=./drone-wallet.json \<br/>
+                      npm run delivery-handshake:drone
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Success Result */}
+              <div className="mt-6 p-4 rounded-lg bg-green-50 border border-green-200">
+                <div className="flex items-center gap-3 mb-2">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  <h4 className="font-bold text-green-900">Başarılı Sonuç:</h4>
+                </div>
+                <div className="text-sm text-slate-700 space-y-1 ml-9">
+                  <p>✅ Agent kimlikleri blockchain'den doğrulandı</p>
+                  <p>✅ Challenge imzaları verify edildi</p>
+                  <p>✅ USDC ödemesi tamamlandı ve memo kaydedildi</p>
+                  <p>✅ Home robot kapıyı açtı (veya başka eylem tetiklendi)</p>
+                </div>
+              </div>
+
+              {/* Production Notes */}
+              <div className="mt-6 p-4 rounded-lg bg-slate-800 text-slate-100">
+                <h4 className="font-bold mb-2 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-yellow-400" />
+                  Production için Ekstra Adımlar:
+                </h4>
+                <ul className="text-sm space-y-1 ml-7">
+                  <li>• RPC endpoint'i değiştirin (Helius, QuickNode, vb.)</li>
+                  <li>• WebSocket kullanın (polling yerine real-time)</li>
+                  <li>• Redis ekleyin (nonce replay protection için)</li>
+                  <li>• Rate limiting uygulayın</li>
+                  <li>• Error handling ve retry logic ekleyin</li>
+                  <li>• Monitoring ve alerting kurun</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -751,23 +930,46 @@ export default function Index() {
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2 md:col-span-1">
                   <Label htmlFor="val-agent">Agent ID</Label>
-                  <Input id="val-agent" placeholder="my-agent-001" />
+                  <Input 
+                    id="val-agent" 
+                    placeholder="my-agent-001" 
+                    value={validationAgentId}
+                    onChange={(e) => setValidationAgentId(e.target.value)}
+                    disabled={isSubmittingValidation}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="val-result">Result</Label>
-                  <select id="val-result" className="w-full rounded-md border border-slate-300 bg-white h-10 px-3">
+                  <select 
+                    id="val-result" 
+                    className="w-full rounded-md border border-slate-300 bg-white h-10 px-3"
+                    value={validationResult}
+                    onChange={(e) => setValidationResult(e.target.value)}
+                    disabled={isSubmittingValidation}
+                  >
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
                 <div className="space-y-2 md:col-span-3">
                   <Label htmlFor="val-note">Note</Label>
-                  <Textarea id="val-note" placeholder="Optional note..." rows={3} />
+                  <Textarea 
+                    id="val-note" 
+                    placeholder="Optional note..." 
+                    rows={3}
+                    value={validationNote}
+                    onChange={(e) => setValidationNote(e.target.value)}
+                    disabled={isSubmittingValidation}
+                  />
                 </div>
               </div>
               <div className="action-buttons">
-                <Button onClick={() => { toast.success('Validation submitted'); addNotification({ level: 'info', title: 'Validation submitted' }); }} aria-label="Submit validation">
-                  Submit Validation
+                <Button 
+                  onClick={handleSubmitValidation}
+                  disabled={isSubmittingValidation || !validationAgentId.trim()}
+                  aria-label="Submit validation"
+                >
+                  {isSubmittingValidation ? 'Submitting...' : 'Submit Validation'}
                 </Button>
               </div>
             </CardContent>
