@@ -197,8 +197,12 @@ export default function Index() {
   };
 
   const handleStake = async () => {
-    if (!connected || !stakingClient) {
+    if (!connected || !publicKey) {
       toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!stakingClient) {
+      toast.error('Staking client not initialized');
       return;
     }
     const amount = parseFloat(stakeAmount);
@@ -208,7 +212,7 @@ export default function Index() {
     }
     setIsStaking(true);
     try {
-      toast.message('Opening wallet for signature…');
+      toast.info('Opening Phantom wallet for signature approval...');
       const lamports = Math.floor(amount * 1_000_000_000);
       const sig = await stakingClient.stake(lamports);
       toast.success(
@@ -233,8 +237,12 @@ export default function Index() {
   };
 
   const handleUnstake = async () => {
-    if (!connected || !stakingClient) {
+    if (!connected || !publicKey) {
       toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!stakingClient) {
+      toast.error('Staking client not initialized');
       return;
     }
     const amount = parseFloat(unstakeAmount);
@@ -248,7 +256,7 @@ export default function Index() {
     }
     setIsUnstaking(true);
     try {
-      toast.message('Opening wallet for signature…');
+      toast.info('Opening Phantom wallet for signature approval...');
       const lamports = Math.floor(amount * 1_000_000_000);
       const sig = await stakingClient.unstake(lamports);
       toast.success(
@@ -350,17 +358,25 @@ export default function Index() {
                 <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-base !font-medium !px-8 !py-3" />
               </div>
             ) : (
-              <div className="flex justify-center gap-4 pt-4 header-nav">
-                <a href="#register">
-                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800" aria-label="Go to Register Agent">
-                    <ArrowRight className="mr-2 h-5 w-5" />
-                    Register Agent
-                  </Button>
-                </a>
-                <a href="#staking">
-                  <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50" aria-label="Go to Staking">
-                    <Shield className="mr-2 h-5 w-5" />
-                    Become Validator
+              <div className="flex flex-col items-center gap-4 pt-4">
+                <div className="flex gap-4 header-nav">
+                  <a href="#register">
+                    <Button size="lg" className="bg-slate-900 hover:bg-slate-800" aria-label="Go to Register Agent">
+                      <ArrowRight className="mr-2 h-5 w-5" />
+                      Register Agent
+                    </Button>
+                  </a>
+                  <a href="#staking">
+                    <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50" aria-label="Go to Staking">
+                      <Shield className="mr-2 h-5 w-5" />
+                      Become Validator
+                    </Button>
+                  </a>
+                </div>
+                <a href="#autonomous-payment">
+                  <Button size="sm" variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+                    <Bot className="mr-2 h-4 w-4" />
+                    Otonom Ödeme Protokolü →
                   </Button>
                 </a>
               </div>
@@ -404,7 +420,7 @@ export default function Index() {
       </Dialog>
 
       {/* AUTONOMOUS PAYMENT PROTOCOL */}
-      <section className="py-20 px-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-y border-slate-200">
+      <section id="autonomous-payment" className="py-20 px-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-y border-slate-200">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center space-y-4 mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-900 border border-purple-200">
