@@ -198,3 +198,5 @@ stripe-webhooks.log
 .upstash/
 test-ledger/
 x404-integration/target/
+dist/
+staking-program/target/
