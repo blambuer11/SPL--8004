@@ -140,28 +140,21 @@ export default function Dashboard() {
     setIsStaking(true);
     try {
       toast.message('Opening wallet for signature…');
-      const lamports = Math.floor(amount * 1_000_000_000);
       
-      // Call stake validator function
-      toast.info('Staking SOL to become validator...');
-      const sig = await client.stakeValidator(lamports);
+      // TODO: Implement on-chain validator staking when program is deployed
+      // For now, show coming soon message
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      toast.success(
+      toast.info(
         <div className="space-y-1">
-          <p className="font-semibold">Successfully staked {amount} SOL!</p>
-          <a 
-            href={getExplorerTxUrl(sig)} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-xs text-primary hover:underline"
-          >
-            View transaction →
-          </a>
-        </div>
+          <p className="font-semibold">🚧 Validator Staking Coming Soon</p>
+          <p className="text-xs">The on-chain program will be deployed soon. Your stake amount: {amount} SOL</p>
+          <p className="text-xs text-muted-foreground">This feature requires program upgrade on Solana devnet/mainnet.</p>
+        </div>,
+        { duration: 5000 }
       );
       
       setStakeAmount('');
-      await loadDashboardData();
     } catch (error) {
       console.error('Stake error:', error);
       const message = error instanceof Error ? error.message : 'Failed to stake. Please try again.';
@@ -312,6 +305,13 @@ export default function Dashboard() {
               <CardDescription>Stake SOL to become a validator and earn rewards</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <h4 className="font-semibold text-blue-900 mb-2">🚧 Coming Soon</h4>
+                <p className="text-sm text-blue-800">
+                  Validator staking functionality is currently under development. The on-chain program will be upgraded soon to support this feature.
+                </p>
+              </div>
+
               <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
                 <h4 className="font-semibold text-purple-900 mb-2">💎 Become a Validator</h4>
                 <p className="text-sm text-purple-800 mb-4">

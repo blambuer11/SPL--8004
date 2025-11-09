@@ -3,7 +3,7 @@ export const PROGRAM_CONSTANTS = {
   // Fees (in lamports)
   REGISTRATION_FEE: 5_000_000, // 0.005 SOL
   VALIDATION_FEE: 1_000_000, // 0.001 SOL
-  VALIDATOR_MIN_STAKE: 1_000_000_000, // 1 SOL minimum stake for validators
+  VALIDATOR_MIN_STAKE: 100_000_000, // 0.1 SOL minimum stake for validators
   
   // Reputation
   INITIAL_REPUTATION_SCORE: 5000,
