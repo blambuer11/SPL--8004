@@ -403,6 +403,198 @@ export default function Index() {
         </DialogContent>
       </Dialog>
 
+      {/* AUTONOMOUS PAYMENT PROTOCOL */}
+      <section className="py-20 px-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-y border-slate-200">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center space-y-4 mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-900 border border-purple-200">
+              <Bot className="w-4 h-4" />
+              <span className="text-sm font-semibold">Otonom Ödeme Protokolü</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
+              Ajanlar Arası Anında Ödeme
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              SPL-8004 kimlik sistemi ile robotlar birbirlerini tanıyıp ödeme yapabiliyor. 
+              Kargo dronu eve gelir, ev robotu kapıyı açar, ödeme anında doğrulanır.
+            </p>
+          </div>
+
+          {/* Visual Diagram */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              {/* Drone Side */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl">
+                    🚁
+                  </div>
+                  <div>
+                    <div className="font-bold text-blue-900">DRONE</div>
+                    <div className="text-sm text-blue-700">Payer Agent</div>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">1. Kimlik Paylaşımı</div>
+                    <div className="text-slate-600">agentId: "drone-001" gönderir</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">3. Challenge İmzalama</div>
+                    <div className="text-slate-600">Ed25519 ile nonce+timestamp imzalar</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">4. USDC Ödemesi</div>
+                    <div className="text-slate-600">Memo: HANDSHAKE|agentId|ts|nonce|SIG</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Home Robot Side */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-50 border border-purple-200">
+                  <div className="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white text-2xl">
+                    🏠
+                  </div>
+                  <div>
+                    <div className="font-bold text-purple-900">HOME ROBOT</div>
+                    <div className="text-sm text-purple-700">Receiver Agent</div>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">2. On-Chain Doğrulama</div>
+                    <div className="text-slate-600">SPL-8004 PDA'dan owner cüzdanı çözümlenir</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">3. Challenge Gönderimi</div>
+                    <div className="text-slate-600">Nonce+timestamp üretir, drone'a gönderir</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                    <div className="font-semibold text-slate-900 mb-1">5. Ödeme İzleme</div>
+                    <div className="text-slate-600">Blockchain'i tarar, memo+amount doğrular</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Flow Arrow */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                <div className="w-16 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+                <ArrowRight className="w-6 h-6 text-purple-600" />
+                <div className="w-16 h-0.5 bg-gradient-to-r from-purple-600 to-green-600"></div>
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+
+            {/* Success State */}
+            <div className="p-6 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+              <div className="flex items-center gap-3 mb-3">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+                <div className="font-bold text-green-900 text-lg">İşlem Tamamlandı</div>
+              </div>
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="p-3 rounded-lg bg-white border border-green-200">
+                  <div className="text-slate-600 mb-1">Kimlik Doğrulandı</div>
+                  <div className="font-semibold text-slate-900">✅ On-chain PDA verified</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white border border-green-200">
+                  <div className="text-slate-600 mb-1">Ödeme Alındı</div>
+                  <div className="font-semibold text-slate-900">✅ 0.05 USDC transferred</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white border border-green-200">
+                  <div className="text-slate-600 mb-1">Eylem Tetiklendi</div>
+                  <div className="font-semibold text-slate-900">🚪 Door unlocked</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Technical Details */}
+            <div className="mt-8 grid md:grid-cols-2 gap-6">
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                <div className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-blue-600" />
+                  Güvenlik Katmanları
+                </div>
+                <ul className="space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Ed25519 signature verification (tweetnacl)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Timestamp freshness check</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>On-chain identity verification (SPL-8004)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Amount + memo validation</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                <div className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-purple-600" />
+                  Teknik Özellikler
+                </div>
+                <ul className="space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Real-time blockchain transaction parsing</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>SPL Token USDC transfers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Memo program integration</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
+                    <span>Challenge-response protocol</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Code Example */}
+            <div className="mt-8 p-6 rounded-lg bg-slate-900 text-slate-100 overflow-x-auto">
+              <div className="text-xs font-mono space-y-1">
+                <div className="text-green-400"># Drone Mode - Ödeme Gönder</div>
+                <div className="text-slate-300">MODE=drone AGENT_ID=home-001 npm run delivery-handshake:drone</div>
+                <div className="mt-3 text-purple-400"># Home Mode - Ödeme Bekle</div>
+                <div className="text-slate-300">MODE=home AGENT_ID=drone-001 npm run delivery-handshake:home</div>
+                <div className="mt-3 text-blue-400"># Sonuç:</div>
+                <div className="text-slate-300">✅ Payment found! Signature: 2Zx9k...</div>
+                <div className="text-slate-300">🚪 Door unlocked</div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <a href="/api/automation/README.md" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="border-slate-300">
+                  📚 Dokümantasyon
+                </Button>
+              </a>
+              <a href="https://github.com/blambuer11/SPL--8004/tree/main/api/automation" target="_blank" rel="noopener noreferrer">
+                <Button className="bg-slate-900 hover:bg-slate-800">
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  GitHub'da Görüntüle
+                </Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* REGISTER AGENT */}
       <section id="register" className="py-20 px-6 bg-slate-50">
         <div className="container mx-auto max-w-4xl space-y-8">
