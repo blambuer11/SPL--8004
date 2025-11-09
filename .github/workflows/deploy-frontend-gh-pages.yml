@@ -8,8 +8,11 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     permissions:
       contents: write
+=======
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
 
     steps:
       - name: Checkout
@@ -22,15 +25,27 @@ jobs:
 
       - name: Install dependencies
         run: |
+<<<<<<< HEAD
+=======
+          cd agent-aura-sovereign
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
           npm ci --no-audit --no-fund
 
       - name: Build
         run: |
+<<<<<<< HEAD
+=======
+          cd agent-aura-sovereign
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
           npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+<<<<<<< HEAD
           publish_dir: ./dist
+=======
+          publish_dir: ./agent-aura-sovereign/dist
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
           publish_branch: gh-pages

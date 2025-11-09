@@ -1,0 +1,21 @@
+{
+  "name": "x402-kora-demo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "facilitator",
+    "api",
+    "client"
+  ],
+  "scripts": {
+    "dev:facilitator": "pnpm --filter facilitator dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:client": "pnpm --filter client dev",
+    "dev:all": "concurrently -n FAC,API -c blue,green \"pnpm dev:facilitator\" \"pnpm dev:api\"",
+    "build": "pnpm -r build",
+    "demo": "pnpm --filter client start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

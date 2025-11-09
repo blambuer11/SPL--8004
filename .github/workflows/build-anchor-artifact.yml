@@ -8,10 +8,14 @@ on:
 jobs:
   build-anchor:
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     timeout-minutes: 90
     defaults:
       run:
         shell: bash
+=======
+    timeout-minutes: 60
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
 
     steps:
       - name: Checkout
@@ -23,6 +27,7 @@ jobs:
           export PATH="$HOME/.cargo/bin:$PATH"
           rustup toolchain install 1.82.0
           rustup default 1.82.0
+<<<<<<< HEAD
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Cache Solana installation
@@ -55,14 +60,28 @@ jobs:
       - name: Add Solana to PATH
         run: |
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+=======
+
+      - name: Install Solana (v1.20.6)
+        run: |
+          curl -sSfL "https://release.solana.com/v1.20.6/install" | sh -s -- -y
+          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
 
       - name: Install Anchor CLI (v0.32.1)
         run: |
           export PATH="$HOME/.cargo/bin:$PATH"
+<<<<<<< HEAD
           cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli
 
       - name: Build program
         working-directory: spl_8004
+=======
+          cargo install --locked --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli || true
+
+      - name: Build program
+        working-directory: ./spl-8004
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.local/share/solana/install/active_release/bin:$PATH"
           anchor build
@@ -72,5 +91,10 @@ jobs:
         with:
           name: spl-8004-artifacts
           path: |
+<<<<<<< HEAD
             spl_8004/target/deploy/*.so
             spl_8004/target/deploy/*.json
+=======
+            spl-8004/target/deploy/*.so
+            spl-8004/target/deploy/*.json
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)

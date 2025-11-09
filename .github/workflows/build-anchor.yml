@@ -1,0 +1,72 @@
+name: Build Anchor program
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build (Anchor)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup toolchain install stable
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Install Solana CLI
+        run: |
+          curl -sSfL https://release.solana.com/stable/install | sh
+          echo "::add-path::$HOME/.local/share/solana/install/active_release/bin"
+          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+          solana --version
+
+      - name: Install avm / Anchor CLI
+        run: |
+          source $HOME/.cargo/env
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force || true
+          avm install 0.32.1 || true
+          avm use 0.32.1 || true
+          anchor --version
+
+      - name: Build Anchor program (verifiable first)
+        working-directory: spl-8004-program/spl-8004
+        run: |
+          source $HOME/.cargo/env
+          # try verifiable (docker) build first, fallback to normal build
+          anchor build --verifiable || anchor build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: anchor-build-artifacts
+          path: spl-8004-program/spl-8004/target/deploy
+
+  # Optional deploy job (requires secrets). Uncomment to enable.
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'workflow_dispatch'
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Setup env
+  #       run: |
+  #         mkdir -p $HOME/.config/solana
+  #         echo "${{ secrets.SOLANA_KEYPAIR_JSON }}" > $HOME/.config/solana/id.json
+  #     - name: Deploy to devnet
+  #       working-directory: spl-8004-program/spl-8004
+  #       env:
+  #         SOLANA_URL: https://api.devnet.solana.com
+  #       run: |
+  #         source $HOME/.cargo/env
+  #         avm use 0.32.1 || true
+  #         anchor deploy --provider.cluster devnet

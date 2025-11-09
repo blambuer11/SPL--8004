@@ -1,8 +1,17 @@
 {
+<<<<<<< HEAD
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
+=======
+  "version": 2,
+  "buildCommand": "npm --prefix agent-aura-sovereign run build",
+  "installCommand": "npm --prefix agent-aura-sovereign ci || npm --prefix agent-aura-sovereign install",
+  "outputDirectory": "agent-aura-sovereign/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
   ]
 }

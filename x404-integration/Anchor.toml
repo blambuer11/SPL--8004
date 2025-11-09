@@ -1,0 +1,20 @@
+[toolchain]
+anchor_version = "0.29.0"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+x404_agent_nft = "HPwBe2UiSUEfJj6KZ2aSQcbcP8smb8H1F2t3nx5gU8tU"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+build = "anchor build"
+deploy = "anchor deploy --provider.cluster devnet"

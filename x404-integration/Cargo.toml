@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "programs/x404-agent-nft",
+]
+resolver = "2"
+
+[profile.release]
+overflow-checks = true

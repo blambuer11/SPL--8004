@@ -1,0 +1,25 @@
+{
+  "name": "@neoma/x404-bridge",
+  "version": "0.1.0",
+  "description": "X404 Bridge SDK for SPL-8004 Agent NFT Integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["solana", "nft", "agent", "x404", "spl-8004"],
+  "author": "Noema",
+  "license": "MIT",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.29.0",
+    "@solana/web3.js": "^1.87.0",
+    "@solana/spl-token": "^0.3.9",
+    "arweave": "^1.14.4",
+    "bs58": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # X402 Facilitator (Payment Gateway)
+  x402-facilitator:
+    build:
+      context: ./spl-8004-program/x402-facilitator
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - KORA_RPC_URL=${KORA_RPC_URL:-http://kora:8080}
+      - KORA_API_KEY=${KORA_API_KEY}
+      - KORA_SIGNER_ADDRESS=${KORA_SIGNER_ADDRESS}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+      - NETWORK=${NETWORK:-solana-devnet}
+      - USDC_MINT=${USDC_MINT:-4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU}
+      - MOCK_MODE=${MOCK_MODE:-false}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - spl8004-network
+
+  # Kora RPC (Gasless Signer) - Optional, comment out if running externally
+  # kora:
+  #   image: solana/kora:latest
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - KORA_SIGNER_PRIVATE_KEY=${KORA_SIGNER_PRIVATE_KEY}
+  #     - RUST_LOG=info
+  #   volumes:
+  #     - ./kora/kora.toml:/app/kora.toml
+  #     - ./kora/signers.toml:/app/signers.toml
+  #   command: ["kora", "--config", "/app/kora.toml"]
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+  #   networks:
+  #     - spl8004-network
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: ./agent-aura-sovereign
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - VITE_SOLANA_NETWORK=devnet
+      - VITE_RPC_ENDPOINT=${VITE_RPC_ENDPOINT:-https://api.devnet.solana.com}
+      - VITE_PROGRAM_ID=${VITE_PROGRAM_ID:-SPL8wVx7ZqKNxJk5H2bF8QyGvM4tN3rP9WdE6fU5Kc2}
+      - VITE_X402_FACILITATOR_URL=http://x402-facilitator:3000
+      - VITE_SPL8004_TREASURY=${VITE_SPL8004_TREASURY:-9x3TDBKE7qFHXmvUUhPMkkSBhLmzazRxQaKwzSrQwcXX}
+      - VITE_USDC_MINT=${VITE_USDC_MINT:-4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU}
+    depends_on:
+      x402-facilitator:
+        condition: service_healthy
+    networks:
+      - spl8004-network
+
+networks:
+  spl8004-network:
+    driver: bridge
