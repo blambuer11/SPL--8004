@@ -10,7 +10,3 @@ codegen-units = 1
 opt-level = 3
 incremental = false
 codegen-units = 1
-
-[patch.crates-io]
-solana-program = "=1.16.24"
-solana-sdk = "=1.16.24"

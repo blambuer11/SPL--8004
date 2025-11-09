@@ -82,36 +82,59 @@ export class StakingClient {
     const [cfg] = this.findConfigPda();
     const info = await this.connection.getAccountInfo(cfg);
     if (!info) return null;
-    // [disc(8)][authority(32)][min_stake(8)][cooldown(8)][bump(1)]
+  // SPL-8004 GlobalConfig: [disc(8)][authority(32)][treasury(32)][commission_rate(2)][total_agents(8)][total_validations(8)][bump(1)]
     const authority = new PublicKey(info.data.slice(8, 40));
-    const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
-    const minStake = Number(dv.getBigUint64(40, true));
-    const cooldown = Number(dv.getBigInt64(48, true));
-    const bump = info.data[56];
-    return { address: cfg, authority, minStake, cooldown, bump };
+  const treasury = new PublicKey(info.data.slice(40, 72));
+  const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
+  const commissionRate = dv.getUint16(72, true);
+  const totalAgents = Number(dv.getBigUint64(74, true));
+  const totalValidations = Number(dv.getBigUint64(82, true));
+  const bump = info.data[90];
+  return { address: cfg, authority, treasury, commissionRate, totalAgents, totalValidations, bump };
   }
 
   async getValidatorAccount(owner: PublicKey) {
     const [validatorPda] = this.findValidatorPda(owner);
     const info = await this.connection.getAccountInfo(validatorPda);
     if (!info) return null;
-    // [disc(8)][owner(32)][staked_amount(8)][last_stake_ts(8)][bump(1)]
-    const ownerPk = new PublicKey(info.data.slice(8, 40));
+    // SPL-8004 Validator layout: [disc(8)][authority(32)][staked_amount(8)][is_active(1)][last_stake_timestamp(8)][total_validations(8)][bump(1)]
+    const authority = new PublicKey(info.data.slice(8, 40));
     const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
     const stakedAmount = Number(dv.getBigUint64(40, true));
-    const lastStakeTs = Number(dv.getBigInt64(48, true));
-    const bump = info.data[56];
-    return { address: validatorPda, owner: ownerPk, stakedAmount, lastStakeTs, bump };
+    const isActive = info.data[48] === 1;
+    const lastStakeTs = Number(dv.getBigInt64(49, true));
+    const totalValidations = Number(dv.getBigUint64(57, true));
+    const bump = info.data[65];
+    return { 
+      address: validatorPda, 
+      authority, 
+      stakedAmount, 
+      isActive,
+      lastStakeTs, 
+      totalValidations,
+      bump 
+    };
   }
 
-  /** Initialize config with defaults (None, None) to use on-chain defaults */
+  /** Initialize config if needed (SPL-8004 requires commission_rate and treasury) */
   async initializeConfigIfNeeded(): Promise<void> {
     const existing = await this.getConfigAccount();
     if (existing) return;
     const [cfg] = this.findConfigPda();
-    const disc = await this.discriminator("initialize");
-    // Borsh Option::None for both params: tag 0, tag 0
-    const data = new Uint8Array([...disc, 0x00, 0x00]);
+    const disc = await this.discriminator("initialize_config");
+    
+    // Borsh encode: commission_rate (u16) = 300 (3%), treasury (Pubkey) = wallet
+    const commissionRate = 300; // 3% in basis points
+    const treasuryPubkey = this.wallet.publicKey;
+    
+    const buf = new ArrayBuffer(2);
+    new DataView(buf).setUint16(0, commissionRate, true);
+    const data = new Uint8Array([
+      ...disc, 
+      ...new Uint8Array(buf), 
+      ...treasuryPubkey.toBytes()
+    ]);
+    
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
@@ -129,7 +152,7 @@ export class StakingClient {
     await this.initializeConfigIfNeeded();
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
-    const disc = await this.discriminator("stake");
+    const disc = await this.discriminator("stake_validator");
     const buf = new ArrayBuffer(8);
     new DataView(buf).setBigUint64(0, BigInt(lamports), true);
     const data = new Uint8Array([...disc, ...new Uint8Array(buf)]);
@@ -148,18 +171,16 @@ export class StakingClient {
 
   async unstake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
-    const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
-    const disc = await this.discriminator("unstake");
+    const disc = await this.discriminator("unstake_validator");
     const buf = new ArrayBuffer(8);
     new DataView(buf).setBigUint64(0, BigInt(lamports), true);
     const data = new Uint8Array([...disc, ...new Uint8Array(buf)]);
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
-        { pubkey: cfg, isSigner: false, isWritable: true },
-        { pubkey: validatorPda, isSigner: false, isWritable: true },
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: validatorPda, isSigner: false, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data: Buffer.from(data),
