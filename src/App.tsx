@@ -16,6 +16,8 @@ import Profile from './pages/Profile';
 import Docs from './pages/Docs';
 import Developer from './pages/Developer';
 import NoCodeTool from './pages/NoCodeTool';
+import SPLXStack from './pages/DocsSPLX';
+import X402Payment from './pages/X402Payment';
 import NotFound from './pages/NotFound';
 import { Footer } from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -49,6 +51,8 @@ const App = () => {
                   <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
                   <Route path="/app" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
                   <Route path="/docs" element={<ErrorBoundary><Docs /></ErrorBoundary>} />
+                  <Route path="/splx" element={<ErrorBoundary><SPLXStack /></ErrorBoundary>} />
+                  <Route path="/x402" element={<ErrorBoundary><X402Payment /></ErrorBoundary>} />
                   <Route path="/no-code" element={<ErrorBoundary><NoCodeTool /></ErrorBoundary>} />
                   <Route path="/agents" element={<ErrorBoundary><Agents /></ErrorBoundary>} />
                   <Route path="/validation" element={<ErrorBoundary><Validation /></ErrorBoundary>} />

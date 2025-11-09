@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useSearchParams } from 'react-router-dom';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
@@ -18,6 +19,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export default function Dashboard() {
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'register';
   const [agentId, setAgentId] = useState('');
   const [metadataUri, setMetadataUri] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -166,10 +169,11 @@ export default function Dashboard() {
           <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
         </div>
 
-      <Tabs defaultValue="register" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-muted/50">
           <TabsTrigger value="register">Register Agent</TabsTrigger>
           <TabsTrigger value="my-agents">My Agents</TabsTrigger>
+          <TabsTrigger value="staking">Validator Staking</TabsTrigger>
           <TabsTrigger value="rewards">Rewards</TabsTrigger>
         </TabsList>
 
@@ -245,6 +249,108 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="staking" className="space-y-6">
+          <Card className="border-border/50 bg-card/50 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Validator Staking
+              </CardTitle>
+              <CardDescription>Stake SOL to become a validator and earn rewards</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                <h4 className="font-semibold text-purple-900 mb-2">💎 Become a Validator</h4>
+                <p className="text-sm text-purple-800 mb-4">
+                  Stake {formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL to validate agent reputation updates and earn validation fees.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="bg-white rounded p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Minimum Stake</div>
+                    <div className="text-lg font-bold text-purple-600">{formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL</div>
+                  </div>
+                  <div className="bg-white rounded p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Cooldown Period</div>
+                    <div className="text-lg font-bold text-purple-600">7 days</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stake-amount">Stake Amount (SOL)</Label>
+                  <Input
+                    id="stake-amount"
+                    type="number"
+                    step="0.1"
+                    min={PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000}
+                    placeholder={`Min: ${formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL`}
+                    className="bg-input border-border/50"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Minimum stake required: {formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL
+                  </p>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Stake to Become Validator
+                </Button>
+
+                <div className="p-4 rounded-lg bg-muted/50 border border-border/50 space-y-3">
+                  <h4 className="text-sm font-semibold">Validator Benefits</h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Earn validation fees from reputation updates</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Vote on protocol governance decisions</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Build reputation in the Noema ecosystem</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Access to validator-only features and analytics</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-200">
+                  <h4 className="text-sm font-semibold text-yellow-900 mb-2">⚠️ Important Notes</h4>
+                  <ul className="space-y-1 text-xs text-yellow-800">
+                    <li>• Staked SOL is locked for 7 days after unstaking</li>
+                    <li>• Slashing may occur for malicious validation behavior</li>
+                    <li>• Validators must maintain minimum stake at all times</li>
+                    <li>• Rewards are distributed proportionally to stake amount</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="border-t border-border/50 pt-4">
+                <h4 className="text-sm font-semibold mb-3">Your Validator Status</h4>
+                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div className="p-3 rounded bg-muted/30">
+                    <div className="text-xs text-muted-foreground mb-1">Your Stake</div>
+                    <div className="text-lg font-bold">0.00 SOL</div>
+                  </div>
+                  <div className="p-3 rounded bg-muted/30">
+                    <div className="text-xs text-muted-foreground mb-1">Validations</div>
+                    <div className="text-lg font-bold">0</div>
+                  </div>
+                  <div className="p-3 rounded bg-muted/30">
+                    <div className="text-xs text-muted-foreground mb-1">Fees Earned</div>
+                    <div className="text-lg font-bold">0.00 SOL</div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

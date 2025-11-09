@@ -3,6 +3,7 @@ export const PROGRAM_CONSTANTS = {
   // Fees (in lamports)
   REGISTRATION_FEE: 5_000_000, // 0.005 SOL
   VALIDATION_FEE: 1_000_000, // 0.001 SOL
+  VALIDATOR_MIN_STAKE: 100_000_000, // 0.1 SOL minimum stake for validators
   
   // Reputation
   INITIAL_REPUTATION_SCORE: 5000,
@@ -15,6 +16,7 @@ export const PROGRAM_CONSTANTS = {
   
   // Timing
   REWARD_CLAIM_INTERVAL: 86400, // 24 hours in seconds
+  VALIDATOR_UNSTAKE_COOLDOWN: 604800, // 7 days in seconds
   
   // Limits
   MAX_AGENT_ID_LEN: 64,

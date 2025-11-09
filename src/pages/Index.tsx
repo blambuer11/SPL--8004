@@ -1,12 +1,14 @@
 // src/pages/Index.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Shield, ArrowRight, CheckCircle2, Code2, TrendingUp, MessageSquare, Wrench, Terminal, FileCode, Rocket, HelpCircle, Bot } from 'lucide-react';
 import neuralLayersHero from '@/assets/neural-layers-hero.png';
+import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 
 /**
  * Complete Landing Page (light-mode) for SPL-X / Noema
@@ -20,6 +22,8 @@ import neuralLayersHero from '@/assets/neural-layers-hero.png';
  */
 
 export default function Index() {
+  const [showStakeModal, setShowStakeModal] = useState(false);
+
   return <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
       {/* HERO */}
       <section className="relative overflow-hidden bg-white">
@@ -42,12 +46,109 @@ export default function Index() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <Link to="/app" aria-label="Start Building">
-                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white px-6">
-                    <ArrowRight className="mr-2 h-5 w-5" />
-                    Start Building
-                  </Button>
-                </Link>
+                <Dialog open={showStakeModal} onOpenChange={setShowStakeModal}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white px-6">
+                      <ArrowRight className="mr-2 h-5 w-5" />
+                      Start Building
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl">Choose Your Path</DialogTitle>
+                      <DialogDescription>
+                        Get started with Noema Protocol by registering an agent or becoming a validator
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid md:grid-cols-2 gap-4 mt-4">
+                      {/* Register Agent Card */}
+                      <Card className="border-2 hover:border-primary transition-all cursor-pointer" onClick={() => {
+                        setShowStakeModal(false);
+                        window.location.href = '/app';
+                      }}>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Bot className="w-5 h-5" />
+                            Register Agent
+                          </CardTitle>
+                          <CardDescription>
+                            Create an on-chain identity for your AI agent
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="p-3 rounded bg-slate-50">
+                            <div className="text-xs text-slate-600 mb-1">Registration Fee</div>
+                            <div className="text-2xl font-bold">{formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</div>
+                          </div>
+                          <ul className="space-y-2 text-sm text-slate-600">
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-500" />
+                              <span>Unique on-chain identity (SPL-8004)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-500" />
+                              <span>Initial reputation score: {PROGRAM_CONSTANTS.INITIAL_REPUTATION_SCORE}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-500" />
+                              <span>Access to X402 autonomous payments</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-500" />
+                              <span>Earn rewards through validations</span>
+                            </li>
+                          </ul>
+                          <Button className="w-full" variant="default">
+                            Go to Dashboard
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      {/* Become Validator Card */}
+                      <Card className="border-2 hover:border-purple-500 transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-blue-50" onClick={() => {
+                        setShowStakeModal(false);
+                        window.location.href = '/app?tab=staking';
+                      }}>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Shield className="w-5 h-5 text-purple-600" />
+                            Become Validator
+                          </CardTitle>
+                          <CardDescription>
+                            Stake SOL to validate and earn fees
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="p-3 rounded bg-white border border-purple-200">
+                            <div className="text-xs text-purple-600 mb-1">Minimum Stake</div>
+                            <div className="text-2xl font-bold text-purple-700">{formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL</div>
+                          </div>
+                          <ul className="space-y-2 text-sm text-slate-700">
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-purple-500" />
+                              <span>Validate reputation updates</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-purple-500" />
+                              <span>Earn validation fees ({formatSOL(PROGRAM_CONSTANTS.VALIDATION_FEE)} SOL/validation)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-purple-500" />
+                              <span>Participate in governance</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-purple-500" />
+                              <span>7-day unstaking period</span>
+                            </li>
+                          </ul>
+                          <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                            Stake Now
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <a href="/docs" aria-label="Read the docs">
                   <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 px-6 hover:bg-slate-50">
