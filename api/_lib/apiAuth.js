@@ -64,15 +64,26 @@ export async function verifyApiKey(req) {
     // Dev mode: allow unauthenticated
     return { ok: true, decoded: null, apiKeyHash: 'dev' };
   }
-  const auth = req.headers['authorization'] || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
-  if (!token) return { ok: false, code: 401, error: 'Missing Authorization: Bearer <token>' };
+  
+  // Support both Authorization header and x-api-key header
+  const authHeader = req.headers['authorization'] || '';
+  const apiKeyHeader = req.headers['x-api-key'] || '';
+  
+  let token = null;
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7);
+  } else if (apiKeyHeader) {
+    token = apiKeyHeader;
+  }
+  
+  if (!token) return { ok: false, code: 401, error: 'Missing API key (use x-api-key header or Authorization: Bearer)' };
+  
   try {
     const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
     const apiKeyHash = sha256Hex(token);
     return { ok: true, decoded, apiKeyHash };
   } catch (e) {
-    return { ok: false, code: 401, error: e?.message || 'Invalid token' };
+    return { ok: false, code: 401, error: e?.message || 'Invalid API key' };
   }
 }
 

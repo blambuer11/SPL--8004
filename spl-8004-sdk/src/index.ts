@@ -1,11 +1,13 @@
 /**
- * SPL-8004 SDK - Agent Identity & Payment Infrastructure
+ * Noema Protocol SDK - The Stripe of AI Agent Identity
  * 
- * Easy-to-use SDK for building autonomous AI agents with:
- * - On-chain identity
- * - Gasless payments
- * - Reputation tracking
- * - Autonomous wallet management
+ * Trust Infrastructure for Autonomous AI:
+ * - On-chain agent identity and reputation
+ * - Autonomous payments with X402 protocol
+ * - Gasless transactions
+ * - Usage-based pricing with API keys
+ * 
+ * Get your API key: https://noemaprotocol.xyz/dashboard
  */
 
 import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
@@ -15,9 +17,10 @@ import bs58 from 'bs58';
 export interface AgentConfig {
   agentId: string;
   privateKey: string; // base58 encoded
+  apiKey: string; // Noema Protocol API key (required)
   network?: 'devnet' | 'mainnet-beta';
   rpcUrl?: string;
-  validatorApiUrl?: string;
+  apiUrl?: string; // Noema API URL
 }
 
 export interface PaymentOptions {
@@ -44,19 +47,38 @@ export interface PaymentResult {
   agentId: string;
 }
 
+export interface UsageStats {
+  requestsToday: number;
+  requestsThisMonth: number;
+  totalRequests: number;
+  tier: 'free' | 'pro' | 'enterprise';
+  limits: {
+    dailyRequests: number;
+    monthlyRequests: number;
+  };
+  rateLimitRemaining: number;
+  rateLimitReset: number;
+}
+
 /**
- * SPL-8004 Agent Client
- * Main SDK class for agent operations
+ * Noema Protocol Agent Client
+ * Main SDK class for agent operations with API key authentication
  */
 export class AgentClient {
   private agentId: string;
+  private apiKey: string;
   private keypair: Keypair;
   private connection: Connection;
-  private validatorApiUrl: string;
+  private apiUrl: string;
   private network: string;
 
   constructor(config: AgentConfig) {
+    if (!config.apiKey) {
+      throw new Error('API key is required. Get yours at https://noemaprotocol.xyz/dashboard');
+    }
+
     this.agentId = config.agentId;
+    this.apiKey = config.apiKey;
     this.network = config.network || 'devnet';
     
     // Decode private key
@@ -71,8 +93,19 @@ export class AgentClient {
     );
     this.connection = new Connection(rpcUrl, 'confirmed');
 
-    // Validator API URL
-    this.validatorApiUrl = config.validatorApiUrl || 'http://localhost:4021';
+    // Noema API URL
+    this.apiUrl = config.apiUrl || 'https://noemaprotocol.xyz/api';
+  }
+
+  /**
+   * Get authenticated headers for API requests
+   */
+  private getHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      'x-api-key': this.apiKey,
+      'x-agent-id': this.agentId,
+    };
   }
 
   /**
@@ -111,25 +144,40 @@ export class AgentClient {
    * Get agent identity information
    */
   async getIdentity(): Promise<AgentIdentity> {
-    const response = await fetch(`${this.validatorApiUrl}/agent/identity/${this.agentId}`);
+    const response = await fetch(`${this.apiUrl}/agents/${this.agentId}`, {
+      headers: this.getHeaders(),
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch identity: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.identity;
+    return data.identity || data;
+  }
+
+  /**
+   * Get current usage statistics and rate limits
+   */
+  async getUsageStats(): Promise<UsageStats> {
+    const response = await fetch(`${this.apiUrl}/usage/summary`, {
+      headers: this.getHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch usage stats: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   /**
    * Make autonomous payment to access protected endpoint
    */
   async makePayment(options: PaymentOptions): Promise<PaymentResult> {
-    const response = await fetch(`${this.validatorApiUrl}/agent/auto-pay`, {
+    const response = await fetch(`${this.apiUrl}/crypto/solana-pay`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify({
         agentId: this.agentId,
         targetEndpoint: options.targetEndpoint,
@@ -149,18 +197,18 @@ export class AgentClient {
   /**
    * Access protected endpoint with automatic payment
    */
-  async accessProtectedEndpoint<T = any>(
+  async accessProtectedEndpoint<T = unknown>(
     endpoint: string,
     options?: {
       method?: 'GET' | 'POST';
-      body?: any;
+      body?: unknown;
       headers?: Record<string, string>;
       autoRetry?: boolean;
     }
   ): Promise<T> {
     const method = options?.method || 'GET';
     const headers = {
-      'Content-Type': 'application/json',
+      ...this.getHeaders(),
       ...options?.headers,
     };
 
@@ -213,14 +261,13 @@ export class AgentClient {
    * Create agent identity on-chain
    */
   async createIdentity(metadata?: string): Promise<AgentIdentity> {
-    const response = await fetch(`${this.validatorApiUrl}/agent/identity/create`, {
+    const response = await fetch(`${this.apiUrl}/agents`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify({
         agentId: this.agentId,
-        identifier: metadata || `agent_${this.agentId}_${Date.now()}`,
+        publicKey: this.keypair.publicKey.toString(),
+        metadata: metadata || `agent_${this.agentId}_${Date.now()}`,
       }),
     });
 
@@ -230,7 +277,7 @@ export class AgentClient {
     }
 
     const data = await response.json();
-    return data.identity;
+    return data.identity || data;
   }
 }
 

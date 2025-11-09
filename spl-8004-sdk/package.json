@@ -1,26 +1,32 @@
 {
-  "name": "@spl-8004/sdk",
+  "name": "@noema/sdk",
   "version": "1.0.0",
-  "description": "SPL-8004 Agent Identity & Payment Infrastructure SDK - Build autonomous AI agents with on-chain identity and gasless payments",
+  "description": "Noema Protocol - The Stripe of AI Agent Identity. Trust Infrastructure for Autonomous AI with identity, reputation, and payment rails on Solana",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "keywords": [
+    "noema",
+    "ai-agents",
+    "autonomous-ai",
+    "agent-identity",
     "solana",
     "web3",
-    "ai-agents",
-    "autonomous-agents",
     "blockchain",
-    "identity",
-    "payments",
+    "agent-payments",
     "spl-8004",
-    "gasless",
     "x402",
-    "agent-wallet"
+    "gasless-transactions",
+    "agent-reputation",
+    "ai-infrastructure"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/blambuer11/SPL--8004"
+  },
+  "homepage": "https://noemaprotocol.xyz",
+  "bugs": {
+    "url": "https://github.com/blambuer11/SPL--8004/issues"
   },
   "scripts": {
     "build": "tsc",
@@ -47,6 +53,9 @@
   "peerDependencies": {
     "@solana/web3.js": "^1.95.2"
   },
-  "author": "SPL-8004 Team",
-  "license": "MIT"
+  "author": "Noema Protocol Team",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

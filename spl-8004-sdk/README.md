@@ -1,37 +1,45 @@
-# SPL-8004 SDK
+# @noema/sdk
 
-> **Build Autonomous AI Agents with On-Chain Identity & Gasless Payments**
+> **The Stripe of AI Agent Identity**  
+> Trust Infrastructure for Autonomous AI on Solana
 
-SPL-8004 is a Solana-based infrastructure that enables AI agents to:
-- 🆔 Have verifiable on-chain identities
-- 💰 Make autonomous payments without manual approval
-- ⛽ Use gasless transactions (zero SOL fees)
-- 📊 Build reputation through on-chain activity
-- 🔐 Manage secure wallets
+Build autonomous AI agents with verifiable identity, reputation tracking, and autonomous payments.
+
+From blockchain complexity to `npm install @noema/sdk`.
+
+[![NPM Version](https://img.shields.io/npm/v/@noema/sdk)](https://www.npmjs.com/package/@noema/sdk)
+[![License](https://img.shields.io/npm/l/@noema/sdk)](https://github.com/blambuer11/SPL--8004/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-noemaprotocol.xyz-blue)](https://noemaprotocol.xyz/docs)
 
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-npm install @spl-8004/sdk
+npm install @noema/sdk
 # or
-yarn add @spl-8004/sdk
+yarn add @noema/sdk
 # or
-pnpm add @spl-8004/sdk
+pnpm add @noema/sdk
 ```
+
+### Get Your API Key
+
+1. Visit [noemaprotocol.xyz/dashboard](https://noemaprotocol.xyz/dashboard)
+2. Sign up and get your API key
+3. Choose your plan (Free, Pro, or Enterprise)
 
 ### Basic Usage
 
 ```typescript
-import { createAgent } from '@spl-8004/sdk';
+import { createAgent } from '@noema/sdk';
 
-// Create agent
+// Create agent with API key
 const agent = createAgent({
-  agentId: 'my-agent',
+  agentId: 'my-ai-agent',
   privateKey: 'YOUR_BASE58_PRIVATE_KEY',
-  network: 'devnet', // or 'mainnet-beta'
-  validatorApiUrl: 'https://api.spl8004.io', // Your hosted API
+  apiKey: 'noema_sk_your_api_key_here', // Get from dashboard
+  network: 'mainnet-beta',
 });
 
 // Access protected endpoint (auto-pays if needed)
@@ -340,7 +348,63 @@ while (true) {
 └─────────────────────┘
 ```
 
-## 📚 API Reference
+## � Pricing Tiers
+
+Noema Protocol offers flexible pricing for different use cases:
+
+### Free Tier
+Perfect for development and testing
+- ✅ 1,000 API requests/month
+- ✅ Devnet access
+- ✅ Basic agent identity
+- ✅ Community support
+- ✅ Rate limit: 10 requests/minute
+
+**Get Started:** Sign up at [noemaprotocol.xyz](https://noemaprotocol.xyz)
+
+### Pro Tier - $49/month
+For production AI agents
+- ✅ 100,000 API requests/month
+- ✅ Mainnet + Devnet access
+- ✅ Advanced analytics
+- ✅ Priority support
+- ✅ Rate limit: 100 requests/minute
+- ✅ Custom agent branding
+- ✅ Webhook notifications
+
+**Upgrade:** [Dashboard](https://noemaprotocol.xyz/dashboard)
+
+### Enterprise Tier - Custom
+For high-volume operations
+- ✅ Unlimited API requests
+- ✅ Dedicated infrastructure
+- ✅ Custom rate limits
+- ✅ 24/7 priority support
+- ✅ SLA guarantees
+- ✅ Custom integrations
+- ✅ On-premise deployment options
+
+**Contact:** [enterprise@noemaprotocol.xyz](mailto:enterprise@noemaprotocol.xyz)
+
+### Usage-Based Pricing
+Pay only for what you use:
+- **API Requests:** $0.0001 per request (after free tier)
+- **Agent Payments:** 1% transaction fee
+- **Storage:** $0.10 per GB/month
+- **Bandwidth:** $0.01 per GB
+
+### Check Your Usage
+
+```typescript
+const stats = await agent.getUsageStats();
+
+console.log(`Tier: ${stats.tier}`);
+console.log(`Requests today: ${stats.requestsToday}`);
+console.log(`Monthly limit: ${stats.limits.monthlyRequests}`);
+console.log(`Remaining: ${stats.rateLimitRemaining}`);
+```
+
+## �📚 API Reference
 
 ### AgentClient
 
@@ -355,16 +419,18 @@ new AgentClient(config: AgentConfig)
 - `getBalance(): Promise<number>` - Get SOL balance
 - `getUsdcBalance(mint): Promise<number>` - Get USDC balance
 - `getIdentity(): Promise<AgentIdentity>` - Get agent identity
+- `getUsageStats(): Promise<UsageStats>` - Get current usage and limits
 - `makePayment(options): Promise<PaymentResult>` - Make payment
 - `accessProtectedEndpoint<T>(endpoint, options): Promise<T>` - Access with auto-pay
 - `createIdentity(metadata): Promise<AgentIdentity>` - Create on-chain identity
 
 ## 🤝 Support
 
-- 📖 [Documentation](https://docs.spl8004.io)
-- 💬 [Discord](https://discord.gg/spl8004)
-- 🐛 [GitHub Issues](https://github.com/your-org/spl-8004/issues)
-- 📧 Email: support@spl8004.io
+- 📖 [Documentation](https://noemaprotocol.xyz/docs)
+- 💬 [Discord](https://discord.gg/noema)
+- 🐛 [GitHub Issues](https://github.com/blambuer11/SPL--8004/issues)
+- 📧 Email: support@noemaprotocol.xyz
+- 🐦 Twitter: [@NoemaProtocol](https://twitter.com/NoemaProtocol)
 
 ## 📄 License
 
@@ -380,4 +446,10 @@ Check out [examples/](./examples) for more use cases:
 
 ---
 
-Built with ❤️ by the SPL-8004 Team
+**Built by Noema Protocol Team**
+
+Give your AI agents identity, reputation, and payment rails.
+
+From blockchain complexity to `npm install @noema/sdk`.
+
+[Get Started](https://noemaprotocol.xyz) | [Documentation](https://noemaprotocol.xyz/docs) | [Dashboard](https://noemaprotocol.xyz/dashboard)
