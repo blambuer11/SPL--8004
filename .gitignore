@@ -1,73 +1,198 @@
-<<<<<<< HEAD
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Dependencies<<<<<<< HEAD
+
+node_modules/# Logs
+
+.pnplogs
+
+.pnp.js*.log
+
+bun.lockbnpm-debug.log*
+
+package-lock.jsonyarn-debug.log*
+
+yarn.lockyarn-error.log*
+
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Environment Variables (CRITICAL - DO NOT COMMIT)lerna-debug.log*
 
-# Environment variables
 .env
-.env.local
-.env.production
+
+.env.*node_modules
+
+!.env.exampledist
+
+.env.localdist-ssr
+
+.env.development*.local
+
+.env.development.local
+
+.env.test# Environment variables
+
+.env.test.local.env
+
+.env.production.env.local
+
+.env.production.local.env.production
+
 .env.development
 
-# Editor directories and files
+# API Keys & Secrets (CRITICAL)
+
+*.key# Editor directories and files
+
+*.pem.vscode/*
+
+*.p12!.vscode/extensions.json
+
+*.pfx.idea
+
+*.secret.DS_Store
+
+secrets/*.suo
+
+private/*.ntvs*
+
+.secrets/*.njsproj
+
+*.sln
+
+# Vercel*.sw?
+
+.vercel/.vercel
+
+!vercel.json=======
+
+# Dependencies
+
+# Build Outputsnode_modules/
+
+dist/bun.lockb
+
+dist-ssr/.pnp
+
+build/.pnp.js
+
+out/
+
+.next/# Environment
+
+.cache/.env
+
+*.local.env.local
+
+.env.development.local
+
+# Logs.env.test.local
+
+logs/.env.production.local
+
+*.log
+
+npm-debug.log*# Build outputs
+
+yarn-debug.log*dist/
+
+pnpm-debug.log*build/
+
+lerna-debug.log**.log
+
+
+
+# Solana & Blockchain (CRITICAL - Private Keys)# IDE
+
+target/.vscode/
+
+.anchor/.idea/
+
+test-ledger/*.swp
+
+*.so*.swo
+
+*.keypair*~
+
+my-solana-keypair.json
+
+wallet.json# OS
+
+id.json.DS_Store
+
+*-keypair.jsonThumbs.db
+
+*.wallet
+
+# Solana
+
+# Databasetarget/
+
+*.db.anchor/
+
+*.sqlitetest-ledger/
+
+*.sqlite3*.so
+
+*.keypair
+
+# Redis
+
+dump.rdb# Docker
+
+*.pid
+
+# Docker*.seed
+
+*.pid>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
+
+*.seed
+docker-compose.override.yml
+
+# IDE & Editors
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
+*.swp
+*.swo
+*.swn
+*~
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.vercel
-=======
-# Dependencies
-node_modules/
-bun.lockb
-.pnp
-.pnp.js
 
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Testing
+coverage/
+.nyc_output/
+*.lcov
 
-# Build outputs
-dist/
-build/
-*.log
+# Backup files
+*.backup
+*.bak
+*.old
+*.tmp
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+# OS Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# Solana
-target/
-.anchor/
-test-ledger/
-*.so
-*.keypair
+# Turkish language docs (replaced with English)
+*-TR.md
+*KILAVUZU.md
+*GEÇİŞ.md
+*ÖDEME*.md
+*.md.backup
+README.old.backup.md
 
-# Docker
-*.pid
-*.seed
->>>>>>> f3dd2a7 (Güncellemeler yapıldı)
+# Sensitive Project Files
+LAUNCH_TWEET.md
+stripe-webhooks.log
+.upstash/
