@@ -1,0 +1,10 @@
+/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/deps/libanchor_spl-7e60e5bebf661366.rmeta: /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/lib.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/associated_token.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/mint.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_2022.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_interface.rs
+
+/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/deps/anchor_spl-7e60e5bebf661366.d: /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/lib.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/associated_token.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/mint.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_2022.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_interface.rs
+
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/lib.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/associated_token.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/mint.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_2022.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/anchor-spl-0.29.0/src/token_interface.rs:

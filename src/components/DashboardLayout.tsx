@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, CheckCircle2, Coins, TrendingUp } from 'lucide-react';
+import { Shield, CheckCircle2, Coins, TrendingUp, Award } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,11 +9,17 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path.includes('?')) {
+      return location.pathname === path.split('?')[0] && location.search.includes(path.split('?')[1]);
+    }
+    return location.pathname === path;
+  };
   
   const navItems = [
     { path: '/app', label: '🆔 Noema ID', icon: Shield },
     { path: '/agents', label: 'Manage Agents', icon: Shield },
+    { path: '/app?tab=staking', label: '💎 Validator Staking', icon: Award },
     { path: '/validation', label: 'Submit Validation', icon: CheckCircle2 },
     { path: '/payments', label: '💳 Noema Pay', icon: Coins },
     { path: '/profile', label: 'Rewards & Profile', icon: TrendingUp },

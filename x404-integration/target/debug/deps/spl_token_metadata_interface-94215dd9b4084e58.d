@@ -1,0 +1,8 @@
+/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/deps/libspl_token_metadata_interface-94215dd9b4084e58.rmeta: /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/lib.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/error.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/instruction.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/state.rs
+
+/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/deps/spl_token_metadata_interface-94215dd9b4084e58.d: /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/lib.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/error.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/instruction.rs /Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/state.rs
+
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/lib.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/error.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/instruction.rs:
+/Users/bl10buer/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-token-metadata-interface-0.2.0/src/state.rs:

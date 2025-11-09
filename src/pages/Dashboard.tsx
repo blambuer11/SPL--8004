@@ -164,6 +164,7 @@ export default function Dashboard() {
         {/* Mobile navigation */}
         <div className="lg:hidden flex flex-wrap gap-3">
           <a href="/agents" className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800">Manage Agents</a>
+          <a href="/app?tab=staking" className="px-4 py-2 rounded-lg border border-purple-300 bg-purple-50 text-purple-700 text-sm font-medium hover:bg-purple-100">💎 Validator Staking</a>
           <a href="/validation" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Submit Validation</a>
           <a href="/payments" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">X402 Payments</a>
           <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
