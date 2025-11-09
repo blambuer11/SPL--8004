@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { useStaking } from '@/hooks/useStaking';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
@@ -22,7 +22,7 @@ export default function Dashboard() {
   const { client } = useSPL8004();
   const { client: stakingClient } = useStaking();
   const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get('tab') || 'register';
+  const location = useLocation();
   const [agentId, setAgentId] = useState('');
   const [metadataUri, setMetadataUri] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -43,12 +43,18 @@ export default function Dashboard() {
   const [isStaking, setIsStaking] = useState(false);
   const [isUnstaking, setIsUnstaking] = useState(false);
   const [validatorStake, setValidatorStake] = useState(0);
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const tabParam = searchParams.get('tab');
+  const initialTab = tabParam ? tabParam : (location.pathname === '/staking' || location.pathname === '/stake') ? 'staking' : 'register';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
+    if (location.pathname === '/staking' || location.pathname === '/stake') {
+      setActiveTab('staking');
+      return;
+    }
     const tab = searchParams.get('tab') || 'register';
     setActiveTab(tab);
-  }, [searchParams]);
+  }, [searchParams, location.pathname]);
 
   useEffect(() => {
     if (client && connected) {

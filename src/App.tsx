@@ -59,6 +59,8 @@ const App = () => {
                   <Route path="/payments" element={<ErrorBoundary><Payments /></ErrorBoundary>} />
                   <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
                     <Route path="/developer" element={<ErrorBoundary><Developer /></ErrorBoundary>} />
+                  <Route path="/stake" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+                  <Route path="/staking" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <ErrorBoundary>

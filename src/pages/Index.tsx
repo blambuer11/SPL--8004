@@ -1,482 +1,525 @@
-// src/pages/Index.tsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useStaking } from '@/hooks/useStaking';
+import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
+import { getExplorerTxUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Shield, ArrowRight, CheckCircle2, Code2, TrendingUp, MessageSquare, Wrench, Terminal, FileCode, Rocket, HelpCircle, Bot } from 'lucide-react';
-import neuralLayersHero from '@/assets/neural-layers-hero.png';
-
-/**
- * Complete Landing Page (light-mode) for SPL-X / Noema
- * - Hero with left content and animated neural-sphere SVG on the right
- * - Sections: Stack cards, Architecture flow, Noema Pay, Quick Start, Use Cases, FAQ, CTA
- *
- * Notes:
- * - Uses Tailwind classes (already used in your project)
- * - Uses your existing ui components (Button, Card, Badge, Accordion)
- * - Links assume react-router routes: /app, /docs, /payments, /x402
- */
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Plus, Coins, Shield, TrendingUp, Bot, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function Index() {
-  return <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+  const { connected, publicKey } = useWallet();
+  const { client } = useSPL8004();
+  const { client: stakingClient } = useStaking();
+
+  // Agent state
+  const [agentId, setAgentId] = useState('');
+  const [metadataUri, setMetadataUri] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  type MyAgent = {
+    agentId: string;
+    metadataUri: string;
+    reputation: { score: number; totalTasks: number; successfulTasks: number };
+  };
+  const [myAgents, setMyAgents] = useState<MyAgent[]>([]);
+  const [claimable, setClaimable] = useState<Record<string, number>>({});
+
+  // Staking state
+  const [stakeAmount, setStakeAmount] = useState('');
+  const [unstakeAmount, setUnstakeAmount] = useState('');
+  const [isStaking, setIsStaking] = useState(false);
+  const [isUnstaking, setIsUnstaking] = useState(false);
+  const [validatorStake, setValidatorStake] = useState(0);
+
+  useEffect(() => {
+    if (client && connected) {
+      void loadAgentData();
+    }
+    if (stakingClient && connected && publicKey) {
+      void loadValidatorData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, stakingClient, connected, publicKey]);
+
+  const loadAgentData = async () => {
+    if (!client) return;
+    try {
+      const agents = await client.getAllUserAgents();
+      setMyAgents(agents);
+      const map: Record<string, number> = {};
+      for (const a of agents) {
+        try {
+          map[a.agentId] = await client.getRewardPoolLamports(a.agentId);
+        } catch {
+          map[a.agentId] = 0;
+        }
+      }
+      setClaimable(map);
+    } catch (error) {
+      console.error('Error loading agents:', error);
+      setMyAgents([]);
+      setClaimable({});
+    }
+  };
+
+  const loadValidatorData = async () => {
+    if (!stakingClient || !publicKey) return;
+    try {
+      const validatorAccount = await stakingClient.getValidatorAccount(publicKey);
+      if (validatorAccount) {
+        setValidatorStake(validatorAccount.stakedAmount);
+      } else {
+        setValidatorStake(0);
+      }
+    } catch (error) {
+      console.error('Error loading validator:', error);
+      setValidatorStake(0);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!connected || !client) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!agentId || !metadataUri) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    if (agentId.length > PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN) {
+      toast.error(`Agent ID must be max ${PROGRAM_CONSTANTS.MAX_AGENT_ID_LEN} characters`);
+      return;
+    }
+    if (metadataUri.length > PROGRAM_CONSTANTS.MAX_METADATA_URI_LEN) {
+      toast.error(`Metadata URI must be max ${PROGRAM_CONSTANTS.MAX_METADATA_URI_LEN} characters`);
+      return;
+    }
+    setIsRegistering(true);
+    try {
+      toast.message('Opening wallet for signature…');
+      const sig = await client.registerAgent(agentId, metadataUri);
+      toast.success(`Agent "${agentId}" registered!`, {
+        description: (
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noreferrer" className="underline text-blue-600">
+            View on Explorer
+          </a>
+        ),
+      });
+      setAgentId('');
+      setMetadataUri('');
+      await loadAgentData();
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to register agent');
+      console.error(error);
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  const handleStake = async () => {
+    if (!connected || !stakingClient) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    const amount = parseFloat(stakeAmount);
+    if (!amount || amount < PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000) {
+      toast.error(`Minimum stake is ${formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL`);
+      return;
+    }
+    setIsStaking(true);
+    try {
+      toast.message('Opening wallet for signature…');
+      const lamports = Math.floor(amount * 1_000_000_000);
+      const sig = await stakingClient.stake(lamports);
+      toast.success(
+        <div>
+          <p className="font-semibold">✅ Staked {amount} SOL!</p>
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      setStakeAmount('');
+      await loadValidatorData();
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to stake');
+      console.error(error);
+    } finally {
+      setIsStaking(false);
+    }
+  };
+
+  const handleUnstake = async () => {
+    if (!connected || !stakingClient) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    const amount = parseFloat(unstakeAmount);
+    if (!amount || amount <= 0) {
+      toast.error('Amount must be greater than 0');
+      return;
+    }
+    if (amount > validatorStake / 1_000_000_000) {
+      toast.error('Insufficient staked balance');
+      return;
+    }
+    setIsUnstaking(true);
+    try {
+      toast.message('Opening wallet for signature…');
+      const lamports = Math.floor(amount * 1_000_000_000);
+      const sig = await stakingClient.unstake(lamports);
+      toast.success(
+        <div>
+          <p className="font-semibold">✅ Unstaked {amount} SOL!</p>
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      setUnstakeAmount('');
+      await loadValidatorData();
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to unstake');
+      console.error(error);
+    } finally {
+      setIsUnstaking(false);
+    }
+  };
+
+  const handleClaimRewards = async (agentIdToClaim: string) => {
+    if (!client) return;
+    try {
+      toast.info('Claiming rewards...');
+      const sig = await client.claimRewards(agentIdToClaim);
+      toast.success('Rewards claimed!', {
+        description: (
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noreferrer" className="underline text-blue-600">
+            View on Explorer
+          </a>
+        ),
+      });
+      await loadAgentData();
+    } catch (error: unknown) {
+      const message = (error as Error)?.message || 'Failed to claim rewards';
+      if (message.includes('No rewards available') || message.includes('0x177a') || message.includes('6010')) {
+        toast.info('No rewards available to claim yet.');
+      } else {
+        toast.error(message);
+      }
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
       {/* HERO */}
-      <section className="relative overflow-hidden bg-white">
+      <section className="relative overflow-hidden bg-white border-b border-slate-200">
         <div className="container mx-auto px-6 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left - Content */}
-            <div className="space-y-6">
-              <Badge className="inline-flex items-center gap-2 bg-slate-100 text-slate-900 border-slate-200">
-                <Bot className="w-4 h-4" />
-                Live on Devnet
-              </Badge>
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-900 border border-slate-200">
+              <Bot className="w-4 h-4" />
+              <span className="text-sm font-medium">Live on Solana Devnet</span>
+            </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
-                The Neural Infrastructure for <br />
-                <span className="text-slate-700">Autonomous Finance</span>
-              </h1>
+            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-slate-900">
+              AI Agent Infrastructure
+              <br />
+              <span className="text-slate-600">Built on Solana</span>
+            </h1>
 
-              <p className="text-lg text-slate-600 max-w-2xl">
-                Let your AI agents own on-chain identity, earn reputation, and transact autonomously with fast, cheap USDC settlements — fully integrated on Solana.
-              </p>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Register AI agents, stake as validator, earn rewards — all on-chain with SPL-8004
+            </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <Link to="/app" aria-label="Start Building">
-                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white px-6">
+            {!connected ? (
+              <div className="flex justify-center pt-4">
+                <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-base !font-medium !px-8 !py-3" />
+              </div>
+            ) : (
+              <div className="flex justify-center gap-4 pt-4">
+                <a href="#register">
+                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800">
                     <ArrowRight className="mr-2 h-5 w-5" />
-                    Start Building
+                    Register Agent
                   </Button>
-                </Link>
-
-                <a href="/docs" aria-label="Read the docs">
-                  <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 px-6 hover:bg-slate-50">
-                    Documentation
+                </a>
+                <a href="#staking">
+                  <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
+                    <Shield className="mr-2 h-5 w-5" />
+                    Become Validator
                   </Button>
                 </a>
               </div>
+            )}
 
-              {/* Live Stats */}
-              <div className="grid grid-cols-3 gap-6 mt-8 max-w-md">
-                <div>
-                  <div className="text-2xl font-bold">1,000+</div>
-                  <div className="text-sm text-slate-600 mt-1">Active Agents</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">$10K+</div>
-                  <div className="text-sm text-slate-600 mt-1">Volume</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">99.9%</div>
-                  <div className="text-sm text-slate-600 mt-1">Uptime</div>
-                </div>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8">
+              <div>
+                <div className="text-3xl font-bold text-slate-900">{myAgents.length}</div>
+                <div className="text-sm text-slate-600 mt-1">Your Agents</div>
               </div>
-            </div>
-
-            {/* Right - Layered Architecture Visual */}
-            <div className="relative flex items-center justify-center">
-              <div className="w-full max-w-md">
-                {/* Layered Architecture Card */}
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
-                  {/* Layered Architecture Image */}
-                  <div className="relative z-10 flex items-center justify-center animate-fade-in">
-                    <img src={neuralLayersHero} alt="Neural Infrastructure Layered Architecture showing AI agents, blockchain network, and financial transactions" className="w-full h-auto hover:scale-105 transition-transform duration-500" />
-                  </div>
-
-                  {/* Short descriptor */}
-                  
+              <div>
+                <div className="text-3xl font-bold text-slate-900">{formatSOL(validatorStake)}</div>
+                <div className="text-sm text-slate-600 mt-1">SOL Staked</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-slate-900">
+                  {myAgents.reduce((sum, a) => sum + (claimable[a.agentId] || 0), 0) > 0
+                    ? formatSOL(myAgents.reduce((sum, a) => sum + (claimable[a.agentId] || 0), 0))
+                    : '0.00'}
                 </div>
-
-                {/* small subtitle card */}
-                
+                <div className="text-sm text-slate-600 mt-1">SOL Claimable</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* STACK / PRODUCTS */}
-      <section id="products" className="py-20 px-6 bg-slate-50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <Badge className="mb-4 bg-slate-900 text-white">The Noema Stack™</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Modular AI Infrastructure for Solana</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Five integrated protocols for autonomous agent infrastructure</p>
+      {/* REGISTER AGENT */}
+      <section id="register" className="py-20 px-6 bg-slate-50">
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold text-slate-900">Register AI Agent</h2>
+            <p className="text-lg text-slate-600">Create on-chain identity for your AI agents with SPL-8004</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="bg-white border-slate-200">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-slate-900" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl text-slate-900">🆔 Noema ID™</CardTitle>
-                    <Badge className="bg-emerald-600 text-white">✅ LIVE ON DEVNET</Badge>
-                  </div>
-                </div>
-                <CardDescription className="text-slate-600">Agent Identity & Reputation System</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-slate-600 text-sm">
-                  <li>• On-chain identity registry (SPL-8004)</li>
-                  <li>• Dynamic reputation scoring (0-10K)</li>
-                </ul>
+          {!connected ? (
+            <Card className="border-slate-200">
+              <CardContent className="py-12 text-center">
+                <Shield className="h-16 w-16 mx-auto text-slate-400 mb-4" />
+                <p className="text-slate-600 mb-4">Connect your wallet to register agents</p>
+                <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800" />
               </CardContent>
             </Card>
-
-            <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-green-600 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-white" />
+          ) : (
+            <>
+              <Card className="border-slate-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    Register New Agent
+                  </CardTitle>
+                  <CardDescription>Fee: {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="agent-id">Agent ID</Label>
+                    <Input
+                      id="agent-id"
+                      placeholder="my-agent-001"
+                      value={agentId}
+                      onChange={(e) => setAgentId(e.target.value)}
+                      maxLength={64}
+                    />
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl text-emerald-900">💬 Noema Link™</CardTitle>
-                    <Badge className="bg-emerald-600 text-white">✅ LIVE ON DEVNET</Badge>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="metadata-uri">Metadata URI</Label>
+                    <Input
+                      id="metadata-uri"
+                      placeholder="https://arweave.net/..."
+                      value={metadataUri}
+                      onChange={(e) => setMetadataUri(e.target.value)}
+                      maxLength={200}
+                    />
                   </div>
-                </div>
-                <CardDescription className="text-emerald-900 font-semibold">Agent-to-Agent Communication Layer</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-emerald-900 text-sm font-medium">
-                  <li>• Private & broadcast channels (SPL-ACP)</li>
-                  <li>• Program ID: FAnRqm...QbV</li>
-                </ul>
-              </CardContent>
-            </Card>
 
-            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
-                    <Wrench className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl text-blue-900">🛠️ Noema Cert™</CardTitle>
-                    <Badge className="bg-blue-600 text-white">✅ LIVE ON DEVNET</Badge>
-                  </div>
-                </div>
-                <CardDescription className="text-blue-900 font-semibold">Tool Attestation & Quality Proof</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-blue-900 text-sm font-medium">
-                  <li>• JSON schema validation (SPL-TAP)</li>
-                  <li>• Program ID: DTtjXcv...d3So4</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                    <Code2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl text-purple-900">⚡ Noema Core™</CardTitle>
-                    <Badge className="bg-purple-600 text-white">✅ LIVE ON DEVNET</Badge>
-                  </div>
-                </div>
-                <CardDescription className="text-purple-900 font-semibold">Consensus & Function Call Validation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-purple-900 text-sm font-medium">
-                  <li>• OpenAI/Claude compatible (SPL-FCP)</li>
-                  <li>• Program ID: A4Ee2Ko...PnjtR</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* NOEMA PAY */}
-      <section className="py-20 px-6 bg-white">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <Badge className="mb-4 bg-gradient-to-r from-emerald-600 to-blue-600 text-white">✅ Live on Devnet</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Noema Pay™ — Micropayment & Gasless Protocol</h2>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Production-ready settlements with USDC in ~400ms and a facilitator for gasless experiences.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="p-6">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Terminal className="w-5 h-5 text-purple-600" />
-                  <CardTitle>X402 Protocol (HTTP 402)</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc ml-5 text-slate-700 space-y-2">
-                  <li>Paywalls via HTTP 402 for API/data access</li>
-                  <li>USDC settlement in ~400ms on Solana</li>
-                  <li>Works seamlessly with Noema Stack</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Rocket className="w-5 h-5 text-emerald-600" />
-                  <CardTitle>Facilitator Service (Gasless)</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc ml-5 text-slate-700 space-y-2">
-                  <li>Server-assisted, gasless UX for clients without Phantom</li>
-                  <li>Ideal for B2B integrations and no-code flows</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* QUICK START */}
-      <section className="py-20 px-6 bg-slate-50">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-8">
-            <Badge className="mb-4">Get Started</Badge>
-            <h2 className="text-4xl font-bold mb-4">Quick Start</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">Install the SDK, create an agent, connect your wallet — you're live.</p>
-          </div>
-
-          <Card className="border-2">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Terminal className="w-5 h-5 text-purple-600" />
-                <CardTitle>Install the SDK</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm">
-                npm install @noema/sdk
-              </div>
-              <div className="flex gap-4">
-                <Link to="/docs" className="flex-1">
-                  <Button className="w-full">
-                    <FileCode className="w-4 h-4 mr-2" />
-                    View Docs
+                  <Button onClick={handleRegister} disabled={isRegistering || !agentId || !metadataUri} className="w-full bg-slate-900 hover:bg-slate-800">
+                    {isRegistering ? 'Registering...' : 'Register Agent'}
                   </Button>
-                </Link>
-                <Link to="/app" className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    <Rocket className="w-4 h-4 mr-2" />
-                    Launch App
+                </CardContent>
+              </Card>
+
+              {myAgents.length > 0 && (
+                <Card className="border-slate-200">
+                  <CardHeader>
+                    <CardTitle>My Agents ({myAgents.length})</CardTitle>
+                    <CardDescription>Registered AI agents on SPL-8004</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {myAgents.map((agent) => (
+                      <div key={agent.agentId} className="p-4 rounded-lg border border-slate-200 bg-white">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{agent.agentId}</h3>
+                            <p className="text-sm text-slate-600 mt-1">{agent.metadataUri}</p>
+                            <div className="flex gap-4 mt-3 text-sm">
+                              <div>
+                                <span className="text-slate-600">Reputation:</span>
+                                <span className="ml-2 font-semibold text-slate-900">{agent.reputation.score}/10000</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-600">Tasks:</span>
+                                <span className="ml-2 font-semibold text-slate-900">{agent.reputation.totalTasks}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => handleClaimRewards(agent.agentId)}
+                            variant="outline"
+                            size="sm"
+                            disabled={(claimable[agent.agentId] || 0) <= 0}
+                            className="ml-4"
+                          >
+                            <Coins className="h-4 w-4 mr-1" />
+                            Claim {formatSOL(claimable[agent.agentId] || 0)}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* VALIDATOR STAKING */}
+      <section id="staking" className="py-20 px-6 bg-white">
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold text-slate-900">Validator Staking</h2>
+            <p className="text-lg text-slate-600">Stake SOL to validate and earn rewards</p>
+          </div>
+
+          {!connected ? (
+            <Card className="border-slate-200">
+              <CardContent className="py-12 text-center">
+                <Shield className="h-16 w-16 mx-auto text-slate-400 mb-4" />
+                <p className="text-slate-600 mb-4">Connect your wallet to stake</p>
+                <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800" />
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card className="border-slate-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Become a Validator
+                  </CardTitle>
+                  <CardDescription>
+                    Minimum stake: {formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL | Cooldown: 7 days
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                    <h4 className="font-semibold text-purple-900 mb-2">💎 Validator Benefits</h4>
+                    <ul className="space-y-1 text-sm text-purple-800">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-green-600" />
+                        <span>Earn validation fees from reputation updates</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-green-600" />
+                        <span>Vote on protocol governance</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-green-600" />
+                        <span>Build reputation in the Noema ecosystem</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="stake-amount">Stake Amount (SOL)</Label>
+                    <Input
+                      id="stake-amount"
+                      type="number"
+                      step="0.1"
+                      min={PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE / 1_000_000_000}
+                      placeholder={`Min: ${formatSOL(PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE)} SOL`}
+                      value={stakeAmount}
+                      onChange={(e) => setStakeAmount(e.target.value)}
+                      disabled={isStaking}
+                    />
+                  </div>
+
+                  <Button
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    onClick={handleStake}
+                    disabled={isStaking || !stakeAmount}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    {isStaking ? 'Staking...' : 'Stake to Become Validator'}
                   </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+
+                  {validatorStake > 0 && (
+                    <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                      <h4 className="text-sm font-semibold text-blue-900 mb-3">Your Validator Status</h4>
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="bg-white rounded p-3">
+                          <div className="text-xs text-slate-600">Staked</div>
+                          <div className="text-lg font-bold text-blue-600">{formatSOL(validatorStake)}</div>
+                        </div>
+                        <div className="bg-white rounded p-3">
+                          <div className="text-xs text-slate-600">Validations</div>
+                          <div className="text-lg font-bold text-blue-600">0</div>
+                        </div>
+                        <div className="bg-white rounded p-3">
+                          <div className="text-xs text-slate-600">Fees Earned</div>
+                          <div className="text-lg font-bold text-blue-600">0.00</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="unstake-amount">Unstake Amount (SOL)</Label>
+                        <Input
+                          id="unstake-amount"
+                          type="number"
+                          step="0.1"
+                          max={validatorStake / 1_000_000_000}
+                          placeholder={`Max: ${formatSOL(validatorStake)} SOL`}
+                          value={unstakeAmount}
+                          onChange={(e) => setUnstakeAmount(e.target.value)}
+                          disabled={isUnstaking}
+                          className="bg-white"
+                        />
+                      </div>
+                      <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700" onClick={handleUnstake} disabled={isUnstaking || !unstakeAmount}>
+                        {isUnstaking ? 'Unstaking...' : 'Unstake SOL'}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </section>
 
-      {/* USE CASES */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto text-center">
-          <div className="mb-10">
-            <Badge className="mb-4">Use Cases</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Built for Real-World Agents</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">From trading bots to data marketplaces — agents that can earn, verify, and trade.</p>
+      {/* FOOTER */}
+      <footer className="py-12 px-6 bg-slate-900 text-white">
+        <div className="container mx-auto max-w-4xl text-center space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+              ∩
+            </div>
+            <span className="text-2xl font-bold">Noema Protocol</span>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <Card>
-              <CardHeader>
-                <TrendingUp className="w-6 h-6 text-emerald-600 mb-2" />
-                <CardTitle>Trading Bots</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>Register identity and track performance with reputation scoring</CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <MessageSquare className="w-6 h-6 text-blue-600 mb-2" />
-                <CardTitle>Agent Marketplaces</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>Discover tasks and auto-negotiate with USDC payments</CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Wrench className="w-6 h-6 text-purple-600 mb-2" />
-                <CardTitle>Data Providers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>Monetize datasets with micropayments per API call</CardDescription>
-              </CardContent>
-            </Card>
+          <p className="text-slate-400">AI Agent Infrastructure on Solana</p>
+          <div className="flex justify-center gap-6 text-sm text-slate-400">
+            <a href="/docs" className="hover:text-white transition-colors">
+              Documentation
+            </a>
+            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+              GitHub
+            </a>
+            <a href="https://twitter.com/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+              Twitter
+            </a>
           </div>
+          <div className="text-xs text-slate-500 pt-4">© 2025 Noema Protocol. All rights reserved.</div>
         </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 px-6 bg-white">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-8">
-            <Badge className="mb-4 bg-slate-900 text-white">
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Sıkça Sorulan Sorular
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">FAQ</h2>
-            <p className="text-lg text-slate-600">Frequently Asked Questions about Noema Protocol</p>
-          </div>
-
-          <Accordion type="single" collapsible className="w-full space-y-4">
-            <AccordionItem value="item-1" className="border border-slate-200 rounded-lg px-6 bg-white">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                What is Noema Protocol and what does it do?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600 leading-relaxed">
-                Noema Protocol is a modular infrastructure for AI agents to make payments, create identity, and build reputation on Solana blockchain.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-2" className="border border-slate-200 rounded-lg px-6 bg-white">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                Do I need to stake for SPL-TAP and SPL-FCP?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600 leading-relaxed">
-                Yes: SPL-TAP requires 1 SOL stake for attestations, SPL-FCP requires 2 SOL to register as validator. Stakes may be slashed for misbehavior.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-3" className="border border-slate-200 rounded-lg px-6 bg-white">
-              <AccordionTrigger className="text-left font-semibold hover:no-underline">
-                How does the X402 Payment Protocol work?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600 leading-relaxed">
-                X402 uses HTTP 402 (Payment Required) + on-chain settlement. Agent pays USDC and receives a payment proof to access services.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-6 bg-slate-50">
-        <div className="container mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900">Ready to Build?</h2>
-          <p className="text-xl text-slate-600 mb-8">Join the future of autonomous AI agents on Solana</p>
-          <div className="flex gap-4 justify-center">
-            <Link to="/app">
-              <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white">
-                Launch Dashboard <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/docs">
-              <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
-                Read Documentation
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>;
-}
-
-/**
- * NeuralSphere — inline SVG component with subtle animations
- * - self-contained; no external assets required
- * - scalable, accessible (aria-hidden)
- */
-function NeuralSphere({
-  className
-}: {
-  className?: string;
-}) {
-  return <svg className={className} viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
-      <defs>
-        <radialGradient id="g1" cx="50%" cy="35%">
-          <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.95" />
-          <stop offset="60%" stopColor="#06B6D4" stopOpacity="0.75" />
-          <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.15" />
-        </radialGradient>
-
-        <filter id="blurSoft" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="12" result="b" />
-          <feBlend in="SourceGraphic" in2="b" mode="normal" />
-        </filter>
-
-        <linearGradient id="strokeGrad" x1="0" x2="1">
-          <stop offset="0%" stopColor="#A78BFA" />
-          <stop offset="100%" stopColor="#06B6D4" />
-        </linearGradient>
-      </defs>
-
-      {/* Outer glow */}
-      <circle cx="210" cy="210" r="160" fill="url(#g1)" opacity="0.18" />
-
-      {/* Main sphere */}
-      <g filter="url(#blurSoft)">
-        <circle cx="210" cy="210" r="120" fill="white" fillOpacity="0.03" stroke="url(#strokeGrad)" strokeWidth="1.5" />
-      </g>
-
-      {/* Neural nodes & connections */}
-      <g stroke="#9AE6B4" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity="0.95">
-        {/* connections */}
-        <line x1="210" y1="110" x2="270" y2="150" />
-        <line x1="210" y1="110" x2="150" y2="150" />
-        <line x1="150" y1="150" x2="120" y2="200" />
-        <line x1="270" y1="150" x2="310" y2="210" />
-        <line x1="120" y1="200" x2="170" y2="250" />
-        <line x1="310" y1="210" x2="260" y2="260" />
-        <line x1="170" y1="250" x2="210" y2="300" />
-        <line x1="260" y1="260" x2="210" y2="300" />
-        <line x1="210" y1="300" x2="210" y2="110" strokeDasharray="2 6" opacity="0.25" />
-      </g>
-
-      {/* Nodes (pulsing) */}
-      <g fill="#34D399" opacity="0.95">
-        <circle className="pulse" cx="210" cy="110" r="6" />
-        <circle className="pulse delay-1" cx="270" cy="150" r="6" />
-        <circle className="pulse delay-2" cx="150" cy="150" r="6" />
-        <circle className="pulse delay-3" cx="120" cy="200" r="6" />
-        <circle className="pulse delay-4" cx="310" cy="210" r="6" />
-        <circle className="pulse delay-5" cx="170" cy="250" r="6" />
-        <circle className="pulse delay-6" cx="260" cy="260" r="6" />
-        <circle className="pulse delay-7" cx="210" cy="300" r="6" />
-      </g>
-
-      {/* center label */}
-      <text x="50%" y="50%" textAnchor="middle" dy="6" fontSize="18" fill="#0F172A" fontWeight="700">
-        AI
-      </text>
-
-      {/* Inline styles for animations */}
-      <style>{`
-        /* pulsing nodes */
-        .pulse {
-          transform-origin: center;
-          animation: pulse 1.8s ease-in-out infinite;
-        }
-        .pulse.delay-1 { animation-delay: 0.15s; }
-        .pulse.delay-2 { animation-delay: 0.3s; }
-        .pulse.delay-3 { animation-delay: 0.45s; }
-        .pulse.delay-4 { animation-delay: 0.6s; }
-        .pulse.delay-5 { animation-delay: 0.75s; }
-        .pulse.delay-6 { animation-delay: 0.9s; }
-        .pulse.delay-7 { animation-delay: 1.05s; }
-
-        @keyframes pulse {
-          0% { r: 6px; opacity: 1; transform: scale(1); }
-          50% { r: 10px; opacity: 0.65; transform: scale(1.15); }
-          100% { r: 6px; opacity: 1; transform: scale(1); }
-        }
-
-        /* subtle rotate for the whole SVG group for life */
-        svg { will-change: transform; }
-        svg:hover { transform: scale(1.02) translateY(-2px); transition: transform 300ms ease; }
-      `}</style>
-    </svg>;
+      </footer>
+    </div>
+  );
 }

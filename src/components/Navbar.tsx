@@ -1,15 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export const Navbar = () => {
   const location = useLocation();
-  const { connected, publicKey } = useWallet();
   const isActive = (path: string) => location.pathname === path;
-  
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
-  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
@@ -37,10 +31,16 @@ export const Navbar = () => {
                 Home
               </Link>
               <a
-                href="/#products"
+                href="/#register"
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
               >
-                Products
+                Register Agent
+              </a>
+              <a
+                href="/#staking"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                Staking
               </a>
               <Link
                 to="/docs"
@@ -52,40 +52,10 @@ export const Navbar = () => {
               >
                 Docs
               </Link>
-              <Link
-                to="/developer"
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/developer')
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
-              >
-                Developer
-              </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            {location.pathname === '/' ? (
-              <Link
-                to="/app"
-                className="px-6 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-all"
-              >
-                Start Building →
-              </Link>
-            ) : (
-              <>
-                {connected && publicKey ? (
-                  <Link
-                    to="/app"
-                    className="px-6 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-all"
-                  >
-                    {formatAddress(publicKey.toString())}
-                  </Link>
-                ) : (
-                  <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-sm !font-medium !px-6 !py-2.5" />
-                )}
-              </>
-            )}
+            <WalletMultiButton className="!bg-slate-900 hover:!bg-slate-800 !rounded-lg !text-sm !font-medium !px-6 !py-2.5" />
           </div>
         </div>
       </div>
