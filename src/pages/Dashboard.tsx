@@ -38,6 +38,12 @@ export default function Dashboard() {
   const [claimable, setClaimable] = useState<Record<string, number>>({});
   const [stakeAmount, setStakeAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') || 'register';
+    setActiveTab(tab);
+  }, [searchParams]);
 
   useEffect(() => {
     if (client && connected) {
@@ -140,21 +146,29 @@ export default function Dashboard() {
     setIsStaking(true);
     try {
       toast.message('Opening wallet for signature…');
+      const lamports = Math.floor(amount * 1_000_000_000);
       
-      // TODO: Implement on-chain validator staking when program is deployed
-      // For now, show coming soon message
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.info('Staking SOL to become validator...');
+      const sig = await client.stakeValidator(lamports);
       
-      toast.info(
+      toast.success(
         <div className="space-y-1">
-          <p className="font-semibold">🚧 Validator Staking Coming Soon</p>
-          <p className="text-xs">The on-chain program will be deployed soon. Your stake amount: {amount} SOL</p>
-          <p className="text-xs text-muted-foreground">This feature requires program upgrade on Solana devnet/mainnet.</p>
+          <p className="font-semibold">✅ Successfully staked {amount} SOL!</p>
+          <p className="text-xs">You are now a validator on Noema Protocol</p>
+          <a 
+            href={getExplorerTxUrl(sig)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline block"
+          >
+            View transaction →
+          </a>
         </div>,
-        { duration: 5000 }
+        { duration: 6000 }
       );
       
       setStakeAmount('');
+      await loadDashboardData();
     } catch (error) {
       console.error('Stake error:', error);
       const message = error instanceof Error ? error.message : 'Failed to stake. Please try again.';
@@ -211,7 +225,7 @@ export default function Dashboard() {
           <a href="/profile" className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50">Rewards & Profile</a>
         </div>
 
-      <Tabs defaultValue={defaultTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/50">
           <TabsTrigger value="register">Register Agent</TabsTrigger>
           <TabsTrigger value="my-agents">My Agents</TabsTrigger>
@@ -305,13 +319,6 @@ export default function Dashboard() {
               <CardDescription>Stake SOL to become a validator and earn rewards</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                <h4 className="font-semibold text-blue-900 mb-2">🚧 Coming Soon</h4>
-                <p className="text-sm text-blue-800">
-                  Validator staking functionality is currently under development. The on-chain program will be upgraded soon to support this feature.
-                </p>
-              </div>
-
               <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
                 <h4 className="font-semibold text-purple-900 mb-2">💎 Become a Validator</h4>
                 <p className="text-sm text-purple-800 mb-4">
