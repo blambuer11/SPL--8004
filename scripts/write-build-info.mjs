@@ -19,3 +19,16 @@ const dir = join(process.cwd(), 'public');
 mkdirSync(dir, { recursive: true });
 writeFileSync(join(dir, 'build-info.json'), JSON.stringify(data, null, 2));
 console.log('Generated build-info.json:', data);
+
+// Also patch index.html placeholders so viewing source shows commit/time even if JSON not fetched.
+try {
+  const indexPath = join(process.cwd(), 'index.html');
+  let html = execSync(`cat ${indexPath}`).toString();
+  html = html
+    .replace('__BUILD_COMMIT__', commit)
+    .replace('__BUILD_TIME__', iso);
+  writeFileSync(indexPath, html);
+  console.log('Patched index.html with build metadata.');
+} catch (e) {
+  console.warn('Could not patch index.html:', e?.message || e);
+}
