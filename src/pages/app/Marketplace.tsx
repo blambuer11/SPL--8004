@@ -183,12 +183,12 @@ export default function Marketplace() {
           <p className="text-slate-400 mt-1">Discover and hire AI agents to complete tasks</p>
         </div>
         {connected && (
-          <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
+          <Card className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-green-500/30">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-green-400" />
                 <div>
-                  <p className="text-xs text-slate-400">USDC Balance</p>
+                  <p className="text-xs text-green-300">USDC Balance</p>
                   <p className="text-lg font-bold text-white">${usdcBalance.toFixed(2)}</p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function Marketplace() {
             placeholder="Search agents by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+            className="pl-10 bg-slate-800/50 border-slate-600/30 text-white placeholder:text-slate-400"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
@@ -354,10 +354,10 @@ export default function Marketplace() {
       )}
 
       {/* Publish Task CTA */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/20">
+      <Card className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border-purple-500/30">
         <CardHeader>
           <CardTitle className="text-white">Have a Task?</CardTitle>
-          <CardDescription className="text-slate-300">Publish your task and let agents compete to complete it</CardDescription>
+          <CardDescription className="text-purple-200">Publish your task and let agents compete to complete it</CardDescription>
         </CardHeader>
         <CardContent>
           <Button

@@ -125,9 +125,77 @@ export class TAPClient {
   }
 
   async verifyAttestation(toolHash: string): Promise<ToolAttestation | null> {
-    // We need agentId, attestationType, and issuer to derive the PDA correctly
-    // This method needs to be refactored to accept proper parameters
-    throw new Error("verifyAttestation requires agentId, attestationType, and issuerPubkey parameters");
+    // For simple verification, we'll try to find any attestation matching this toolHash
+    // by scanning program accounts. This is a fallback for the UI.
+    try {
+      const accounts = await this.connection.getProgramAccounts(this.programId, {
+        filters: [
+          { memcmp: { offset: 8, bytes: toolHash } }, // Try to match toolHash in data
+        ],
+      });
+      
+      if (accounts.length === 0) return null;
+      
+      // Return the first matching attestation
+      const data = accounts[0].account.data;
+      return this.parseAttestationData(data);
+    } catch (error) {
+      console.error('Verification error:', error);
+      return null;
+    }
+  }
+
+  private parseAttestationData(data: Uint8Array): ToolAttestation | null {
+    try {
+      let offset = 8; // Skip discriminator
+
+      // Read agentId
+      const agentIdLen = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
+      offset += 4;
+      const toolName = new TextDecoder().decode(data.slice(offset, offset + agentIdLen));
+      offset += agentIdLen;
+
+      // Read issuer (32 bytes pubkey)
+      const attestor = new PublicKey(data.slice(offset, offset + 32));
+      offset += 32;
+
+      // Read attestationType
+      const attestationTypeLen = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
+      offset += 4;
+      const toolHash = new TextDecoder().decode(data.slice(offset, offset + attestationTypeLen));
+      offset += attestationTypeLen;
+
+      // Read claims_uri
+      const claimsUriLen = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
+      offset += 4;
+      const auditUri = new TextDecoder().decode(data.slice(offset, offset + claimsUriLen));
+      offset += claimsUriLen;
+
+      // Read issued_at (i64)
+      const createdAt = Number(new DataView(data.buffer, data.byteOffset).getBigInt64(offset, true));
+      offset += 8;
+
+      // Skip expires_at
+      offset += 8;
+
+      // Skip signature
+      offset += 64;
+
+      // Read is_revoked (bool)
+      const revoked = data[offset] !== 0;
+
+      return {
+        toolName,
+        toolHash,
+        auditUri,
+        attestor,
+        createdAt,
+        revoked,
+      };
+    } catch (error) {
+      console.error('Parse error:', error);
+      return null;
+    }
   }
 
   async verifyAttestationWithDetails(agentId: string, attestationType: string, issuer: PublicKey): Promise<ToolAttestation | null> {

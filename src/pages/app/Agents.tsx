@@ -34,12 +34,8 @@ export default function Agents() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [showCommunication, setShowCommunication] = useState(false);
-
-export default function Agents() {
-  const { connected } = useWallet();
-  const { client } = useSPL8004();
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState<Array<{from: string; to: string; content: string; timestamp: number}>>([]);
+  const [showInbox, setShowInbox] = useState(false);
 
   useEffect(() => {
     async function loadAgents() {
@@ -169,6 +165,26 @@ export default function Agents() {
                     }
 
                     // Simulate sending message via ACP
+                    const newMessage = {
+                      from: 'user',
+                      to: selectedAgent.agentId,
+                      content: messageContent,
+                      timestamp: Date.now()
+                    };
+                    
+                    // Simulate agent auto-reply
+                    setTimeout(() => {
+                      setMessages(prev => [...prev, {
+                        from: selectedAgent.agentId,
+                        to: 'user',
+                        content: `Received your message: "${messageContent.substring(0, 30)}..." - Processing request...`,
+                        timestamp: Date.now()
+                      }]);
+                      toast.info('New message received', {
+                        description: `From: ${selectedAgent.agentId}`
+                      });
+                    }, 2000);
+                    
                     toast.success('Message sent via SPL-ACP', {
                       description: `To: ${selectedAgent.agentId}\nMessage: ${messageContent.substring(0, 50)}...`
                     });
@@ -182,6 +198,50 @@ export default function Agents() {
                   Send Message
                 </Button>
               </div>
+            </div>
+
+            {/* Inbox Section */}
+            <div className="pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-slate-300">Inbox ({messages.length})</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInbox(!showInbox)}
+                  className="text-xs"
+                >
+                  {showInbox ? 'Hide' : 'Show'} Messages
+                </Button>
+              </div>
+              
+              {showInbox && (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {messages.length === 0 ? (
+                    <p className="text-sm text-slate-500 text-center py-4">No messages yet</p>
+                  ) : (
+                    messages.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-lg ${
+                          msg.from === 'user' 
+                            ? 'bg-blue-500/10 border border-blue-500/20' 
+                            : 'bg-green-500/10 border border-green-500/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-slate-300">
+                            {msg.from === 'user' ? '📤 Sent to' : '📥 From'} {msg.from === 'user' ? msg.to : msg.from}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-300">{msg.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="pt-4 border-t border-white/10">
