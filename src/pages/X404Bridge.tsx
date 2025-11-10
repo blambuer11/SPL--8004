@@ -61,7 +61,7 @@ export default function X404Bridge() {
             <div className="space-y-2">
               <div>Agent ID "{agentId}" is not registered.</div>
               <div className="text-xs">
-                Go to <a href="/#register" className="underline font-semibold">Register Agent</a> section to create your agent first, then return here to tokenize it.
+                Go to <a href="/app/create-agent" className="underline font-semibold">Create Agent</a> page to register your agent first, then return here to tokenize it.
               </div>
             </div>
           ),
@@ -228,8 +228,8 @@ export default function X404Bridge() {
                 <div className="font-semibold">Don't have an agent yet?</div>
                 <div className="text-xs text-blue-200">
                   You need to register your agent on SPL-8004 before tokenizing it as an NFT.
-                  Go to the <a href="/#register" className="underline font-bold hover:text-blue-100">Register Agent</a> section
-                  on the homepage to create your agent identity first.
+                  Go to the <a href="/app/create-agent" className="underline font-bold hover:text-blue-100">Create Agent</a> page
+                  to register your agent identity first.
                 </div>
               </div>
             </AlertDescription>
