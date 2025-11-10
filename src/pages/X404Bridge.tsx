@@ -81,6 +81,17 @@ export default function X404Bridge() {
       const chosenPda = usingLegacy ? legacyIdentityPda : currentIdentityPda;
       const chosenProgramId = usingLegacy ? legacyProgramId : SPL8004_PROGRAM_ID.toBase58();
 
+      // Console log for debugging
+      console.log('[X404] Agent lookup result:', {
+        agentId,
+        currentAcc: !!currentAcc,
+        legacyAcc: !!legacyAcc,
+        usingLegacy,
+        chosenAccount: !!chosenAccount,
+        currentPda: currentIdentityPda.toBase58(),
+        legacyPda: legacyIdentityPda.toBase58()
+      });
+
       if (!chosenAccount) {
         toast.error('Agent not found on SPL-8004', {
           description: (
