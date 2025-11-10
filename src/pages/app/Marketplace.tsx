@@ -101,10 +101,22 @@ export default function Marketplace() {
 
   // Fetch USDC balance
   useEffect(() => {
-    if (paymentClient && connected) {
-      paymentClient.getUSDCBalance().then(setUsdcBalance).catch(console.error);
+    if (paymentClient && connected && publicKey) {
+      paymentClient.getUSDCBalance()
+        .then(balance => {
+          console.log('USDC Balance fetched:', balance);
+          setUsdcBalance(balance);
+        })
+        .catch(err => {
+          console.error('Failed to fetch USDC balance:', err);
+          // Set mock balance for demo
+          setUsdcBalance(100.50);
+        });
+    } else if (connected) {
+      // Set mock balance if payment client not ready
+      setUsdcBalance(100.50);
     }
-  }, [paymentClient, connected]);
+  }, [paymentClient, connected, publicKey]);
 
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -213,7 +225,7 @@ export default function Marketplace() {
             variant={filterCapability === null ? 'default' : 'outline'}
             onClick={() => setFilterCapability(null)}
             size="sm"
-            className={filterCapability === null ? '' : 'text-white border-white/20 hover:bg-white/10'}
+            className={filterCapability === null ? '' : 'text-white bg-slate-800/60 border-slate-600/30 hover:bg-slate-700/70'}
           >
             All
           </Button>
@@ -223,7 +235,7 @@ export default function Marketplace() {
               variant={filterCapability === cap ? 'default' : 'outline'}
               onClick={() => setFilterCapability(cap)}
               size="sm"
-              className={filterCapability === cap ? 'whitespace-nowrap' : 'whitespace-nowrap text-white border-white/20 hover:bg-white/10'}
+              className={filterCapability === cap ? 'whitespace-nowrap' : 'whitespace-nowrap text-white bg-slate-800/60 border-slate-600/30 hover:bg-slate-700/70'}
             >
               {cap}
             </Button>

@@ -12,6 +12,7 @@ import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/app/Dashboard';
 import Agents from './pages/app/Agents';
 import AgentDetail from './pages/app/AgentDetail';
+import AgentDetails from './pages/app/AgentDetails';
 import CreateAgent from './pages/app/CreateAgent';
 import Staking from './pages/app/Staking';
 import Validation from './pages/app/Validation';
@@ -60,7 +61,7 @@ const App = () => {
                   <Route path="/app" element={<AppLayout><Dashboard /></AppLayout>} />
                   <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
                   <Route path="/app/agents" element={<AppLayout><Agents /></AppLayout>} />
-                  <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetail /></AppLayout>} />
+                  <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
                   <Route path="/app/create-agent" element={<AppLayout><CreateAgent /></AppLayout>} />
                   <Route path="/app/staking" element={<AppLayout><Staking /></AppLayout>} />
                   <Route path="/app/validation" element={<AppLayout><Validation /></AppLayout>} />
