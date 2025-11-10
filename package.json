@@ -16,7 +16,9 @@
     "preview": "vite preview",
     "auto-pay": "node api/automation/auto-pay.mjs",
     "delivery-handshake:drone": "MODE=drone node api/automation/delivery-handshake.mjs",
-    "delivery-handshake:home": "MODE=home node api/automation/delivery-handshake.mjs"
+    "delivery-handshake:home": "MODE=home node api/automation/delivery-handshake.mjs",
+    "test:edge:solana": "node scripts/test-solana-edge.mjs",
+    "check:headers": "node scripts/check-headers.mjs"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",
