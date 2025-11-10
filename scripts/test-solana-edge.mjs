@@ -3,9 +3,8 @@
  * Minimal edge function test for /api/solana
  * Sends a lightweight getHealth JSON-RPC request to the configured endpoint.
  * Usage: node scripts/test-solana-edge.mjs https://your-domain.vercel.app
+ * Note: Node >=18 provides global fetch; no dependency needed.
  */
-
-import fetch from 'node-fetch';
 
 const base = process.argv[2] || process.env.TEST_BASE_URL;
 if (!base) {

@@ -2,8 +2,8 @@
 /**
  * Fetch base URL and one SPA route to inspect security & cache headers.
  * Usage: node scripts/check-headers.mjs https://your-domain.vercel.app /docs
+ * Note: Node >=18 provides global fetch; no dependency needed.
  */
-import fetch from 'node-fetch';
 
 const base = process.argv[2];
 const path = process.argv[3] || '/';
