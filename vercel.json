@@ -1,7 +1,5 @@
 {
-  "buildCommand": "npm install && npm run build",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
   "framework": "vite",
   "routes": [
     { "src": "/build-info.json", "dest": "/build-info.json" },
