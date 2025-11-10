@@ -39,6 +39,16 @@ export const Navbar = () => {
             >
               Home
             </Link>
+            <Link
+              to="/documentation"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/documentation')
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              Docs
+            </Link>
           </div>
 
           {/* Right area */}

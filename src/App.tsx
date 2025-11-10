@@ -22,6 +22,8 @@ import AnalyticsPage from './pages/app/Analytics';
 import Marketplace from './pages/app/Marketplace';
 import DocsPage from './pages/app/Docs';
 import SettingsPage from './pages/app/Settings';
+import X404Bridge from './pages/X404Bridge';
+import Documentation from './pages/Documentation';
 import ErrorBoundary from "./components/ErrorBoundary";
 // Tek sayfa mimariye geçildi; diğer importlar kaldırıldı
 
@@ -52,6 +54,8 @@ const App = () => {
                 <Routes>
                   {/* Home root */}
                   <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+                  {/* Documentation standalone */}
+                  <Route path="/documentation" element={<ErrorBoundary><Documentation /></ErrorBoundary>} />
                   {/* App nested routes */}
                   <Route path="/app" element={<AppLayout><Dashboard /></AppLayout>} />
                   <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
@@ -61,6 +65,7 @@ const App = () => {
                   <Route path="/app/staking" element={<AppLayout><Staking /></AppLayout>} />
                   <Route path="/app/validation" element={<AppLayout><Validation /></AppLayout>} />
                   <Route path="/app/payments" element={<AppLayout><Payments /></AppLayout>} />
+                  <Route path="/app/x404" element={<AppLayout><X404Bridge /></AppLayout>} />
                   <Route path="/app/attestations" element={<AppLayout><Attestations /></AppLayout>} />
                   <Route path="/app/consensus" element={<AppLayout><Consensus /></AppLayout>} />
                   <Route path="/app/analytics" element={<AppLayout><AnalyticsPage /></AppLayout>} />

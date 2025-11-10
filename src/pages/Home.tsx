@@ -26,7 +26,7 @@ export default function Home() {
                   Start Building <ArrowRight className="w-5 h-5" />
                 </Button>
               </a>
-              <a href="/app/docs" aria-label="Read documentation">
+              <a href="/documentation" aria-label="Read documentation">
                 <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
                   Read Docs
                 </Button>
@@ -184,7 +184,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Protocol</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="/app/docs" className="hover:text-white transition">Documentation</a></li>
+                <li><a href="/documentation" className="hover:text-white transition">Documentation</a></li>
                 <li><a href="/app/agents" className="hover:text-white transition">Agents</a></li>
                 <li><a href="/app/marketplace" className="hover:text-white transition">Marketplace</a></li>
                 <li><a href="/app/analytics" className="hover:text-white transition">Analytics</a></li>
@@ -193,7 +193,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Developers</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="/app/docs" className="hover:text-white transition">API Reference</a></li>
+                <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
                 <li><a href="/app/create-agent" className="hover:text-white transition">Create Agent</a></li>
                 <li><a href="/app/validation" className="hover:text-white transition">Validator Guide</a></li>

@@ -1,202 +1,51 @@
-# Dependencies<<<<<<< HEAD
-
-node_modules/# Logs
-
-.pnplogs
-
-.pnp.js*.log
-
-bun.lockbnpm-debug.log*
-
-package-lock.jsonyarn-debug.log*
-
-yarn.lockyarn-error.log*
-
-pnpm-debug.log*
-
-# Environment Variables (CRITICAL - DO NOT COMMIT)lerna-debug.log*
-
-.env
-
-.env.*node_modules
-
-!.env.exampledist
-
-.env.localdist-ssr
-
-.env.development*.local
-
-.env.development.local
-
-.env.test# Environment variables
-
-.env.test.local.env
-
-.env.production.env.local
-
-.env.production.local.env.production
-
-.env.development
-
-# API Keys & Secrets (CRITICAL)
-
-*.key# Editor directories and files
-
-*.pem.vscode/*
-
-*.p12!.vscode/extensions.json
-
-*.pfx.idea
-
-*.secret.DS_Store
-
-secrets/*.suo
-
-private/*.ntvs*
-
-.secrets/*.njsproj
-
-*.sln
-
-# Vercel*.sw?
-
-.vercel/.vercel
-
-!vercel.json=======
-
 # Dependencies
-
-# Build Outputsnode_modules/
-
-dist/bun.lockb
-
-dist-ssr/.pnp
-
-build/.pnp.js
-
-out/
-
-.next/# Environment
-
-.cache/.env
-
-*.local.env.local
-
-.env.development.local
-
-# Logs.env.test.local
-
-logs/.env.production.local
-
-*.log
-
-npm-debug.log*# Build outputs
-
-yarn-debug.log*dist/
-
-pnpm-debug.log*build/
-
-lerna-debug.log**.log
-
-
-
-# Solana & Blockchain (CRITICAL - Private Keys)# IDE
-
-target/.vscode/
-
-.anchor/.idea/
-
-test-ledger/*.swp
-
-*.so*.swo
-
-*.keypair*~
-
-my-solana-keypair.json
-
-wallet.json# OS
-
-id.json.DS_Store
-
-*-keypair.jsonThumbs.db
-
-*.wallet
-
-# Solana
-
-# Databasetarget/
-
-*.db.anchor/
-
-*.sqlitetest-ledger/
-
-*.sqlite3*.so
-
-*.keypair
-
-# Redis
-
-dump.rdb# Docker
-
-*.pid
-
-# Docker*.seed
-
-*.pid>>>>>>> f3dd2a7 (Güncellemeler yapıldı)
-
-*.seed
-docker-compose.override.yml
-
-# IDE & Editors
-.vscode/*
-!.vscode/extensions.json
-.idea/
-*.swp
-*.swo
-*.swn
-*~
-.DS_Store
-Thumbs.db
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+node_modules/
+.pnp
+.pnp.js
 
 # Testing
 coverage/
-.nyc_output/
-*.lcov
+*.log
 
-# Backup files
-*.backup
-*.bak
-*.old
-*.tmp
-
-# OS Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# Turkish language docs (replaced with English)
-*-TR.md
-*KILAVUZU.md
-*GEÇİŞ.md
-*ÖDEME*.md
-*.md.backup
-README.old.backup.md
-
-# Sensitive Project Files
-LAUNCH_TWEET.md
-stripe-webhooks.log
-.upstash/
-test-ledger/
-x404-integration/target/
+# Production
 dist/
-staking-program/target/
+build/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Solana
+test-ledger/
+.anchor/
+target/
+**/*.so
+**/*.keypair
+
+# Archive docs
+docs/archive/
+
+# Old duplicates
+SPL--8004/
+agent-aura-sovereign/
+staking-program/
+x402-kora-demo/
+x404-integration/
+
+# Temporary
+*.tmp
+.cache/

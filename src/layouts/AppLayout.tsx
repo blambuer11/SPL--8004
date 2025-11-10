@@ -1,9 +1,10 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useStaking } from '@/hooks/useStaking';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Users, PlusCircle, ShieldCheck, CreditCard, Fingerprint, Share2, BarChart2, Store, BookOpen, Settings, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, ShieldCheck, CreditCard, Fingerprint, Share2, BarChart2, Store, BookOpen, Settings, TrendingUp, Image } from 'lucide-react';
 
 interface AppLayoutProps { children: ReactNode; }
 
@@ -14,6 +15,7 @@ const navItems = [
   { to: '/app/staking', label: 'Staking', icon: <TrendingUp className='w-4 h-4' /> },
   { to: '/app/validation', label: 'Validation', icon: <ShieldCheck className='w-4 h-4' /> },
   { to: '/app/payments', label: 'Payments', icon: <CreditCard className='w-4 h-4' /> },
+  { to: '/app/x404', label: 'X404 NFT Bridge', icon: <Image className='w-4 h-4' /> },
   { to: '/app/attestations', label: 'Attestations', icon: <Fingerprint className='w-4 h-4' /> },
   { to: '/app/consensus', label: 'Consensus', icon: <Share2 className='w-4 h-4' /> },
   { to: '/app/analytics', label: 'Analytics', icon: <BarChart2 className='w-4 h-4' /> },
@@ -25,6 +27,24 @@ const navItems = [
 export default function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { connected, publicKey, disconnect } = useWallet();
+  const { client: stakingClient } = useStaking();
+  const [validatorStake, setValidatorStake] = useState(0);
+
+  useEffect(() => {
+    if (connected && publicKey && stakingClient) {
+      stakingClient.getValidatorAccount(publicKey)
+        .then(validator => setValidatorStake(validator?.stakedAmount || 0))
+        .catch(() => setValidatorStake(0));
+    } else {
+      setValidatorStake(0);
+    }
+  }, [connected, publicKey, stakingClient]);
+
+  const validatorStatus = useMemo(() => {
+    if (!connected) return 'disconnected';
+    if (validatorStake >= 1) return 'active';
+    return 'pending';
+  }, [connected, validatorStake]);
 
   const shortAddress = useMemo(() => {
     const addr = publicKey?.toBase58();
@@ -65,8 +85,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <header className="h-14 border-b border-white/10 flex items-center justify-between px-6">
           <div className="text-sm text-slate-400">/app environment • local</div>
           <div className="flex items-center gap-3">
-            {/* Optional status item */}
-            <span className="hidden md:inline text-xs text-slate-400">Validator: pending</span>
+            {/* Validator status */}
+            {connected && (
+              <span className={`hidden md:inline text-xs font-medium ${
+                validatorStatus === 'active' ? 'text-green-400' : 'text-amber-400'
+              }`}>
+                Validator: {validatorStatus === 'active' ? `✓ ${(validatorStake / 1e9).toFixed(2)} SOL` : 'pending stake'}
+              </span>
+            )}
             {!connected ? (
               <WalletMultiButton className="!bg-white !text-black hover:!bg-slate-200 !rounded-md !h-9 !text-sm !px-4 !py-2" />
             ) : (

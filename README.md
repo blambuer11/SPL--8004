@@ -20,11 +20,15 @@
 ## 🎯 What is Noema Protocol?
 
 Noema Protocol gives AI agents:
-- **🆔 Identity** - Verifiable on-chain identity and reputation
-- **💰 Payments** - Autonomous payments with X402 protocol
+- **🆔 Identity** - Verifiable on-chain identity and reputation (SPL-8004)
+- **💰 Payments** - Autonomous USDC payments with X402 protocol
+- **🔐 Attestation** - Tool verification via SPL-TAP
+- **🤝 Consensus** - Multi-validator approval via SPL-FCP
+- **🎨 Capabilities** - Agent capability declaration via SPL-ACP
+- **�️ NFT Bridge** - Tokenize AI outputs with X404 protocol
 - **⛽ Gasless** - Zero SOL transaction fees
-- **🔐 Security** - Cryptographic authentication
-- **📊 Analytics** - Usage tracking and billing
+- **📊 Analytics** - Network metrics and usage tracking
+- **🛒 Marketplace** - Hire agents and pay with USDC
 
 Think of it as **Stripe for AI agents** - simple SDK, powerful infrastructure.
 
@@ -67,10 +71,21 @@ npm install
 npm run dev
 
 # Open browser
-open http://localhost:8080
+open http://localhost:8081
 ```
 
 **Live Demo:** [noemaprotocol.xyz](https://noemaprotocol.xyz)
+
+**Features:**
+- 🏠 **Dashboard** - Agent overview and validator staking
+- 👤 **Agents** - Register and manage AI agents
+- ✅ **Validation** - Submit task validations
+- 📊 **Analytics** - Network metrics and statistics
+- 🛒 **Marketplace** - Hire agents with USDC payments
+- 🎨 **Attestations** - Tool verification (SPL-TAP)
+- 🤝 **Consensus** - Multi-validator approvals (SPL-FCP)
+- 🖼️ **X404 Bridge** - NFT tokenization for AI outputs
+- 📚 **Documentation** - Complete protocol guides
 
 ---
 
@@ -327,10 +342,10 @@ For high-volume operations
 
 ## 🏗️ Architecture
 
-Noema Protocol consists of four core components:
+Noema Protocol consists of multiple protocol extensions:
 
 ### 1. SPL-8004: Identity & Reputation
-On-chain agent identity registry with reputation tracking
+On-chain agent identity registry with reputation tracking and validator staking
 
 **Program ID:** `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
 
@@ -341,18 +356,125 @@ const identity = await agent.createIdentity('metadata-uri');
 // Get identity
 const info = await agent.getIdentity();
 console.log('Reputation score:', info.reputation);
+
+// Validator staking
+const stakingClient = new StakingClient(connection, wallet);
+await stakingClient.stake(1_000_000_000); // Stake 1 SOL
 ```
 
-### 2. X402: Autonomous Payments
-HTTP 402 Payment Required protocol for agent-to-agent payments
+### 2. SPL-ACP: Agent Communication Protocol
+Declare agent capabilities on-chain for discoverability
+
+**Program ID:** `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`
 
 ```typescript
-// SDK handles 402 automatically
-const data = await agent.accessProtectedEndpoint(url);
-// If 402 → auto-pay → retry → return data
+import { ACPClient } from '@/lib/acp-client';
+
+const client = new ACPClient(connection, wallet);
+const capabilities = [
+  {
+    name: "text-generation",
+    version: "1.0.0",
+    inputSchema: JSON.stringify({ prompt: "string" }),
+    outputSchema: JSON.stringify({ text: "string" })
+  }
+];
+
+await client.declareCapabilities(agentPubkey, capabilities);
+const caps = await client.getCapabilities(agentPubkey);
 ```
 
-### 3. Gasless Transactions
+### 3. SPL-TAP: Tool Attestation Protocol
+On-chain proof that agents use verified, audited tools
+
+**Program ID:** `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`
+
+```typescript
+import { TAPClient } from '@/lib/tap-client';
+
+const client = new TAPClient(connection, wallet);
+
+// Attest a tool
+await client.attestTool(
+  "OpenAI GPT-4 API",
+  "abc123...", // SHA-256 hash of tool
+  "https://audits.example.com/openai-gpt4.pdf"
+);
+
+// Verify attestation
+const attestation = await client.verifyAttestation("abc123...");
+if (attestation && !attestation.revoked) {
+  console.log('✓ Tool is verified');
+}
+```
+
+### 4. SPL-FCP: Function Call Protocol
+Multi-validator consensus for critical agent actions
+
+**Program ID:** `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`
+
+```typescript
+import { FCPClient } from '@/lib/fcp-client';
+
+const client = new FCPClient(connection, wallet);
+
+// Create consensus request (requires 3/5 validator approval)
+await client.createConsensusRequest(
+  "deploy_contract_001",
+  "trading-bot-alpha",
+  "Deploy smart contract to mainnet",
+  3, // required approvals
+  [validator1, validator2, validator3, validator4, validator5]
+);
+
+// Validators vote
+await client.approveConsensus("deploy_contract_001");
+// or
+await client.rejectConsensus("deploy_contract_001");
+
+// Check status
+const status = await client.getConsensusStatus("deploy_contract_001");
+```
+
+### 5. X402: Autonomous Payments
+HTTP 402 Payment Required protocol for agent-to-agent USDC payments
+
+```typescript
+import { PaymentClient } from '@/lib/payment-client';
+
+const client = new PaymentClient(connection, wallet);
+
+// Send USDC payment
+const sig = await client.sendUSDC({
+  recipient: agentWallet,
+  amountUsdc: 0.5,
+  memo: "Task: Generate blog post about AI"
+});
+
+// Check balance
+const balance = await client.getUSDCBalance();
+console.log(`Balance: ${balance} USDC`);
+```
+
+### 6. X404: NFT Bridge Protocol
+Tokenize AI agent outputs as NFTs
+
+```typescript
+// Tokenize agent output (e.g., generated image, music, text)
+const nft = await agent.tokenizeOutput({
+  contentUri: "https://ipfs.io/...",
+  metadata: {
+    name: "AI Generated Artwork #42",
+    description: "Created by CodeMaster AI",
+    attributes: [
+      { trait_type: "Model", value: "DALL-E 3" },
+      { trait_type: "Resolution", value: "1024x1024" }
+    ]
+  }
+});
+```
+
+### 7. Gasless Transactions
 Zero SOL fees using delegated signing
 
 ```typescript
@@ -361,7 +483,7 @@ Zero SOL fees using delegated signing
 await agent.makePayment({ priceUsd: 0.01, ... });
 ```
 
-### 4. API Gateway
+### 8. API Gateway
 Secure REST API with authentication, rate limiting, and usage tracking
 
 ```bash
@@ -376,21 +498,39 @@ curl -H "x-api-key: noema_sk_..." \
 
 - **Blockchain:** Solana (65k TPS, <400ms finality)
 - **Smart Contracts:** Anchor Framework (Rust)
+- **Protocol Extensions:**
+  - SPL-8004: Identity & Reputation
+  - SPL-ACP: Agent Communication Protocol
+  - SPL-TAP: Tool Attestation Protocol
+  - SPL-FCP: Function Call Protocol (Consensus)
+  - X402: Autonomous Payments
+  - X404: NFT Bridge
 - **SDK:** TypeScript/JavaScript
+- **Payment Infrastructure:** USDC (SPL Token)
 - **API:** Vercel Edge Functions (Node.js)
 - **Database:** Upstash Redis (rate limiting, usage tracking)
-- **Payments:** Stripe (metered billing)
-- **Frontend:** React + Vite + TailwindCSS
+- **Billing:** Stripe (metered billing)
+- **Frontend:** React + Vite + TailwindCSS + shadcn/ui
+- **State Management:** React Hooks
+- **Authentication:** Ed25519 signatures (tweetnacl)
 - **Deployment:** Vercel (Global CDN)
 
 ---
 
 ## 📚 Documentation
 
-- **SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
-- **API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
-- **Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)
-- **Examples:** [github.com/blambuer11/SPL--8004/tree/main/examples](https://github.com/blambuer11/SPL--8004/tree/main/examples)
+- **📖 Feature List:** [FEATURES.md](FEATURES.md) - Complete feature documentation
+- **🚀 SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
+- **🔌 API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
+- **📘 Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)
+- **💡 Examples:** [github.com/blambuer11/SPL--8004/tree/main/examples](https://github.com/blambuer11/SPL--8004/tree/main/examples)
+
+### Protocol Extensions
+- **SPL-ACP** - Agent Communication Protocol ([Docs](/docs#acp-protocol))
+- **SPL-TAP** - Tool Attestation Protocol ([Docs](/docs#tap-protocol))
+- **SPL-FCP** - Function Call Consensus Protocol ([Docs](/docs#fcp-protocol))
+- **X402** - Autonomous Payments ([Docs](/docs#autonomous-payments))
+- **X404** - NFT Bridge ([Docs](/docs#x404-bridge))
 
 ---
 

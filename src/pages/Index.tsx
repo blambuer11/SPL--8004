@@ -18,7 +18,7 @@ import { MockModeBanner } from '@/components/MockModeBanner';
 import { FacilitatorHealth } from '@/components/FacilitatorHealth';
 
 export default function Index() {
-  const { connected, publicKey } = useWallet();
+  const { connected, publicKey, connect, wallet } = useWallet();
   const { client } = useSPL8004();
   const { client: stakingClient } = useStaking();
 
@@ -39,7 +39,9 @@ export default function Index() {
   const [unstakeAmount, setUnstakeAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
   const [isUnstaking, setIsUnstaking] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
   const [validatorStake, setValidatorStake] = useState(0);
+  const [pendingRewards, setPendingRewards] = useState(0);
 
   // Validation state
   const [validationAgentId, setValidationAgentId] = useState('');
@@ -151,8 +153,12 @@ export default function Index() {
       const validatorAccount = await stakingClient.getValidatorAccount(publicKey);
       if (validatorAccount) {
         setValidatorStake(validatorAccount.stakedAmount);
+  // Calculate pending rewards
+  const rewards = await stakingClient.calculatePendingRewards(publicKey);
+  setPendingRewards(rewards);
       } else {
         setValidatorStake(0);
+  setPendingRewards(0);
       }
     } catch (error) {
       console.error('Error loading validator:', error);
@@ -286,6 +292,85 @@ export default function Index() {
     }
   };
 
+  const handleValidatorClaim = async () => {
+    if (!connected || !publicKey) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!stakingClient) {
+      toast.error('Staking client not initialized');
+      return;
+    }
+    setIsClaiming(true);
+    try {
+      toast.info('Claiming validator rewards...');
+      const sig = await stakingClient.claimRewards();
+      toast.success(
+        <div>
+          <p className="font-semibold">✅ Rewards Claimed!</p>
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      setPendingRewards(0);
+      await loadValidatorData();
+      Analytics.track('claim_rewards_success', {});
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to claim rewards');
+      console.error(error);
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
+  const handleInstantUnstake = async () => {
+    if (!connected || !publicKey) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    if (!stakingClient) {
+      toast.error('Staking client not initialized');
+      return;
+    }
+    const amount = parseFloat(unstakeAmount);
+    if (!amount || amount <= 0) {
+      toast.error('Amount must be greater than 0');
+      return;
+    }
+    if (amount > validatorStake / 1_000_000_000) {
+      toast.error('Insufficient staked balance');
+      return;
+    }
+    setIsUnstaking(true);
+    try {
+      toast.info('Instant unstaking (2% fee applies)...');
+      const lamports = Math.floor(amount * 1_000_000_000);
+      const sig = await stakingClient.instantUnstake(lamports);
+      const fee = amount * 0.02;
+      const net = amount - fee;
+      toast.success(
+        <div>
+          <p className="font-semibold">✅ Instant Unstake Complete!</p>
+          <p className="text-xs">Received: {net.toFixed(4)} SOL (fee: {fee.toFixed(4)} SOL)</p>
+          <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+            View transaction →
+          </a>
+        </div>,
+        { duration: 6000 }
+      );
+      setUnstakeAmount('');
+      await loadValidatorData();
+      Analytics.track('instant_unstake_success', { amountSol: amount, fee });
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message || 'Failed to instant unstake');
+      console.error(error);
+    } finally {
+      setIsUnstaking(false);
+    }
+  };
+
   const handleClaimRewards = async (agentIdToClaim: string) => {
     if (!client) return;
     try {
@@ -314,8 +399,20 @@ export default function Index() {
 
   const handleSubmitValidation = async () => {
     if (!connected || !publicKey) {
-      toast.error('Please connect your wallet first');
-      return;
+      if (wallet) {
+        try {
+          await connect();
+          toast.info('Wallet connected! Please click Submit Validation again.');
+          return;
+        } catch (err) {
+          toast.error('Failed to connect wallet');
+          console.error(err);
+          return;
+        }
+      } else {
+        toast.error('Please connect your wallet first');
+        return;
+      }
     }
     if (!validationAgentId.trim()) {
       toast.error('Please enter an Agent ID');
@@ -839,33 +936,46 @@ export default function Index() {
                     />
                   </div>
 
-                  <Dialog open={isConfirmRegisterOpen} onOpenChange={setIsConfirmRegisterOpen}>
-                    <DialogTrigger asChild>
-                      <Button aria-label="Confirm register agent" disabled={isRegistering || !agentId || !metadataUri} className="w-full bg-slate-900 hover:bg-slate-800">
-                        {isRegistering ? 'Registering...' : 'Register Agent'}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Confirm Registration</DialogTitle>
-                        <DialogDescription>
-                          You are about to register a new agent.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-2 text-sm">
-                        <div><span className="font-medium">Agent ID:</span> {agentId}</div>
-                        <div><span className="font-medium">Metadata:</span> {metadataUri}</div>
-                        <div><span className="font-medium">Fee:</span> {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</div>
-                        <div className="text-slate-600">This will create Identity + Reputation + Reward Pool PDAs.</div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsConfirmRegisterOpen(false)}>Cancel</Button>
-                        <Button onClick={() => { setIsConfirmRegisterOpen(false); void handleRegister(); }}>
-                          Confirm & Sign
+                  <div className="flex items-center gap-3">
+                    <Dialog open={isConfirmRegisterOpen} onOpenChange={setIsConfirmRegisterOpen}>
+                      <DialogTrigger asChild>
+                        <Button aria-label="Confirm register agent" disabled={isRegistering || !agentId || !metadataUri} className="flex-1 bg-slate-900 hover:bg-slate-800">
+                          {isRegistering ? 'Registering...' : 'Register Agent'}
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Confirm Registration</DialogTitle>
+                          <DialogDescription>
+                            You are about to register a new agent.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-2 text-sm">
+                          <div><span className="font-medium">Agent ID:</span> {agentId}</div>
+                          <div><span className="font-medium">Metadata:</span> {metadataUri}</div>
+                          <div><span className="font-medium">Fee:</span> {formatSOL(PROGRAM_CONSTANTS.REGISTRATION_FEE)} SOL</div>
+                          <div className="text-slate-600">This will create Identity + Reputation + Reward Pool PDAs.</div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setIsConfirmRegisterOpen(false)}>Cancel</Button>
+                          <Button onClick={() => { setIsConfirmRegisterOpen(false); void handleRegister(); }}>
+                            Confirm & Sign
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setAgentId('');
+                        setMetadataUri('');
+                      }}
+                      disabled={isRegistering}
+                      aria-label="Clear registration form"
+                    >
+                      Clear
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -963,13 +1073,26 @@ export default function Index() {
                   />
                 </div>
               </div>
-              <div className="action-buttons">
+              <div className="flex items-center gap-3">
                 <Button 
                   onClick={handleSubmitValidation}
-                  disabled={isSubmittingValidation || !validationAgentId.trim()}
+                  disabled={isSubmittingValidation}
                   aria-label="Submit validation"
+                  className="bg-slate-900 hover:bg-slate-800"
                 >
                   {isSubmittingValidation ? 'Submitting...' : 'Submit Validation'}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setValidationAgentId('');
+                    setValidationResult('approved');
+                    setValidationNote('');
+                  }}
+                  disabled={isSubmittingValidation}
+                  aria-label="Clear validation form"
+                >
+                  Clear
                 </Button>
               </div>
             </CardContent>
@@ -1041,14 +1164,24 @@ export default function Index() {
                     />
                   </div>
 
-                  <Button
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                    onClick={handleStake}
-                    disabled={isStaking || !stakeAmount}
-                  >
-                    <Shield className="h-4 w-4 mr-2" />
-                    {isStaking ? 'Staking...' : 'Stake to Become Validator'}
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      onClick={handleStake}
+                      disabled={isStaking || !stakeAmount}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      {isStaking ? 'Staking...' : 'Stake to Become Validator'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setStakeAmount('')}
+                      disabled={isStaking}
+                      aria-label="Clear stake amount"
+                    >
+                      Clear
+                    </Button>
+                  </div>
 
                   {validatorStake > 0 && (
                     <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
@@ -1082,9 +1215,29 @@ export default function Index() {
                           className="bg-white"
                         />
                       </div>
-                      <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700" onClick={handleUnstake} disabled={isUnstaking || !unstakeAmount}>
-                        {isUnstaking ? 'Unstaking...' : 'Unstake SOL'}
-                      </Button>
+                      <div className="flex items-center gap-3 mt-3">
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleValidatorClaim()}
+                          disabled={isClaiming || pendingRewards <= 0}
+                        >
+                          {isClaiming ? 'Claiming...' : `Claim Rewards (${pendingRewards.toFixed(4)} SOL)`}
+                        </Button>
+                        <Button className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={handleUnstake} disabled={isUnstaking || !unstakeAmount}>
+                          {isUnstaking ? 'Unstaking...' : 'Unstake SOL'}
+                        </Button>
+                        <Button variant="destructive" onClick={handleInstantUnstake} disabled={isUnstaking || !unstakeAmount}>
+                          Instant Unstake (2% fee)
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => setUnstakeAmount('')}
+                          disabled={isUnstaking}
+                          aria-label="Clear unstake amount"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>

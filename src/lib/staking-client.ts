@@ -32,10 +32,10 @@ export class StakingClient {
   public getConnection(): Connection { return this.connection; }
 
   findConfigPda(): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync([new TextEncoder().encode(CONFIG_SEED)], this.programId);
+    return PublicKey.findProgramAddressSync([Buffer.from(CONFIG_SEED)], this.programId);
   }
   findValidatorPda(owner: PublicKey): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync([new TextEncoder().encode(VALIDATOR_SEED), owner.toBytes()], this.programId);
+    return PublicKey.findProgramAddressSync([Buffer.from(VALIDATOR_SEED), owner.toBuffer()], this.programId);
   }
 
   private async sha256(data: Uint8Array | string): Promise<Uint8Array> {
@@ -43,6 +43,7 @@ export class StakingClient {
     const hash = await (globalThis.crypto as Crypto).subtle.digest("SHA-256", enc as unknown as BufferSource);
     return new Uint8Array(hash);
   }
+  
   private async discriminator(name: string): Promise<Uint8Array> {
     const h = await this.sha256(`global:${name}`);
     return h.slice(0, 8);
@@ -82,37 +83,93 @@ export class StakingClient {
     const [cfg] = this.findConfigPda();
     const info = await this.connection.getAccountInfo(cfg);
     if (!info) return null;
-  // SPL-8004 GlobalConfig: [disc(8)][authority(32)][treasury(32)][commission_rate(2)][total_agents(8)][total_validations(8)][bump(1)]
+    const len = info.data.byteLength;
+    const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
+
+    // Legacy layout (before treasury/base_apy/instant_fee):
+    // [disc(8)][authority(32)][registration_fee(8)][validation_fee(8)][validator_min_stake(8)] => 8+32+8+8+8 = 64 bytes
+    // New layout:
+    // [disc(8)][authority(32)][treasury(32)][registration_fee(8)][validation_fee(8)][validator_min_stake(8)][base_apy(2)][instant_fee(2)] => 100 bytes
+
     const authority = new PublicKey(info.data.slice(8, 40));
-  const treasury = new PublicKey(info.data.slice(40, 72));
-  const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
-  const commissionRate = dv.getUint16(72, true);
-  const totalAgents = Number(dv.getBigUint64(74, true));
-  const totalValidations = Number(dv.getBigUint64(82, true));
-  const bump = info.data[90];
-  return { address: cfg, authority, treasury, commissionRate, totalAgents, totalValidations, bump };
+    let treasury: PublicKey;
+    let registrationFee: number;
+    let validationFee: number;
+    let validatorMinStake: number;
+    let baseApyBps: number;
+    let instantUnstakeFeeBps: number;
+
+    if (len >= 100) {
+      // New layout
+      treasury = new PublicKey(info.data.slice(40, 72));
+      registrationFee = Number(dv.getBigUint64(72, true));
+      validationFee = Number(dv.getBigUint64(80, true));
+      validatorMinStake = Number(dv.getBigUint64(88, true));
+      baseApyBps = dv.getUint16(96, true);
+      instantUnstakeFeeBps = dv.getUint16(98, true);
+    } else {
+      // Legacy fallback
+      // Offsets shift as treasury and u16 fields don't exist
+      registrationFee = Number(dv.getBigUint64(40, true));
+      validationFee = Number(dv.getBigUint64(48, true));
+      validatorMinStake = Number(dv.getBigUint64(56, true));
+      treasury = authority; // default: authority acts as treasury
+      baseApyBps = 500; // 5%
+      instantUnstakeFeeBps = 200; // 2%
+    }
+
+    return {
+      address: cfg,
+      authority,
+      treasury,
+      registrationFee,
+      validationFee,
+      validatorMinStake,
+      baseApyBps,
+      instantUnstakeFeeBps,
+    };
   }
 
   async getValidatorAccount(owner: PublicKey) {
     const [validatorPda] = this.findValidatorPda(owner);
     const info = await this.connection.getAccountInfo(validatorPda);
     if (!info) return null;
-    // SPL-8004 Validator layout: [disc(8)][authority(32)][staked_amount(8)][is_active(1)][last_stake_timestamp(8)][total_validations(8)][bump(1)]
-    const authority = new PublicKey(info.data.slice(8, 40));
+    const len = info.data.byteLength;
     const dv = new DataView(info.data.buffer, info.data.byteOffset, info.data.byteLength);
+
+    // Legacy validator layout:
+    // [disc(8)][authority(32)][staked_amount(8)][is_active(1)][last_stake_timestamp(8)][total_validations(8)] => 8+32+8+1+8+8 = 65 bytes
+    // New validator layout:
+    // [disc(8)][authority(32)][staked_amount(8)][is_active(1)][last_stake_ts(8)][last_reward_claim(8)][total_validations(8)][pending_rewards(8)] => 81 bytes
+
+    const authority = new PublicKey(info.data.slice(8, 40));
     const stakedAmount = Number(dv.getBigUint64(40, true));
     const isActive = info.data[48] === 1;
     const lastStakeTs = Number(dv.getBigInt64(49, true));
-    const totalValidations = Number(dv.getBigUint64(57, true));
-    const bump = info.data[65];
-    return { 
-      address: validatorPda, 
-      authority, 
-      stakedAmount, 
+    let lastRewardClaim: number;
+    let totalValidations: number;
+    let pendingRewards: number;
+
+    if (len >= 81) {
+      lastRewardClaim = Number(dv.getBigInt64(57, true));
+      totalValidations = Number(dv.getBigUint64(65, true));
+      pendingRewards = Number(dv.getBigUint64(73, true));
+    } else {
+      // Legacy fallback
+      lastRewardClaim = lastStakeTs; // treat as last claim
+      totalValidations = Number(dv.getBigUint64(57, true));
+      pendingRewards = 0;
+    }
+
+    return {
+      address: validatorPda,
+      authority,
+      stakedAmount,
       isActive,
-      lastStakeTs, 
+      lastStakeTs,
+      lastRewardClaim,
       totalValidations,
-      bump 
+      pendingRewards,
     };
   }
 
@@ -120,20 +177,19 @@ export class StakingClient {
   async initializeConfigIfNeeded(): Promise<void> {
     const existing = await this.getConfigAccount();
     if (existing) return;
+    
     const [cfg] = this.findConfigPda();
     const disc = await this.discriminator("initialize_config");
     
-    // Borsh encode: commission_rate (u16) = 300 (3%), treasury (Pubkey) = wallet
-    const commissionRate = 300; // 3% in basis points
-    const treasuryPubkey = this.wallet.publicKey;
+    // Parameters: commission_rate: u16, treasury: Pubkey
+    const commissionRate = 500; // 5% default
+    const treasury = this.wallet.publicKey;
     
-    const buf = new ArrayBuffer(2);
-    new DataView(buf).setUint16(0, commissionRate, true);
-    const data = new Uint8Array([
-      ...disc, 
-      ...new Uint8Array(buf), 
-      ...treasuryPubkey.toBytes()
-    ]);
+    // Borsh: disc(8) + u16(2) + Pubkey(32)
+    const data = new Uint8Array(8 + 2 + 32);
+    data.set(disc, 0);
+    new DataView(data.buffer).setUint16(8, commissionRate, true); // little-endian u16
+    data.set(treasury.toBytes(), 10); // Pubkey as 32 bytes
     
     const ix = new TransactionInstruction({
       programId: this.programId,
@@ -150,12 +206,18 @@ export class StakingClient {
   async stake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
     await this.initializeConfigIfNeeded();
+    
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     const disc = await this.discriminator("stake_validator");
-    const buf = new ArrayBuffer(8);
-    new DataView(buf).setBigUint64(0, BigInt(lamports), true);
-    const data = new Uint8Array([...disc, ...new Uint8Array(buf)]);
+    
+    // Parameters: amount: u64
+    // Borsh: disc(8) + u64(8)
+    const data = new Uint8Array(8 + 8);
+    data.set(disc, 0);
+    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true); // little-endian u64
+    
+    // Accounts order from Rust: config, validator, user, system_program
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
@@ -173,9 +235,14 @@ export class StakingClient {
     if (lamports <= 0) throw new Error("Amount must be > 0");
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     const disc = await this.discriminator("unstake_validator");
-    const buf = new ArrayBuffer(8);
-    new DataView(buf).setBigUint64(0, BigInt(lamports), true);
-    const data = new Uint8Array([...disc, ...new Uint8Array(buf)]);
+    
+    // Parameters: amount: u64
+    // Borsh: disc(8) + u64(8)
+    const data = new Uint8Array(8 + 8);
+    data.set(disc, 0);
+    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true); // little-endian u64
+    
+    // Accounts order from Rust: user, validator, system_program
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
@@ -186,6 +253,42 @@ export class StakingClient {
       data: Buffer.from(data),
     });
     return this.send([ix]);
+  }
+
+  async claimRewards(): Promise<string> {
+    const [cfg] = this.findConfigPda();
+    const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
+    
+    // SPL-8004'te claim_rewards fonksiyonu validator için değil agent için
+    // Eğer validator rewards yoksa bu method'u kaldırabiliriz
+    // Şimdilik placeholder olarak bırakıyorum
+    throw new Error("claimRewards not implemented for validators in SPL-8004");
+  }
+
+  async instantUnstake(lamports: number): Promise<string> {
+    if (lamports <= 0) throw new Error("Amount must be > 0");
+    
+    // SPL-8004'te instant_unstake fonksiyonu yok
+    // Normal unstake kullanılıyor
+    throw new Error("instantUnstake not implemented in SPL-8004. Use unstake() instead.");
+  }
+
+  async calculatePendingRewards(owner: PublicKey): Promise<number> {
+    const validator = await this.getValidatorAccount(owner);
+    if (!validator || !validator.isActive) return 0;
+    
+    const config = await this.getConfigAccount();
+    if (!config) return 0;
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeElapsed = currentTime - validator.lastRewardClaim;
+    if (timeElapsed <= 0) return validator.pendingRewards / 1e9;
+
+    const secondsPerYear = 31_536_000;
+    const annualReward = (validator.stakedAmount * config.baseApyBps) / 10_000;
+    const newReward = (annualReward * timeElapsed) / secondsPerYear;
+    
+    return (validator.pendingRewards + newReward) / 1e9;
   }
 }
 

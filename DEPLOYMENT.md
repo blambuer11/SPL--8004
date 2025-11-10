@@ -351,3 +351,139 @@ anchor build --verifiable
 ---
 
 **Questions?** Solana Discord'da yardım al: https://discord.gg/solana
+
+---
+
+## 🔄 Program Upgrade / Redeploy (Anchor Upgradable Program)
+
+Bu bölüm mevcut (upgradable) SPL-8004 programının yeni kod ile güncellenmesi (upgrade) için adımları içerir. Explorer'da gördüğünüz üç kritik adresi ayırt edin:
+
+- **Program ID:** `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW` (transaction gönderirken kullanılan sabit adres)
+- **ProgramData (Executable Data):** `7JrGMaFiqiuou2Bvesirerk5LjrjZXMNYkBSBFoSqYhA` (upgrade edilebilir kodun tutulduğu hesap)
+- **Upgrade Authority:** `E7iiAKWj43REw4Vy1Lw1Neu86m5HiBX8ER5dKZTmvvvu` (programı değiştirme yetkisine sahip cüzdan)
+
+> Not: Yanlışlıkla ProgramData adresini frontend’e PROGRAM_ID olarak koymak `InstructionFallbackNotFound (0x65)` gibi hatalara yol açar.
+
+### 1. Mevcut Durumu Doğrula
+```bash
+solana program show G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --url devnet
+# Çıktıda Upgrade Authority = E7iiA... ve ProgramData = 7JrGM... görmelisiniz
+```
+
+### 2. IDL ve Instrüksiyon Senkronizasyonu Kontrolü
+```bash
+anchor idl fetch G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --provider.cluster devnet > idl-current.json
+grep -E '"name": "(stake_validator|claim_validator_rewards|unstake_validator_instant)"' idl-current.json || echo "Eksik instruktor olabilir"
+```
+
+Eksik isimler varsa zincirde eski sürüm vardır → upgrade gerekir.
+
+### 3. Temiz Build
+```bash
+cd spl-8004-program/spl-8004
+anchor clean
+cargo update
+anchor build
+```
+
+### 4. Binary Hash Karşılaştırması (Opsiyonel Bütünlük)
+```bash
+shasum -a 256 target/deploy/spl_8004.so | awk '{print $1}' > local.hash
+solana program show G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --url devnet | grep -i Data > onchain.txt
+# Anchor otomatik doğrulama sunmaz; hash kaydını audit klasörünüzde saklayın.
+```
+
+### 5. Upgrade İşlemi
+Upgrade authority cüzdanınız (E7iiA...) aktif configte olmalı:
+```bash
+solana config get | grep -i Keypair
+# Eğer farklı ise:
+solana config set --keypair /PATH/TO/E7iiA_wallet.json
+
+# Program ID zaten declare_id! içinde G8iY... olarak ayarlı olmalı.
+
+anchor deploy --provider.cluster devnet
+# veya manuel:
+solana program deploy target/deploy/spl_8004.so --program-id G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --url devnet
+```
+
+Başarılıysa yeni slot / güncellenmiş ProgramData lamports değerini görürsünüz.
+
+### 6. IDL Güncellemesi (Eğer layout değiştiyse)
+```bash
+anchor idl upgrade G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW -f target/idl/spl_8004.json --provider.cluster devnet
+anchor idl fetch G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --provider.cluster devnet > idl-after.json
+diff -u idl-current.json idl-after.json || echo "IDL değişiklikleri uygulandı"
+```
+
+### 7. Frontend / SDK Senkronizasyonu
+```bash
+grep -R "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW" src/lib | wc -l   # Kod referans sayısı
+echo "VITE_PROGRAM_ID=G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW" >> .env.local
+```
+Vite dev sunucusunu yeniden başlat:
+```bash
+npm run dev
+```
+
+### 8. Hızlı Fonksiyon Testleri
+```bash
+# 1. stake_validator (küçük miktar — min stake şartını sağlayın)
+node scripts/test-stake.js
+# 2. claim_validator_rewards (yeni reward hesaplaması çalışıyor mu)
+node scripts/test-claim.js
+```
+
+### 9. Yaygın Hata Teşhisleri
+| Hata | Olası Neden | Çözüm |
+|------|-------------|-------|
+| InstructionFallbackNotFound (0x65) | Eski program versiyonu / yanlış Program ID | IDL fetch ile isimleri doğrula, upgrade et |
+| AccountDidNotSerialize | Layout değişmiş, frontend eski parse kullanıyor | Parse fonksiyonunda uzunluk guard ekle (yapıldı) |
+| Signature verification failed | Wallet boş / simülasyon iptali | Solana airdrop, tekrar dene |
+| InsufficientFunds | Validator PDA bakiyesi reward transferine yetmiyor | Küçük stake arttır, yeniden claim et |
+
+### 10. Upgrade Authority Devri (Opsiyonel Güvenlik)
+Upgrade tamamlandıktan sonra mainnet için çoklu-imza veya finalization:
+```bash
+# Çoklu imza devri (örnek pubkey)
+solana program set-upgrade-authority G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --new-upgrade-authority <MULTISIG_PUBKEY>
+
+# Tamamen kilitle (geri alınamaz)
+solana program set-upgrade-authority G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW --final
+```
+
+### 11. Otomasyon Script Örneği
+`scripts/anchor-upgrade.sh` (oluşturun):
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+PROGRAM_ID="G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
+CLUSTER="devnet"
+echo "[1/6] Clean build"
+anchor clean && anchor build
+echo "[2/6] Deploy upgrade"
+anchor deploy --provider.cluster "$CLUSTER"
+echo "[3/6] Fetch IDL"
+anchor idl fetch "$PROGRAM_ID" --provider.cluster "$CLUSTER" > idl-after.json
+echo "[4/6] Grep critical instructions"
+grep -E '"name": "(stake_validator|claim_validator_rewards|unstake_validator_instant)"' idl-after.json || echo "WARN: Missing expected instruction(s)"
+echo "[5/6] Show program"
+solana program show "$PROGRAM_ID" --url "$CLUSTER"
+echo "[6/6] Done"
+```
+
+### 12. Post-Upgrade Checklist
+- [ ] Explorer’da slot güncellemesi
+- [ ] IDL’de yeni instruktorlar görünüyor
+- [ ] Frontend env güncellendi ve yeniden başlatıldı
+- [ ] Test stake/claim başarılı
+- [ ] Eski/legacy klasörler (ör: `spl_8004/` veya `SPL--8004/spl_8004/`) işaretlendi ya da kaldırıldı
+
+## 📌 Güvenlik Notları (Upgrade Spesifik)
+- Upgrade binary’sini imzalama / hash kaydı: `shasum -a 256 spl_8004.so` çıktısını audit klasöründe saklayın.
+- CI pipeline’da otomatik `anchor build --verifiable` + hash karşılaştırması ekleyin.
+- Upgrade authority cüzdanını hot wallet’ta tutmayın; devnet dışında harden edilmiş multisig tercih edin.
+- Frontend’e (sadece dev modda) ProgramData adresini gösteren küçük bir debug etiketi ekleyin; production’da gizleyin.
+
+---
+
