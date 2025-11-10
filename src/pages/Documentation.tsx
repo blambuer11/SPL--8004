@@ -305,6 +305,16 @@ export default function Documentation() {
                     <li><strong>Instant Verification:</strong> Authenticate each other in real-time</li>
                   </ul>
                 </div>
+                <div className="mt-6">
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <img
+                      src="/docs/diyagram.png"
+                      alt="SPL-8004 System Diagram"
+                      className="w-full h-auto max-h-[520px] object-contain rounded-lg"
+                    />
+                    <div className="text-xs text-slate-500 mt-2 text-center">Figure: SPL-8004 Suite — Identity, Payments, Validation</div>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -315,7 +325,6 @@ export default function Documentation() {
               <h2 className="text-3xl font-bold text-slate-900 mb-6">Architecture</h2>
               
               <Card className="p-6 border-slate-200 mb-6">
-                <h3 className="font-semibold text-slate-900 mb-4">System Diagram</h3>
                 <div className="bg-slate-50 rounded-lg p-8 font-mono text-xs">
                   <pre className="text-slate-700">
 {`┌─────────────────────────────────────────────────────────────┐
@@ -729,44 +738,73 @@ npm run delivery-handshake:drone`}</pre>
             {/* SDK Installation */}
             <section data-section-id="installation" className="scroll-mt-24">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">SDK Installation</h2>
+              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                Noema ekosisteminde iki ayrı SDK kullanabilirsiniz. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> doğrudan zincir & doğrulayıcı entegrasyonuna odaklanan <span className="font-medium">birincil açık kaynak</span> pakettir. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> ise <span className="font-medium">barındırılan (hosted) API</span> özelliklerini ve yönetilen ödeme akışını sunar. Her ikisi de aynı ajan kavramını paylaşır; seçim kullanım senaryonuza bağlıdır.
+              </p>
 
-              <Card className="p-4 border-slate-200 mb-4">
-                <h3 className="font-semibold text-slate-900 mb-3">NPM Package</h3>
-                <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                  <pre>{`npm install @noema/sdk
-# or
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <Card className="p-4 border-slate-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-slate-900">Primary SDK (@spl-8004/sdk)</h3>
+                    <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">On‑Chain</span>
+                  </div>
+                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                    <pre>{`npm install @spl-8004/sdk
+# veya
+yarn add @spl-8004/sdk
+# veya
+pnpm add @spl-8004/sdk`}</pre>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">API key <strong>gerekmez</strong>; doğrulayıcı URL ve ağ ayarları ile çalışır.</p>
+                </Card>
+
+                <Card className="p-4 border-slate-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-slate-900">Hosted SDK (@noema/sdk)</h3>
+                    <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded">Managed</span>
+                  </div>
+                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                    <pre>{`npm install @noema/sdk
+# veya
 yarn add @noema/sdk
-# or
+# veya
 pnpm add @noema/sdk`}</pre>
-                </div>
-              </Card>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">API key <strong>zorunlu</strong>; otomatik ödeme & kullanım istatistikleri cloud üzerinden sağlanır.</p>
+                </Card>
+              </div>
 
               <Card className="p-4 border-slate-200">
-                <h3 className="font-semibold text-slate-900 mb-3">Dependencies</h3>
+                <h3 className="font-semibold text-slate-900 mb-3">Ortak Bağımlılıklar</h3>
                 <div className="prose prose-slate prose-sm max-w-none">
                   <table>
                     <thead>
                       <tr>
-                        <th>Package</th>
-                        <th>Version</th>
-                        <th>Purpose</th>
+                        <th>Paket</th>
+                        <th>Versiyon</th>
+                        <th>Açıklama</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td><code>@solana/web3.js</code></td>
                         <td>^1.98.4</td>
-                        <td>Solana blockchain interaction</td>
+                        <td>Solana RPC & hesap işlemleri</td>
                       </tr>
                       <tr>
                         <td><code>@solana/spl-token</code></td>
                         <td>^0.4.14</td>
-                        <td>SPL Token (USDC) transfers</td>
+                        <td>USDC / SPL token transferleri</td>
                       </tr>
                       <tr>
                         <td><code>tweetnacl</code></td>
                         <td>^1.0.3</td>
-                        <td>Ed25519 signature verification</td>
+                        <td>Ed25519 imza doğrulama</td>
+                      </tr>
+                      <tr>
+                        <td><code>bs58</code></td>
+                        <td>^6.x</td>
+                        <td>Base58 key encode/decode</td>
                       </tr>
                     </tbody>
                   </table>
@@ -779,87 +817,125 @@ pnpm add @noema/sdk`}</pre>
             {/* Quick Start */}
             <section data-section-id="quickstart" className="scroll-mt-24">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">Quick Start</h2>
-
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Step 1 */}
                 <Card className="p-4 border-slate-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                      1
-                    </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">1</div>
                     <h3 className="font-semibold text-slate-900">Generate Agent Keypair</h3>
                   </div>
-                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`import { generateAgentKeypair } from '@noema/sdk';
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <pre>{`import { generateAgentKeypair } from '@spl-8004/sdk';
 
-// Generate new agent keypair
 const { publicKey, privateKey } = generateAgentKeypair();
-console.log('Agent Public Key:', publicKey);
+console.log('Public Key:', publicKey);
+// .env -> AGENT_PRIVATE_KEY=<privateKey>`}</pre>
+                    </div>
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-purple-300">@noema/sdk</div>
+                      <pre>{`import { generateAgentKeypair } from '@noema/sdk';
 
-// Store privateKey securely in .env
-// AGENT_PRIVATE_KEY=...
-// NOEMA_API_KEY=...`}</pre>
+const { publicKey, privateKey } = generateAgentKeypair();
+console.log('Public Key:', publicKey);
+// .env -> AGENT_PRIVATE_KEY=<privateKey>
+// .env -> NOEMA_API_KEY=<apiKey>`}</pre>
+                    </div>
                   </div>
                 </Card>
 
+                {/* Step 2 */}
                 <Card className="p-4 border-slate-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                      2
-                    </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">2</div>
                     <h3 className="font-semibold text-slate-900">Create Agent Client</h3>
                   </div>
-                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`import { createAgent } from '@noema/sdk';
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <pre>{`import { createAgent } from '@spl-8004/sdk';
+
+const agent = createAgent({
+  agentId: 'trading-bot-001',
+  privateKey: process.env.AGENT_PRIVATE_KEY!,
+  network: 'devnet',
+  validatorApiUrl: 'https://validator.spl8004.io'
+});
+
+const identity = await agent.getIdentity();
+console.log('Reputation:', identity.reputation);`}</pre>
+                    </div>
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-purple-300">@noema/sdk</div>
+                      <pre>{`import { createAgent } from '@noema/sdk';
 
 const agent = createAgent({
   agentId: 'trading-bot-001',
   privateKey: process.env.AGENT_PRIVATE_KEY!,
   apiKey: process.env.NOEMA_API_KEY!,
-  network: 'mainnet-beta', // or 'devnet'
+  network: 'mainnet-beta'
 });
 
-// Get agent identity
 const identity = await agent.getIdentity();
-console.log('Reputation:', identity.reputation);
 console.log('Total Payments:', identity.totalPayments);`}</pre>
+                    </div>
                   </div>
                 </Card>
 
+                {/* Step 3 */}
                 <Card className="p-4 border-slate-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                      3
-                    </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">3</div>
                     <h3 className="font-semibold text-slate-900">Check Balances</h3>
                   </div>
-                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`// Check SOL balance
-const sol = await agent.getBalance();
-console.log(\`Balance: \${sol} SOL\`);
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <pre>{`const sol = await agent.getBalance();
+console.log('SOL:', sol);
 
-// Check USDC balance
+import { PublicKey } from '@solana/web3.js';
+const USDC_MINT = new PublicKey('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU');
+const usdc = await agent.getUsdcBalance(USDC_MINT);
+console.log('USDC:', usdc);`}</pre>
+                    </div>
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-purple-300">@noema/sdk</div>
+                      <pre>{`const sol = await agent.getBalance();
+console.log('SOL:', sol);
+
 const USDC_MINT = '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU';
 const usdc = await agent.getUsdcBalance(USDC_MINT);
-console.log(\`USDC: \${usdc}\`);`}</pre>
+console.log('USDC:', usdc);`}</pre>
+                    </div>
                   </div>
                 </Card>
 
+                {/* Step 4 */}
                 <Card className="p-4 border-slate-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                      4
-                    </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">4</div>
                     <h3 className="font-semibold text-slate-900">Make Payment</h3>
                   </div>
-                  <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`// Make autonomous payment
-const payment = await agent.makePayment({
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <pre>{`const payment = await agent.makePayment({
+  targetEndpoint: 'https://api.premium-data.com',
+  priceUsd: 0.01
+});
+console.log('Signature:', payment.signature);`}</pre>
+                    </div>
+                    <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
+                      <div className="text-[10px] mb-2 font-semibold text-purple-300">@noema/sdk</div>
+                      <pre>{`const payment = await agent.makePayment({
   targetEndpoint: 'https://api.premium-data.com',
   priceUsd: 0.01,
+  metadata: { source: 'quickstart' }
 });
-
-console.log('Payment signature:', payment.signature);
-console.log('✅ Payment completed');`}</pre>
+console.log('Signature:', payment.signature);`}</pre>
+                    </div>
                   </div>
                 </Card>
               </div>
