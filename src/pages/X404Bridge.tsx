@@ -49,7 +49,7 @@ export default function X404Bridge() {
       // Get agent data from SPL-8004 program first
       const SPL8004_PROGRAM_ID = new PublicKey('FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK');
       const [agentPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('agent'), Buffer.from(agentId)],
+        [Buffer.from('identity'), Buffer.from(agentId)],
         SPL8004_PROGRAM_ID
       );
 
