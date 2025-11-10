@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WalletProvider } from "./components/WalletProvider";
 import { NetworkProvider } from "./components/NetworkProvider";
+import { MessageProvider } from "./contexts/MessageContext";
 import { Navbar } from "./components/Navbar";
 import Home from './pages/Home';
 import AppLayout from './layouts/AppLayout';
@@ -44,10 +45,11 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <NetworkProvider>
         <WalletProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+          <MessageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
               <Suspense fallback={<LoadingScreen /> }>
                 <ErrorBoundary>
                   <Navbar />
@@ -79,10 +81,11 @@ const App = () => {
               </Suspense>
             </BrowserRouter>
           </TooltipProvider>
-        </WalletProvider>
-      </NetworkProvider>
-    </QueryClientProvider>
-  );
+        </MessageProvider>
+      </WalletProvider>
+    </NetworkProvider>
+  </QueryClientProvider>
+);
 };
 
 export default App;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,12 +30,12 @@ interface Agent {
 export default function Agents() {
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { addMessage, getMessagesForAgent } = useMessages();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [showCommunication, setShowCommunication] = useState(false);
-  const [messages, setMessages] = useState<Array<{from: string; to: string; content: string; timestamp: number}>>([]);
   const [showInbox, setShowInbox] = useState(false);
 
   useEffect(() => {
@@ -164,22 +165,20 @@ export default function Agents() {
                       return;
                     }
 
-                    // Simulate sending message via ACP
-                    const newMessage = {
+                    // Send message via global context
+                    addMessage({
                       from: 'user',
                       to: selectedAgent.agentId,
                       content: messageContent,
-                      timestamp: Date.now()
-                    };
+                    });
                     
                     // Simulate agent auto-reply
                     setTimeout(() => {
-                      setMessages(prev => [...prev, {
+                      addMessage({
                         from: selectedAgent.agentId,
                         to: 'user',
                         content: `Received your message: "${messageContent.substring(0, 30)}..." - Processing request...`,
-                        timestamp: Date.now()
-                      }]);
+                      });
                       toast.info('New message received', {
                         description: `From: ${selectedAgent.agentId}`
                       });
@@ -203,7 +202,7 @@ export default function Agents() {
             {/* Inbox Section */}
             <div className="pt-4 border-t border-white/10">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-slate-300">Inbox ({messages.length})</h3>
+                <h3 className="font-semibold text-slate-300">Inbox ({getMessagesForAgent('user').length})</h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -216,12 +215,12 @@ export default function Agents() {
               
               {showInbox && (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {messages.length === 0 ? (
+                  {getMessagesForAgent('user').length === 0 ? (
                     <p className="text-sm text-slate-500 text-center py-4">No messages yet</p>
                   ) : (
-                    messages.map((msg, idx) => (
+                    getMessagesForAgent('user').map((msg) => (
                       <div
-                        key={idx}
+                        key={msg.id}
                         className={`p-3 rounded-lg ${
                           msg.from === 'user' 
                             ? 'bg-blue-500/10 border border-blue-500/20' 

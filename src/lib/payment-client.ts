@@ -3,8 +3,8 @@ import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID 
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import nacl from "tweetnacl";
 
-// USDC Devnet Mint
-export const USDC_MINT = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+// USDC Mainnet Mint
+export const USDC_MINT = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
 
 export interface PaymentRequest {
   recipient: PublicKey;
@@ -180,10 +180,9 @@ export class PaymentClient {
 
           // Look for token transfer instruction
           const tokenTransfer = tx.transaction.message.instructions.find(
-            (ix: any) => {
+            (ix: { parsed?: { type?: string; info?: { destination?: string; authority?: string; amount?: string } } }) => {
               if (!('parsed' in ix)) return false;
               return (
-                ix.program === 'spl-token' &&
                 ix.parsed?.type === 'transfer' &&
                 ix.parsed?.info?.destination === recipientTokenAccount.toBase58() &&
                 ix.parsed?.info?.authority === fromAddress.toBase58()

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, MessageSquare, Star, Zap, TrendingUp, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, MessageSquare, Star, Zap, TrendingUp, CheckCircle, XCircle, Clock, Users } from 'lucide-react';
 
 interface Agent {
   agentId: string;
@@ -35,12 +37,15 @@ export default function AgentDetails() {
   const { agentId } = useParams<{ agentId: string }>();
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { addMessage, getConversation } = useMessages();
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [allAgents, setAllAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [messageContent, setMessageContent] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [showMessages, setShowMessages] = useState(false);
+  const [showMessages, setShowMessages] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [targetAgent, setTargetAgent] = useState<string>('user');
+  const [messageMode, setMessageMode] = useState<'user' | 'agent'>('user');
 
   useEffect(() => {
     async function loadAgent() {
@@ -52,11 +57,13 @@ export default function AgentDetails() {
       try {
         setLoading(true);
         console.log('Loading agent:', agentId);
-        const allAgents = await client.getAllUserAgents();
-        const foundAgent = allAgents.find(a => a.agentId === agentId);
+        const userAgents = await client.getAllUserAgents();
+        const foundAgent = userAgents.find(a => a.agentId === agentId);
         
         if (foundAgent) {
           setAgent(foundAgent);
+          // Load all other agents for agent-to-agent messaging
+          setAllAgents(userAgents.filter(a => a.agentId !== agentId && a.isActive));
         } else {
           toast.error('Agent not found');
         }
@@ -79,33 +86,59 @@ export default function AgentDetails() {
 
     setSendingMessage(true);
     
-    // Simulate sending message
-    const newMessage: Message = {
-      from: 'user',
-      to: agent?.agentId || '',
-      content: messageContent,
-      timestamp: Date.now()
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    
-    // Simulate agent auto-reply
-    setTimeout(() => {
-      const reply: Message = {
-        from: agent?.agentId || '',
-        to: 'user',
-        content: `Received: "${messageContent.substring(0, 30)}..." - Processing your request. I'll analyze this and get back to you shortly.`,
-        timestamp: Date.now()
-      };
-      setMessages(prev => [...prev, reply]);
-      toast.success('Message sent', {
-        description: `Agent ${agent?.agentId} will respond shortly`
+    if (messageMode === 'user') {
+      // User to Agent messaging
+      addMessage({
+        from: 'user',
+        to: agent?.agentId || '',
+        content: messageContent,
       });
-    }, 2000);
+      
+      // Simulate agent auto-reply
+      setTimeout(() => {
+        addMessage({
+          from: agent?.agentId || '',
+          to: 'user',
+          content: `Received: "${messageContent.substring(0, 30)}..." - Processing your request. I'll analyze this and get back to you shortly.`,
+        });
+        toast.success('Message sent', {
+          description: `Agent ${agent?.agentId} will respond shortly`
+        });
+      }, 2000);
 
-    toast.info('Message sent via SPL-ACP', {
-      description: `To: ${agent?.agentId}`
-    });
+      toast.info('Message sent via SPL-ACP', {
+        description: `To: ${agent?.agentId}`
+      });
+    } else {
+      // Agent to Agent messaging
+      if (!targetAgent || targetAgent === agent?.agentId) {
+        toast.error('Please select a different agent');
+        setSendingMessage(false);
+        return;
+      }
+
+      addMessage({
+        from: agent?.agentId || '',
+        to: targetAgent,
+        content: messageContent,
+      });
+
+      // Simulate target agent auto-reply
+      setTimeout(() => {
+        addMessage({
+          from: targetAgent,
+          to: agent?.agentId || '',
+          content: `[${targetAgent}] Acknowledged message: "${messageContent.substring(0, 25)}..." - Coordinating response...`,
+        });
+        toast.success('Agent-to-Agent message sent', {
+          description: `${agent?.agentId} → ${targetAgent}`
+        });
+      }, 2500);
+
+      toast.info('Cross-Agent Communication via SPL-ACP', {
+        description: `${agent?.agentId} → ${targetAgent}`
+      });
+    }
     
     setMessageContent('');
     setSendingMessage(false);
@@ -231,14 +264,64 @@ export default function AgentDetails() {
             Agent Communication (SPL-ACP)
           </CardTitle>
           <CardDescription className="text-slate-300">
-            Send messages to this agent via the Agent Communication Protocol
+            Send messages to this agent or enable agent-to-agent communication
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Message Mode Selector */}
+          <div className="flex gap-2 p-1 rounded-lg bg-slate-800/60 border border-slate-600/30">
+            <Button
+              variant={messageMode === 'user' ? 'default' : 'ghost'}
+              onClick={() => setMessageMode('user')}
+              className="flex-1"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              User → Agent
+            </Button>
+            <Button
+              variant={messageMode === 'agent' ? 'default' : 'ghost'}
+              onClick={() => setMessageMode('agent')}
+              className="flex-1"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Agent → Agent
+            </Button>
+          </div>
+
+          {/* Agent Selection (for agent-to-agent mode) */}
+          {messageMode === 'agent' && (
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300 font-medium">Target Agent</label>
+              <Select value={targetAgent} onValueChange={setTargetAgent}>
+                <SelectTrigger className="bg-slate-800/60 border-slate-600/30 text-white">
+                  <SelectValue placeholder="Select an agent to communicate with" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  {allAgents.length === 0 ? (
+                    <SelectItem value="none" disabled>No other active agents available</SelectItem>
+                  ) : (
+                    allAgents.map((a) => (
+                      <SelectItem key={a.agentId} value={a.agentId} className="text-white">
+                        {a.agentId} (Reputation: {a.reputation?.score ?? 5000})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-400">
+                💡 Example: Drone agent communicating with Home Robot agent for coordinated tasks
+              </p>
+            </div>
+          )}
+
           {/* Message Input */}
           <div className="space-y-3">
             <Textarea
-              placeholder="Enter your message to the agent..."
+              placeholder={
+                messageMode === 'user'
+                  ? 'Enter your message to the agent...'
+                  : 'Enter message for agent-to-agent communication...'
+              }
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
               className="bg-slate-800/60 border-slate-600/30 text-white placeholder:text-slate-400 min-h-[100px]"
@@ -249,14 +332,14 @@ export default function AgentDetails() {
                 disabled={!messageContent.trim() || sendingMessage || !connected}
                 className="flex-1"
               >
-                {sendingMessage ? 'Sending...' : 'Send Message'}
+                {sendingMessage ? 'Sending...' : messageMode === 'user' ? 'Send to Agent' : 'Send via ACP'}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowMessages(!showMessages)}
                 className="bg-slate-700/60 border-slate-600/30 text-white hover:bg-slate-700"
               >
-                {showMessages ? 'Hide' : 'Show'} Messages ({messages.length})
+                {showMessages ? 'Hide' : 'Show'} Messages ({getConversation(agent?.agentId || '', messageMode === 'user' ? 'user' : targetAgent).length})
               </Button>
             </div>
           </div>
@@ -264,22 +347,24 @@ export default function AgentDetails() {
           {/* Message History */}
           {showMessages && (
             <div className="space-y-2 max-h-96 overflow-y-auto p-4 rounded-lg bg-slate-950/60 border border-slate-600/30">
-              <h3 className="font-semibold text-slate-200 mb-3">Message History</h3>
-              {messages.length === 0 ? (
+              <h3 className="font-semibold text-slate-200 mb-3">
+                Message History {messageMode === 'agent' && `(${agent?.agentId} ↔ ${targetAgent})`}
+              </h3>
+              {getConversation(agent?.agentId || '', messageMode === 'user' ? 'user' : targetAgent).length === 0 ? (
                 <p className="text-sm text-slate-400 text-center py-4">No messages yet. Send a message to start!</p>
               ) : (
-                messages.map((msg, idx) => (
+                getConversation(agent?.agentId || '', messageMode === 'user' ? 'user' : targetAgent).map((msg) => (
                   <div
-                    key={idx}
+                    key={msg.id}
                     className={`p-3 rounded-lg ${
-                      msg.from === 'user'
+                      msg.from === 'user' || msg.from === agent?.agentId
                         ? 'bg-blue-900/40 border border-blue-600/30 ml-8'
                         : 'bg-green-900/40 border border-green-600/30 mr-8'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-slate-200">
-                        {msg.from === 'user' ? '📤 You' : `📥 ${msg.from}`}
+                        {msg.from === 'user' ? '📤 You' : msg.from === agent?.agentId ? `📤 ${msg.from}` : `📥 ${msg.from}`}
                       </span>
                       <span className="text-xs text-slate-400">
                         {new Date(msg.timestamp).toLocaleTimeString()}
@@ -295,10 +380,19 @@ export default function AgentDetails() {
           {/* SPL-ACP Info */}
           <div className="p-4 rounded-lg bg-purple-900/30 border border-purple-600/30">
             <h4 className="text-sm font-semibold text-purple-200 mb-2">About SPL-ACP</h4>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-slate-300 mb-2">
               Agent Communication Protocol enables direct messaging between agents and users.
               Messages are routed through program ID: <span className="font-mono text-purple-200">FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK</span>
             </p>
+            {messageMode === 'agent' && (
+              <div className="mt-3 p-3 rounded bg-blue-900/30 border border-blue-600/20">
+                <p className="text-xs text-blue-200 font-semibold mb-1">🤖 Agent-to-Agent Communication</p>
+                <p className="text-xs text-slate-300">
+                  Example: A drone surveillance agent can send location data to a home security robot agent,
+                  enabling coordinated autonomous operations across your agent network.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

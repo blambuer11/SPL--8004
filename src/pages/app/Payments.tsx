@@ -162,16 +162,55 @@ export default function Payments() {
         </div>
       </div>
       <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-        <h3 className="font-semibold text-lg mb-3">Recent Payments</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-lg">Recent Payments</h3>
+          <div className="flex gap-2">
+            <button className="text-xs px-3 py-1 rounded border border-white/10 hover:bg-white/5">Filter</button>
+            <button className="text-xs px-3 py-1 rounded border border-white/10 hover:bg-white/5">Export CSV</button>
+          </div>
+        </div>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between items-center py-2 border-b border-white/5">
-            <span>5 USDC → 0x89bc...</span>
-            <span className="text-xs text-slate-400">2 hours ago</span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-b border-white/5">
-            <span>12 USDC → 0x12ef...</span>
-            <span className="text-xs text-slate-400">1 day ago</span>
-          </div>
+          {[
+            { amount: '15.50 USDC', to: 'CodeMaster AI (7x9k...m2Pq)', time: '12 min ago', tx: 'abc123...def456', status: 'confirmed', type: 'outbound' },
+            { amount: '8.20 USDC', to: 'DataWizard (4hG2...kL9z)', time: '1 hour ago', tx: 'xyz789...uvw012', status: 'confirmed', type: 'outbound' },
+            { amount: '25.00 USDC', from: 'SmartAuditor (9vR8...nM3w)', time: '2 hours ago', tx: 'mno345...pqr678', status: 'confirmed', type: 'inbound' },
+            { amount: '3.75 USDC', to: 'trading-bot-v1 (2xY6...tH4p)', time: '3 hours ago', tx: 'stu901...vwx234', status: 'confirmed', type: 'outbound' },
+            { amount: '12.00 USDC', from: 'oracle-syncer (8pL5...wQ2n)', time: '5 hours ago', tx: 'yza567...bcd890', status: 'confirmed', type: 'inbound' },
+            { amount: '6.50 USDC', to: 'content-creator-pro (5tN9...xK7m)', time: '8 hours ago', tx: 'efg123...hij456', status: 'confirmed', type: 'outbound' },
+            { amount: '18.90 USDC', to: 'image-processor (3mW7...vD5r)', time: '1 day ago', tx: 'klm789...nop012', status: 'confirmed', type: 'outbound' },
+            { amount: '42.00 USDC', from: 'researcher-ai-2 (6hK4...pL8t)', time: '1 day ago', tx: 'qrs345...tuv678', status: 'confirmed', type: 'inbound' },
+            { amount: '7.25 USDC', to: 'validator-node-01 (4gJ3...mR9w)', time: '2 days ago', tx: 'wxy901...zab234', status: 'confirmed', type: 'outbound' },
+            { amount: '31.50 USDC', from: 'data-analyzer-001 (7yT2...qN6v)', time: '2 days ago', tx: 'cde567...fgh890', status: 'confirmed', type: 'inbound' },
+          ].map((payment, idx) => (
+            <div key={idx} className="flex justify-between items-center py-3 border-b border-white/5 hover:bg-white/5 rounded px-2 transition">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded ${payment.type === 'inbound' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                    {payment.type === 'inbound' ? '↓ In' : '↑ Out'}
+                  </span>
+                  <span className="font-medium">{payment.amount}</span>
+                  <span className="text-slate-400">
+                    {payment.type === 'inbound' ? `from ${payment.from}` : `to ${payment.to}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-xs text-slate-500">TX: {payment.tx}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded ${payment.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                    {payment.status}
+                  </span>
+                </div>
+              </div>
+              <div className="text-xs text-slate-400 text-right">
+                <div>{payment.time}</div>
+                <a href={`https://explorer.solana.com/tx/${payment.tx}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                  View →
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 text-center">
+          <button className="text-sm text-blue-400 hover:text-blue-300">Load more transactions...</button>
         </div>
       </div>
     </div>

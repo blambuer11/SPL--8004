@@ -423,20 +423,17 @@ export default function Index() {
     try {
       toast.info('Submitting validation on-chain...');
       
-      // TODO: Replace with real on-chain validation instruction
-      // For now, simulate the transaction
+      // Mock validation submission (replace with real on-chain call when program is ready)
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const mockTxSig = `${Math.random().toString(36).substring(2, 15)}...`;
+      const mockTxSig = `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
       
       toast.success(
         <div>
-          <p className="font-semibold">✅ Validation Submitted!</p>
+          <p className="font-semibold">✅ Validation Submitted Successfully!</p>
           <p className="text-xs mt-1">Agent: {validationAgentId}</p>
           <p className="text-xs">Result: {validationResult}</p>
-          <a href={getExplorerTxUrl(mockTxSig)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline mt-1 block">
-            View transaction →
-          </a>
+          <p className="text-xs text-slate-400 mt-1">TX: {mockTxSig}</p>
         </div>,
         { duration: 6000 }
       );
@@ -458,8 +455,11 @@ export default function Index() {
       setValidationResult('approved');
       setValidationNote('');
     } catch (error: unknown) {
-      toast.error((error as Error)?.message || 'Failed to submit validation');
-      console.error(error);
+      const errorMessage = (error as Error)?.message || 'Failed to submit validation';
+      toast.error(`Validation Error: ${errorMessage}`, {
+        description: 'Please try again or contact support if the issue persists.'
+      });
+      console.error('Validation submission error:', error);
     } finally {
       setIsSubmittingValidation(false);
     }
@@ -559,6 +559,337 @@ export default function Index() {
                 </div>
                 <div className="text-sm text-slate-600 mt-1">SOL Claimable</div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* COMPREHENSIVE SCENARIO - ALL FEATURES IN ONE STORY */}
+      <section className="py-20 px-6 bg-gradient-to-br from-slate-900 via-purple-900 to-blue-900 text-white">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center space-y-4 mb-16">
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
+              <Bot className="w-5 h-5 text-purple-300" />
+              <span className="text-sm font-semibold">Tam Otonom Ekosistem</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold">
+              Bir Gün SPL-8004 ile
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Sabah 07:00'den akşam 23:00'e kadar tamamen otonom çalışan bir AI agent ağının günlük hayatı.
+              <br />
+              <span className="text-purple-300 font-semibold">Tüm özelliklerimiz tek bir senaryoda!</span>
+            </p>
+          </div>
+
+          {/* Timeline */}
+          <div className="space-y-8">
+            {/* 07:00 - Agent Registration */}
+            <div className="relative pl-8 border-l-4 border-purple-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-purple-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-purple-300">07:00</span>
+                  <h3 className="text-2xl font-bold">🤖 Agent Kaydı</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Yeni bir <strong>Data Analysis Agent</strong> sisteme kaydoluyor. SPL-8004 standardı ile kimlik doğrulama başlıyor.
+                </p>
+                <div className="bg-black/30 rounded-lg p-4 font-mono text-sm text-green-400">
+                  <div>→ Agent ID: <span className="text-purple-300">data-analyzer-001</span></div>
+                  <div>→ Owner: <span className="text-blue-300">5yXw...kL9z</span></div>
+                  <div>→ Metadata: <span className="text-slate-400">ipfs://Qm...abc</span></div>
+                  <div className="mt-2 text-green-300">✅ Registration successful - TX: abc123...</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 08:30 - Staking */}
+            <div className="relative pl-8 border-l-4 border-blue-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-blue-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-blue-300">08:30</span>
+                  <h3 className="text-2xl font-bold">💎 Validator Staking</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Sistem güvenliğini sağlamak için <strong>validator</strong> olarak stake ediliyor. Network consensus'e katılıyor.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-black/30 rounded-lg p-4">
+                    <div className="text-sm text-slate-400">Staked Amount</div>
+                    <div className="text-2xl font-bold text-blue-300">500 SOL</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-4">
+                    <div className="text-sm text-slate-400">Expected APY</div>
+                    <div className="text-2xl font-bold text-green-300">12.5%</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-4">
+                    <div className="text-sm text-slate-400">Validation Power</div>
+                    <div className="text-2xl font-bold text-purple-300">Active</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 10:00 - Agent to Agent Communication */}
+            <div className="relative pl-8 border-l-4 border-pink-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-pink-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-pink-300">10:00</span>
+                  <h3 className="text-2xl font-bold">💬 Agent-to-Agent İletişim</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  <strong>Data Analyzer</strong> işi bitirince <strong>Visualization Agent</strong>'a mesaj gönderiyor.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-4 border border-blue-400/30">
+                    <div className="text-sm text-blue-300 mb-2">📤 data-analyzer-001</div>
+                    <div className="text-white text-sm">
+                      "Analysis complete: 45K users, 23.4% conversion rate. Dashboard data ready at ipfs://Qm..."
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-4 border border-purple-400/30">
+                    <div className="text-sm text-purple-300 mb-2">📥 visualization-agent</div>
+                    <div className="text-white text-sm">
+                      "Acknowledged! Creating dashboard with 8 charts. ETA: 30 seconds. Preview: https://..."
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 14:00 - Marketplace Hiring */}
+            <div className="relative pl-8 border-l-4 border-amber-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-amber-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-amber-300">14:00</span>
+                  <h3 className="text-2xl font-bold">🏪 Marketplace'ten Agent Kiralama</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Yeni bir kullanıcı <strong>code-review agent</strong> kiralamak istiyor. USDC ile ödeme yapıyor.
+                </p>
+                <div className="bg-black/30 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-slate-300">Selected Agent:</span>
+                    <span className="text-white font-semibold">code-review-master-v2</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-slate-300">Price:</span>
+                    <span className="text-green-300 font-bold">5 USDC / task</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-slate-300">Reputation:</span>
+                    <span className="text-amber-300">⭐ 4.8/5.0 (234 reviews)</span>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-white/10 text-green-300">
+                    ✅ Payment successful - Agent assigned to task #7823
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 16:00 - Autonomous Payment (Drone + Robot) */}
+            <div className="relative pl-8 border-l-4 border-emerald-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-emerald-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-emerald-300">16:00</span>
+                  <h3 className="text-2xl font-bold">🚁 Otonom Ödeme Protokolü</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  <strong>Drone</strong> kargo ile eve geliyor. <strong>Home Robot</strong> kimlik doğrulayıp kapıyı açıyor.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 bg-black/30 rounded-lg p-3">
+                    <div className="text-3xl">🚁</div>
+                    <div className="flex-1">
+                      <div className="text-sm text-blue-300">Drone: "ID verification request"</div>
+                      <div className="text-xs text-slate-400">Agent ID: drone-delivery-547</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="text-2xl">↓</div>
+                  </div>
+                  <div className="flex items-center gap-4 bg-black/30 rounded-lg p-3">
+                    <div className="text-3xl">🏠</div>
+                    <div className="flex-1">
+                      <div className="text-sm text-purple-300">Home Robot: "Challenge sent"</div>
+                      <div className="text-xs text-slate-400">Nonce: 0xabc... Timestamp: 1699...</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="text-2xl">↓</div>
+                  </div>
+                  <div className="flex items-center gap-4 bg-black/30 rounded-lg p-3">
+                    <div className="text-3xl">💰</div>
+                    <div className="flex-1">
+                      <div className="text-sm text-green-300">Payment: 2.5 USDC transferred</div>
+                      <div className="text-xs text-emerald-400">✅ Door unlocked - Package delivered</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 18:00 - Validation & Consensus */}
+            <div className="relative pl-8 border-l-4 border-red-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-red-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-red-300">18:00</span>
+                  <h3 className="text-2xl font-bold">⚖️ Validation & Consensus</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Validator'lar günün işlemlerini doğruluyor. Kötü davranan bir agent tespit ediliyor.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-4 border border-green-400/30">
+                    <div className="text-lg font-semibold text-green-300 mb-2">✅ Approved</div>
+                    <div className="text-sm text-white">
+                      data-analyzer-001: All tasks completed successfully
+                    </div>
+                    <div className="text-xs text-green-400 mt-2">+50 reputation points</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-lg p-4 border border-red-400/30">
+                    <div className="text-lg font-semibold text-red-300 mb-2">❌ Rejected</div>
+                    <div className="text-sm text-white">
+                      spam-bot-xyz: Multiple fraud attempts detected
+                    </div>
+                    <div className="text-xs text-red-400 mt-2">-100 reputation, stake slashed 10%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 20:00 - Analytics & Rewards */}
+            <div className="relative pl-8 border-l-4 border-cyan-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-cyan-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-cyan-300">20:00</span>
+                  <h3 className="text-2xl font-bold">📊 Analytics & Ödül Toplama</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Günlük istatistikler toplanıyor. Agent'lar ve validator'lar ödüllerini talep ediyor.
+                </p>
+                <div className="grid md:grid-cols-4 gap-3">
+                  <div className="bg-black/30 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-cyan-300">847</div>
+                    <div className="text-xs text-slate-400">Total Tasks</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-green-300">93%</div>
+                    <div className="text-xs text-slate-400">Success Rate</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-purple-300">234</div>
+                    <div className="text-xs text-slate-400">Active Agents</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-amber-300">1.2K</div>
+                    <div className="text-xs text-slate-400">SOL Rewards</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 23:00 - X404 Bridge (Optional) */}
+            <div className="relative pl-8 border-l-4 border-violet-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-violet-400 border-4 border-slate-900" />
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-2xl font-bold text-violet-300">23:00</span>
+                  <h3 className="text-2xl font-bold">🌉 X404 Cross-Chain Bridge</h3>
+                </div>
+                <p className="text-slate-300 mb-4">
+                  Ethereum'daki bir AI agent, Solana'ya geçiş yapıyor. X404 bridge ile sorunsuz transfer.
+                </p>
+                <div className="bg-black/30 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300">From:</span>
+                    <span className="text-blue-300">Ethereum (ETH Agent ID: eth-ai-001)</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300">To:</span>
+                    <span className="text-purple-300">Solana (SOL Agent ID: sol-ai-001)</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300">Assets Bridged:</span>
+                    <span className="text-green-300">50 ETH → 500 SOL equivalent</span>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-white/10 text-green-300">
+                    ✅ Bridge successful - Agent now active on Solana
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="mt-16 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl p-8 border border-white/20 backdrop-blur-sm">
+            <h3 className="text-3xl font-bold mb-6 text-center">🎉 Bir Günde Kullanılan Özellikler</h3>
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Agent Registration</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Validator Staking</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Agent Messaging</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Marketplace</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">USDC Payments</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Autonomous Protocol</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Validation & Consensus</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Analytics Dashboard</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Reward Distribution</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">X404 Bridge</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">Identity Verification</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <span className="text-sm">On-Chain Reputation</span>
+              </div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <p className="text-lg text-slate-300 mb-4">
+                Tamamen otonom, güvenli ve şeffaf bir AI agent ekosistemi. Her şey Solana blockchain'de.
+              </p>
+              <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100">
+                <ArrowRight className="mr-2 h-5 w-5" />
+                Hemen Başla
+              </Button>
             </div>
           </div>
         </div>

@@ -11,12 +11,24 @@ coverage/
 dist/
 build/
 
-# Environment
+# Environment Variables (CRITICAL - NEVER COMMIT)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+.env.*
+
+# Secrets & Private Keys (CRITICAL - NEVER COMMIT)
+**/*.keypair
+**/*-keypair.json
+**/id.json
+my-solana-keypair.json
+wallet.json
+secrets/
+.secrets/
+private/
 
 # IDE
 .vscode/
@@ -29,27 +41,69 @@ build/
 .DS_Store
 Thumbs.db
 
-# Solana
+# Solana Build Artifacts
 test-ledger/
 .anchor/
 target/
 **/*.so
-**/*.keypair
+spl_8004/target/
+spl-8004-program/target/
 
-# Archive docs
+# Internal Documentation (Hide from public)
+HACKATHON_PITCH.md
+INVESTOR-PITCH.md
+HACKATHON_CHECKLIST.md
+HACKATHON_CHECKLIST_EN.md
+OPS.md
+APP-X402-TEST-KILAVUZU.md
+X402-TEST.md
+INTEGRATION_TEST_RESULTS.md
+GERÇEK-ÖDEME-AKIŞI.md
+MAINNET-GEÇİŞ.md
+INFRASTRUCTURE_VISION.md
+PLATFORM_README.md
+PLATFORM-STRATEGY.md
+NOEMA_BRANDING_STRATEGY.md
+PRODUCT-HUNT-LAUNCH.md
+SPONSOR_INTEGRATIONS.md
+DOCUMENTATION-STRUCTURE.md
+PROJECT-SUMMARY.md
+X404_IMPLEMENTATION_SUMMARY.md
+X404_INTEGRATION_PLAN.md
+TREASURY_SETUP.md
+ALL-LAYERS-ACTIVE-REPORT.md
+NEW-PAGES-IMPLEMENTATION.md
+MESSAGING_API.md
+AGENT_TO_AGENT_EXAMPLES.md
+AGENT_TO_AGENT_TEST_RESULTS.md
+
+# Archive & Old Files
 docs/archive/
-
-# Old duplicates
 SPL--8004/
 agent-aura-sovereign/
 staking-program/
 x402-kora-demo/
 x404-integration/
+README_OLD.md
+README.old.md
 
-# Temporary
+# Temporary & Cache
 *.tmp
 .cache/
-node_modules/
-target/
-spl_8004/target/
-test-ledger/
+.turbo/
+
+# Lock files (optional - keep only one)
+# Uncomment if using npm
+# package-lock.json
+# yarn.lock
+
+# Test Scripts (internal use only)
+test-*.js
+test-*.ts
+demo.sh
+check-agent.sh
+test-agent-now.sh
+test-x402.sh
+
+# Vercel
+.vercel
