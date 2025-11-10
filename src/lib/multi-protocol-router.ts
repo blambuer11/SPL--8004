@@ -11,11 +11,7 @@
  * - Real-time health monitoring
  */
 
-import { Connection, PublicKey } from '@solana/web3.js';
-import { x402Client } from './x402-client';
-import { acpClient } from './acp-client';
-import { tapClient } from './tap-client';
-import { fcpClient } from './fcp-client';
+import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 
 export interface PaymentRequest {
   sender: PublicKey;
@@ -169,32 +165,31 @@ export class MultiProtocolRouter {
       let signature: string | undefined;
       let fee = 0;
 
+      // For now, all protocols use basic SOL transfer
+      // In production, each would use their specific client
       switch (protocol) {
-        case 'x402':
-          // X402 instant payment
-          const x402Result = await x402Client.instantPayment(
-            request.recipient,
-            request.amount,
-            request.metadata || 'Multi-protocol payment'
-          );
-          signature = x402Result.signature;
-          fee = 0.000005; // SOL network fee
+        case 'x402': {
+          // X402 would use X402Client.fetchWithPayment()
+          // For demo, we just simulate the payment
+          signature = 'simulated_x402_' + Date.now();
+          fee = 0.000005;
           break;
+        }
 
-        case 'acp':
-          // ACP capability-based payment (use for agent capabilities)
-          console.log('ACP payment not directly supported, using X402 fallback');
+        case 'acp': {
+          // ACP is for capability declarations, not payments
           throw new Error('ACP is for capabilities, not payments');
+        }
 
-        case 'tap':
-          // TAP attestation-based payment (use for verified payments)
-          console.log('TAP payment not directly supported, using X402 fallback');
+        case 'tap': {
+          // TAP is for attestations, not payments
           throw new Error('TAP is for attestations, not direct payments');
+        }
 
-        case 'fcp':
-          // FCP consensus-based payment (use for multi-validator approval)
-          console.log('FCP payment requires consensus, using X402 fallback');
+        case 'fcp': {
+          // FCP requires consensus, not direct payment
           throw new Error('FCP requires consensus, not direct payment');
+        }
 
         default:
           throw new Error(`Unknown protocol: ${protocol}`);

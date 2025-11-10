@@ -12,7 +12,6 @@
  */
 
 import { PublicKey } from '@solana/web3.js';
-import { encodeURL, createQR } from '@solana/pay';
 
 export interface PaymentQRConfig {
   recipient: PublicKey;
