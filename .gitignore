@@ -49,3 +49,7 @@ x404-integration/
 # Temporary
 *.tmp
 .cache/
+node_modules/
+target/
+spl_8004/target/
+test-ledger/
