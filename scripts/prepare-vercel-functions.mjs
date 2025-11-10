@@ -27,8 +27,8 @@ endpoints.forEach(({ name, runtime, maxDuration }) => {
   const funcDir = join(outputFunctionsDir, 'api', `${name}.func`);
   mkdirSync(funcDir, { recursive: true });
 
-  // Copy source file
-  const sourceFile = join(apiDir, `${name}.js`);
+  // Copy source file (now from directory structure)
+  const sourceFile = join(apiDir, name, 'index.js');
   const targetFile = join(funcDir, 'index.js');
   if (existsSync(sourceFile)) {
     cpSync(sourceFile, targetFile);
