@@ -4,6 +4,7 @@
   "installCommand": "npm install",
   "framework": "vite",
   "routes": [
+    { "src": "/build-info.json", "dest": "/build-info.json" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
