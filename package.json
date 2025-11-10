@@ -12,6 +12,7 @@
     "dev:agent": "npm --prefix agent-aura-sovereign run dev",
     "prebuild": "node scripts/write-build-info.mjs",
     "build": "vite build",
+    "postbuild": "node scripts/write-build-info.mjs && cp public/build-info.json dist/build-info.json",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

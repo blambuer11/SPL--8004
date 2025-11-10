@@ -10,8 +10,8 @@ function get(cmd) {
   try { return execSync(cmd).toString().trim(); } catch { return 'unknown'; }
 }
 
-const commit = get('git rev-parse --short HEAD');
-const branch = get('git rev-parse --abbrev-ref HEAD');
+const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 9) || get('git rev-parse --short HEAD');
+const branch = process.env.VERCEL_GIT_COMMIT_REF || get('git rev-parse --abbrev-ref HEAD');
 const iso = new Date().toISOString();
 
 const data = { commit, branch, builtAt: iso };
