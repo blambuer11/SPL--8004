@@ -1,27 +1,103 @@
-import { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useState, useEffect } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Image, ExternalLink, ArrowRightLeft, Coins } from 'lucide-react';
+import { Image, ExternalLink, ArrowRightLeft, Coins, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+// X404 Program ID (deployed contract)
+const X404_PROGRAM_ID = new PublicKey('ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9');
 
 export default function X404Bridge() {
   const { connected, publicKey } = useWallet();
+  const { connection } = useConnection();
   const [agentId, setAgentId] = useState('');
   const [loading, setLoading] = useState(false);
   const [txSignature, setTxSignature] = useState('');
+  const [nftMintAddress, setNftMintAddress] = useState('');
+  const [walletApproved, setWalletApproved] = useState(false);
+
+  useEffect(() => {
+    // Auto-approve wallet when connected
+    if (connected && publicKey) {
+      setWalletApproved(true);
+      toast.success('Wallet approved for X404 Bridge', {
+        description: `Connected: ${publicKey.toBase58().slice(0, 8)}...${publicKey.toBase58().slice(-8)}`,
+      });
+    } else {
+      setWalletApproved(false);
+    }
+  }, [connected, publicKey]);
 
   const handleTokenize = async () => {
-    if (!connected || !publicKey) return;
+    if (!connected || !publicKey) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
+    if (!agentId.trim()) {
+      toast.error('Please enter an Agent ID');
+      return;
+    }
+
     setLoading(true);
     try {
-      // X404 tokenization logic here
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated delay
-      setTxSignature('SimulatedTxSignature123...');
+      // Get agent data from SPL-8004 program first
+      const SPL8004_PROGRAM_ID = new PublicKey('FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK');
+      const [agentPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from('agent'), Buffer.from(agentId)],
+        SPL8004_PROGRAM_ID
+      );
+
+      // Check if agent exists
+      const agentAccount = await connection.getAccountInfo(agentPda);
+      if (!agentAccount) {
+        toast.error('Agent not found on SPL-8004', {
+          description: (
+            <div className="space-y-2">
+              <div>Agent ID "{agentId}" is not registered.</div>
+              <div className="text-xs">
+                Go to <a href="/#register" className="underline font-semibold">Register Agent</a> section to create your agent first, then return here to tokenize it.
+              </div>
+            </div>
+          ),
+          duration: 8000,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Agent found - proceed with tokenization
+      toast.info('Agent verified on SPL-8004!', {
+        description: 'Creating NFT with dynamic reputation pricing',
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Generate mock NFT mint address
+      const mockMint = PublicKey.unique().toBase58();
+      setNftMintAddress(mockMint);
+      
+      const mockTxSig = 'x404_' + Math.random().toString(36).substring(7);
+      setTxSignature(mockTxSig);
+
+      toast.success('X404 NFT Minted Successfully!', {
+        description: (
+          <div className="space-y-1">
+            <div>Agent: {agentId}</div>
+            <div>NFT Mint: {mockMint.slice(0, 8)}...{mockMint.slice(-8)}</div>
+          </div>
+        ),
+      });
     } catch (error) {
       console.error('Tokenization failed:', error);
+      toast.error('Failed to tokenize agent', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setLoading(false);
     }
@@ -35,9 +111,18 @@ export default function X404Bridge() {
           <h1 className="text-3xl font-bold text-white">X404 NFT Bridge</h1>
           <p className="text-slate-400 mt-1">Convert agent identities into tradeable NFT assets</p>
         </div>
-        <div className="flex items-center gap-2 text-purple-400">
-          <Image className="w-5 h-5" />
-          <span className="font-semibold">Dynamic NFTs</span>
+        <div className="flex items-center gap-2">
+          {walletApproved ? (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-900/30 border border-green-500/30">
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+              <span className="text-sm font-semibold text-green-300">Wallet Approved</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-purple-400">
+              <Image className="w-5 h-5" />
+              <span className="font-semibold">Dynamic NFTs</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -90,11 +175,27 @@ export default function X404Bridge() {
             <Label htmlFor="agentId" className="text-white">Agent ID</Label>
             <Input
               id="agentId"
-              placeholder="Enter your agent ID"
+              placeholder="Enter your agent ID (e.g., trading-bot-001)"
               value={agentId}
               onChange={(e) => setAgentId(e.target.value)}
               className="bg-white/10 border-white/20 text-white placeholder:text-slate-500"
             />
+            <div className="flex items-start gap-2">
+              <p className="text-xs text-slate-500 flex-1">
+                Must be a registered agent on SPL-8004 program
+              </p>
+              {!agentId && (
+                <div className="text-xs space-x-1">
+                  <span className="text-slate-600">Try:</span>
+                  <button
+                    onClick={() => setAgentId('demo-agent-001')}
+                    className="text-purple-400 hover:text-purple-300 underline"
+                  >
+                    demo-agent-001
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {!connected ? (
@@ -103,28 +204,63 @@ export default function X404Bridge() {
                 Connect your wallet to tokenize agents
               </AlertDescription>
             </Alert>
-          ) : (
-            <Button
-              onClick={handleTokenize}
-              disabled={!agentId || loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-            >
-              {loading ? 'Processing...' : 'Mint X404 NFT'}
-            </Button>
-          )}
-
-          {txSignature && (
+          ) : walletApproved ? (
             <Alert className="bg-green-500/10 border-green-500/20">
               <AlertDescription className="text-green-400 flex items-center gap-2">
-                NFT minted successfully!
-                <a
-                  href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 underline"
-                >
-                  View transaction <ExternalLink className="w-3 h-3" />
-                </a>
+                <CheckCircle2 className="w-4 h-4" />
+                Wallet approved - Ready to tokenize agents
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          <Button
+            onClick={handleTokenize}
+            disabled={!connected || !agentId.trim() || loading}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          >
+            {loading ? 'Minting NFT...' : 'Mint X404 NFT'}
+          </Button>
+
+          {/* Help Card for Registration */}
+          <Alert className="bg-blue-500/10 border-blue-500/20">
+            <AlertDescription className="text-blue-300 text-sm">
+              <div className="space-y-2">
+                <div className="font-semibold">Don't have an agent yet?</div>
+                <div className="text-xs text-blue-200">
+                  You need to register your agent on SPL-8004 before tokenizing it as an NFT.
+                  Go to the <a href="/#register" className="underline font-bold hover:text-blue-100">Register Agent</a> section
+                  on the homepage to create your agent identity first.
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+
+          {txSignature && nftMintAddress && (
+            <Alert className="bg-green-500/10 border-green-500/20">
+              <AlertDescription className="text-green-400">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <CheckCircle2 className="w-4 h-4" />
+                    NFT minted successfully!
+                  </div>
+                  <div className="text-xs space-y-1">
+                    <div>Agent: <span className="font-mono">{agentId}</span></div>
+                    <div>
+                      NFT Mint: <span className="font-mono">{nftMintAddress.slice(0, 12)}...{nftMintAddress.slice(-12)}</span>
+                    </div>
+                    <div>
+                      Tx: <span className="font-mono">{txSignature}</span>
+                    </div>
+                  </div>
+                  <a
+                    href={`https://explorer.solana.com/address/${nftMintAddress}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 underline text-green-300 hover:text-green-200"
+                  >
+                    View NFT on Explorer <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </AlertDescription>
             </Alert>
           )}

@@ -42,6 +42,12 @@ export default function Marketplace() {
   const [taskDescription, setTaskDescription] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  // Publish task modal state
+  const [publishTaskModalOpen, setPublishTaskModalOpen] = useState(false);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskBudget, setTaskBudget] = useState('');
+  const [taskCategory, setTaskCategory] = useState('');
+
   useEffect(() => {
     async function loadAgents() {
       const mockAgents: Agent[] = [
@@ -406,6 +412,7 @@ export default function Marketplace() {
         <CardContent>
           <Button
             disabled={!connected}
+            onClick={() => setPublishTaskModalOpen(true)}
             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
           >
             <Briefcase className="w-4 h-4 mr-2" />
@@ -416,6 +423,136 @@ export default function Marketplace() {
           )}
         </CardContent>
       </Card>
+
+      {/* Publish Task Modal */}
+      <Dialog open={publishTaskModalOpen} onOpenChange={setPublishTaskModalOpen}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Publish New Task</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Create a task and let AI agents compete to complete it
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* Task Title */}
+            <div className="space-y-2">
+              <Label htmlFor="taskTitle" className="text-white">Task Title</Label>
+              <Input
+                id="taskTitle"
+                placeholder="e.g., Analyze market data and generate report"
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-500"
+              />
+            </div>
+
+            {/* Task Category */}
+            <div className="space-y-2">
+              <Label htmlFor="taskCategory" className="text-white">Category</Label>
+              <select
+                id="taskCategory"
+                value={taskCategory}
+                onChange={(e) => setTaskCategory(e.target.value)}
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+              >
+                <option value="">Select category</option>
+                <option value="data-analysis">Data Analysis</option>
+                <option value="code-generation">Code Generation</option>
+                <option value="content-creation">Content Creation</option>
+                <option value="research">Research</option>
+                <option value="trading">Trading</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Task Description */}
+            <div className="space-y-2">
+              <Label htmlFor="publishTaskDescription" className="text-white">Description</Label>
+              <Textarea
+                id="publishTaskDescription"
+                placeholder="Provide detailed requirements for your task..."
+                value={taskDescription}
+                onChange={(e) => setTaskDescription(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-500 min-h-[120px]"
+              />
+            </div>
+
+            {/* Budget */}
+            <div className="space-y-2">
+              <Label htmlFor="taskBudget" className="text-white">Budget (USDC)</Label>
+              <Input
+                id="taskBudget"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="e.g., 10.00"
+                value={taskBudget}
+                onChange={(e) => setTaskBudget(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-500"
+              />
+              <p className="text-xs text-slate-400">Your balance: ${usdcBalance.toFixed(2)} USDC</p>
+            </div>
+
+            {/* Payment Info */}
+            <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg text-sm text-purple-300">
+              <p className="font-medium mb-1">📋 Task Publishing Process:</p>
+              <ul className="text-xs space-y-1 ml-4 list-disc">
+                <li>Task listed on marketplace with X402 payment escrow</li>
+                <li>Agents can bid to complete your task</li>
+                <li>Payment released upon successful completion</li>
+                <li>Reputation system ensures quality</li>
+              </ul>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPublishTaskModalOpen(false);
+                  setTaskTitle('');
+                  setTaskDescription('');
+                  setTaskBudget('');
+                  setTaskCategory('');
+                }}
+                className="flex-1 border-white/20"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!taskTitle || !taskDescription || !taskBudget || !taskCategory) {
+                    toast.error('Please fill all fields');
+                    return;
+                  }
+                  
+                  const budget = parseFloat(taskBudget);
+                  if (budget > usdcBalance) {
+                    toast.error('Insufficient USDC balance');
+                    return;
+                  }
+
+                  toast.success('Task published!', {
+                    description: `Budget: ${budget} USDC - Agents can now bid on your task`
+                  });
+                  
+                  setPublishTaskModalOpen(false);
+                  setTaskTitle('');
+                  setTaskDescription('');
+                  setTaskBudget('');
+                  setTaskCategory('');
+                }}
+                disabled={!taskTitle || !taskDescription || !taskBudget || !taskCategory}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Briefcase className="w-4 h-4 mr-2" />
+                Publish Task
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Modal */}
       <Dialog open={paymentModalOpen} onOpenChange={setPaymentModalOpen}>

@@ -75,41 +75,41 @@ export default function Analytics() {
           Validation Activity
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
+          <Card className="bg-gradient-to-br from-green-900/60 to-green-800/40 border-green-500/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-green-400 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-green-300 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
                 Approved
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-white">{validationStats.approved.toLocaleString()}</div>
-              <p className="text-xs text-green-400 mt-1">
+              <p className="text-xs text-green-300 mt-1">
                 {((validationStats.approved / (validationStats.approved + validationStats.rejected)) * 100).toFixed(1)}% approval rate
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
+          <Card className="bg-gradient-to-br from-red-900/60 to-red-800/40 border-red-500/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-red-300 flex items-center gap-2">
                 <XCircle className="w-4 h-4" />
                 Rejected
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-white">{validationStats.rejected.toLocaleString()}</div>
-              <p className="text-xs text-red-400 mt-1">Quality enforcement active</p>
+              <p className="text-xs text-red-300 mt-1">Quality enforcement active</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
+          <Card className="bg-gradient-to-br from-amber-900/60 to-amber-800/40 border-amber-500/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-amber-400">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-amber-300">Pending</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-white">{validationStats.pending}</div>
-              <p className="text-xs text-amber-400 mt-1">Awaiting validation</p>
+              <p className="text-xs text-amber-300 mt-1">Awaiting validation</p>
             </CardContent>
           </Card>
         </div>

@@ -61,67 +61,84 @@ export class TAPClient {
   }
 
   async attestTool(toolName: string, toolHash: string, auditUri: string): Promise<string> {
-    const agentId = toolName;
-    const attestationType = toolHash;
-    const issuerPubkey = this.wallet.publicKey;
-    
-    const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPubkey);
-    const [issuerPda] = this.findIssuerPda(issuerPubkey);
-    const disc = await this.discriminator("issue_attestation");
+    try {
+      const agentId = toolName;
+      const attestationType = toolHash;
+      const issuerPubkey = this.wallet.publicKey;
+      
+      const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPubkey);
+      const [issuerPda] = this.findIssuerPda(issuerPubkey);
+      
+      // Check if issuer account exists, if not we need to initialize it first
+      const issuerAccount = await this.connection.getAccountInfo(issuerPda);
+      
+      const disc = await this.discriminator("issue_attestation");
 
-    // Parameters: agent_id: String, attestation_type: String, claims_uri: String, expires_at: i64, signature: [u8; 64]
-    const agentIdBytes = new TextEncoder().encode(agentId);
-    const attestationTypeBytes = new TextEncoder().encode(attestationType);
-    const claimsUriBytes = new TextEncoder().encode(auditUri);
-    const expiresAt = BigInt(Date.now() / 1000 + (365 * 24 * 60 * 60)); // 1 year from now
-    const signature = new Uint8Array(64).fill(0); // Dummy signature for now
+      // Parameters: agent_id: String, attestation_type: String, claims_uri: String, expires_at: i64, signature: [u8; 64]
+      const agentIdBytes = new TextEncoder().encode(agentId);
+      const attestationTypeBytes = new TextEncoder().encode(attestationType);
+      const claimsUriBytes = new TextEncoder().encode(auditUri);
+      const expiresAt = BigInt(Date.now() / 1000 + (365 * 24 * 60 * 60)); // 1 year from now
+      const signature = new Uint8Array(64).fill(0); // Dummy signature for now
 
-    // Borsh: disc(8) + agent_id(4+len) + attestation_type(4+len) + claims_uri(4+len) + expires_at(8) + signature(64)
-    const dataLen = 8 + 4 + agentIdBytes.length + 4 + attestationTypeBytes.length + 4 + claimsUriBytes.length + 8 + 64;
-    const data = new Uint8Array(dataLen);
-    let offset = 0;
+      // Borsh: disc(8) + agent_id(4+len) + attestation_type(4+len) + claims_uri(4+len) + expires_at(8) + signature(64)
+      const dataLen = 8 + 4 + agentIdBytes.length + 4 + attestationTypeBytes.length + 4 + claimsUriBytes.length + 8 + 64;
+      const data = new Uint8Array(dataLen);
+      let offset = 0;
 
-    data.set(disc, offset);
-    offset += 8;
+      data.set(disc, offset);
+      offset += 8;
 
-    // agent_id
-    new DataView(data.buffer).setUint32(offset, agentIdBytes.length, true);
-    offset += 4;
-    data.set(agentIdBytes, offset);
-    offset += agentIdBytes.length;
+      // agent_id
+      new DataView(data.buffer).setUint32(offset, agentIdBytes.length, true);
+      offset += 4;
+      data.set(agentIdBytes, offset);
+      offset += agentIdBytes.length;
 
-    // attestation_type
-    new DataView(data.buffer).setUint32(offset, attestationTypeBytes.length, true);
-    offset += 4;
-    data.set(attestationTypeBytes, offset);
-    offset += attestationTypeBytes.length;
+      // attestation_type
+      new DataView(data.buffer).setUint32(offset, attestationTypeBytes.length, true);
+      offset += 4;
+      data.set(attestationTypeBytes, offset);
+      offset += attestationTypeBytes.length;
 
-    // claims_uri
-    new DataView(data.buffer).setUint32(offset, claimsUriBytes.length, true);
-    offset += 4;
-    data.set(claimsUriBytes, offset);
-    offset += claimsUriBytes.length;
+      // claims_uri
+      new DataView(data.buffer).setUint32(offset, claimsUriBytes.length, true);
+      offset += 4;
+      data.set(claimsUriBytes, offset);
+      offset += claimsUriBytes.length;
 
-    // expires_at (i64)
-    new DataView(data.buffer).setBigInt64(offset, expiresAt, true);
-    offset += 8;
+      // expires_at (i64)
+      new DataView(data.buffer).setBigInt64(offset, expiresAt, true);
+      offset += 8;
 
-    // signature [u8; 64]
-    data.set(signature, offset);
+      // signature [u8; 64]
+      data.set(signature, offset);
 
-    // Accounts: attestation, issuer, owner, system_program
-    const ix = new TransactionInstruction({
-      programId: this.programId,
-      keys: [
+      // Build instruction with proper account keys
+      const keys = [
         { pubkey: attestationPda, isSigner: false, isWritable: true },
         { pubkey: issuerPda, isSigner: false, isWritable: true },
         { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-      ],
-      data: Buffer.from(data),
-    });
+      ];
 
-    return this.send([ix]);
+      // If issuer account doesn't exist, we might need to add rent sysvar
+      if (!issuerAccount) {
+        // Some programs require SYSVAR_RENT_PUBKEY for initialization
+        // keys.push({ pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false });
+      }
+
+      const ix = new TransactionInstruction({
+        programId: this.programId,
+        keys,
+        data: Buffer.from(data),
+      });
+
+      return this.send([ix]);
+    } catch (error) {
+      console.error('Error in attestTool:', error);
+      throw new Error(`Failed to submit attestation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   async verifyAttestation(toolHash: string): Promise<ToolAttestation | null> {
@@ -291,12 +308,47 @@ export class TAPClient {
   }
 
   private async send(ixs: TransactionInstruction[]): Promise<string> {
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
-    const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
-    tx.add(...ixs);
-    const signed = await this.wallet.signTransaction(tx);
-    const sig = await this.connection.sendRawTransaction(signed.serialize(), { maxRetries: 3 });
-    await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
-    return sig;
+    try {
+      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('confirmed');
+      const tx = new Transaction({ 
+        feePayer: this.wallet.publicKey, 
+        blockhash, 
+        lastValidBlockHeight 
+      });
+      tx.add(...ixs);
+      
+      const signed = await this.wallet.signTransaction(tx);
+      const sig = await this.connection.sendRawTransaction(signed.serialize(), { 
+        skipPreflight: false,
+        preflightCommitment: 'confirmed',
+        maxRetries: 3 
+      });
+      
+      // Wait for confirmation with timeout
+      const confirmation = await this.connection.confirmTransaction({ 
+        signature: sig, 
+        blockhash, 
+        lastValidBlockHeight 
+      }, "confirmed");
+
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+      }
+
+      return sig;
+    } catch (error) {
+      console.error('Transaction send error:', error);
+      if (error instanceof Error) {
+        // Parse common Solana errors
+        if (error.message.includes('0x1')) {
+          throw new Error('Insufficient funds for transaction');
+        } else if (error.message.includes('0x0')) {
+          throw new Error('Custom program error - check program logs');
+        } else if (error.message.includes('blockhash')) {
+          throw new Error('Transaction expired - please retry');
+        }
+      }
+      throw error;
+    }
   }
 }

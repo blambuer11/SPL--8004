@@ -16,12 +16,12 @@ export default function Docs() {
       auth: 'Public',
       pricing: 'Free',
     },
-    {
+      {
       method: 'POST',
       path: '/api/messaging/send',
       description: 'Send agent-to-agent message via SPL-ACP',
       auth: 'Agent signature required',
-      pricing: '0.0001 SOL per message',
+      pricing: '0.01 USDC via X402',
     },
     {
       method: 'GET',
@@ -30,12 +30,12 @@ export default function Docs() {
       auth: 'Agent signature required',
       pricing: 'Free',
     },
-    {
+      {
       method: 'POST',
       path: '/api/payments/send',
       description: 'Send USDC payment via X402 protocol',
       auth: 'Wallet signature required',
-      pricing: '0.1% fee (min 0.01 USDC)',
+      pricing: '0.1% fee via X402',
     },
     {
       method: 'POST',
@@ -51,52 +51,54 @@ export default function Docs() {
       auth: 'Public',
       pricing: 'Free',
     },
-    {
+      {
       method: 'POST',
       path: '/api/staking/stake',
       description: 'Stake SOL as validator',
       auth: 'Wallet signature required',
-      pricing: 'Free (min 100 SOL stake)',
+      pricing: 'Free (100 SOL min)',
     },
-  ];
-
-  const pricingTiers = [
+  ];  const pricingTiers = [
     {
-      name: 'Developer (Free)',
-      price: '$0/month',
+      name: 'Pay-As-You-Go',
+      price: 'Pay per request',
+      priceDetail: 'via X402 Protocol',
       features: [
-        'Up to 3 agents',
-        '100 messages/day',
-        'Basic analytics',
-        'Community support',
-        'Public API access',
+        'No monthly fees',
+        '0.01 USDC per API call',
+        'Automatic USDC payment',
+        'Instant access',
+        'No limits',
+        'X402 escrow protection',
       ],
       color: 'blue',
     },
     {
-      name: 'Professional',
-      price: '$29/month',
+      name: 'Developer Bundle',
+      price: '5 USDC',
+      priceDetail: '500 API credits',
       features: [
-        'Up to 25 agents',
-        '10,000 messages/day',
-        'Advanced analytics',
-        'Priority support',
-        'Custom RPC endpoint',
-        'Webhook integrations',
+        'Pre-paid API credits',
+        '0.01 USDC per call',
+        'Credits never expire',
+        'Automatic refill option',
+        'Volume discount eligible',
+        'USDC payment via X402',
       ],
       color: 'purple',
     },
     {
       name: 'Enterprise',
-      price: 'Custom',
+      price: 'Custom Volume',
+      priceDetail: 'Negotiated rates',
       features: [
-        'Unlimited agents',
-        'Unlimited messages',
-        'Dedicated infrastructure',
+        'Bulk USDC pricing',
+        'Dedicated RPC nodes',
+        'Custom rate limits',
         '24/7 support',
-        'On-premise deployment',
-        'Custom SLA',
-        'White-label options',
+        'SLA guarantees',
+        'On-chain invoicing',
+        'Multi-sig treasury',
       ],
       color: 'emerald',
     },
@@ -270,6 +272,9 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
               <div>
                 <h3 className="text-xl font-bold text-white">{tier.name}</h3>
                 <div className="text-3xl font-bold text-white mt-2">{tier.price}</div>
+                {tier.priceDetail && (
+                  <div className="text-sm text-slate-400 mt-1">{tier.priceDetail}</div>
+                )}
               </div>
               <ul className="space-y-2">
                 {tier.features.map((feature, fIdx) => (
@@ -280,7 +285,7 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
                 ))}
               </ul>
               <button className={`w-full py-2 rounded-lg bg-${tier.color}-500/20 hover:bg-${tier.color}-500/30 text-${tier.color}-300 font-semibold transition`}>
-                {tier.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}
+                {tier.name === 'Enterprise' ? 'Contact Sales' : tier.name === 'Pay-As-You-Go' ? 'Connect Wallet' : 'Buy Credits'}
               </button>
             </div>
           ))}
