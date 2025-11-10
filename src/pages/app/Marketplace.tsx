@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { usePayment } from '@/hooks/usePayment';
+import { useSPL8004 } from '@/hooks/useSPL8004';
 import { Search, Star, Zap, Code, Briefcase, ExternalLink, DollarSign, Wallet } from 'lucide-react';
 
 interface Agent {
@@ -22,11 +23,14 @@ interface Agent {
   tasksCompleted: number;
   verified: boolean;
   walletAddress: string; // Agent's wallet for payments
+  duration?: string;
+  isRealAgent?: boolean;
 }
 
 export default function Marketplace() {
   const { connected, publicKey } = useWallet();
   const { client: paymentClient } = usePayment();
+  const { client: spl8004Client } = useSPL8004();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCapability, setFilterCapability] = useState<string | null>(null);
@@ -39,175 +43,93 @@ export default function Marketplace() {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
-    // Mock marketplace data - comprehensive agent list
-    setAgents([
-      {
-        id: '1',
-        name: 'CodeMaster AI',
-        description: 'Expert code generation and review agent with focus on Rust and TypeScript',
-        capabilities: ['code-generation', 'code-review', 'debugging'],
-        rating: 4.8,
-        price: 0.5,
-        tasksCompleted: 342,
+    async function loadAgents() {
+      const mockAgents: Agent[] = [
+        {
+          id: '1',
+          name: 'CodeMaster AI',
+          description: 'Expert code generation and review agent with focus on Rust and TypeScript',
+          capabilities: ['code-generation', 'code-review', 'debugging'],
+          rating: 4.8,
+          price: 0.5,
+          tasksCompleted: 342,
+          verified: true,
+          walletAddress: 'HYqr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3JZvZ2W',
+        },
+        {
+          id: '2',
+          name: 'DataWizard',
+          description: 'Advanced data analysis and visualization specialist',
+          capabilities: ['data-analysis', 'visualization', 'machine-learning'],
+          rating: 4.6,
+          price: 0.8,
+          tasksCompleted: 189,
+          verified: true,
+          walletAddress: 'GpQxVUE7xqBH4zNGV5f8JN5xCVXvZVEcZ9xq5vNXJ3Jv',
+        },
+        {
+          id: '3',
+          name: 'SmartAuditor',
+          description: 'Automated smart contract security auditing',
+          capabilities: ['security-audit', 'vulnerability-scan', 'code-review'],
+          rating: 4.9,
+          price: 1.2,
+          tasksCompleted: 97,
+          verified: true,
+          walletAddress: 'AuDiTQxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3J',
+        },
+      ];
+
+      // Load real agents from blockchain
+      const realAgents: Agent[] = [];
+      
+      if (spl8004Client) {
+        try {
+          const userAgents = await spl8004Client.getAllUserAgents();
+          for (const agent of userAgents) {
+            if (agent.isActive) {
+              realAgents.push({
+                id: agent.agentId,
+                name: agent.agentId,
+                description: `Blockchain-registered agent: ${agent.metadataUri || 'No metadata'}`,
+                capabilities: ['blockchain-verified', 'spl-8004'],
+                rating: (agent.reputation?.score || 5000) / 1000,
+                price: 1.0,
+                tasksCompleted: agent.reputation?.totalTasks || 0,
+                verified: true,
+                walletAddress: agent.owner,
+                isRealAgent: true,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load blockchain agents:', error);
+        }
+      }
+
+      // Load marketplace-listed agents from localStorage
+      const listedAgents = JSON.parse(localStorage.getItem('marketplaceAgents') || '[]');
+      const marketplaceAgents: Agent[] = listedAgents.map((listing: { agentId: string; owner: string; price: number; duration: string; reputation: number; successRate: string }) => ({
+        id: listing.agentId,
+        name: listing.agentId,
+        description: `Available for rent - Success Rate: ${listing.successRate}%`,
+        capabilities: ['for-rent', 'blockchain-verified'],
+        rating: (listing.reputation || 5000) / 1000,
+        price: listing.price,
+        duration: listing.duration,
+        tasksCompleted: 0,
         verified: true,
-        walletAddress: 'HYqr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3JZvZ2W',
-      },
-      {
-        id: '2',
-        name: 'DataWizard',
-        description: 'Advanced data analysis and visualization specialist',
-        capabilities: ['data-analysis', 'visualization', 'machine-learning'],
-        rating: 4.6,
-        price: 0.8,
-        tasksCompleted: 189,
-        verified: true,
-        walletAddress: 'GpQxVUE7xqBH4zNGV5f8JN5xCVXvZVEcZ9xq5vNXJ3Jv',
-      },
-      {
-        id: '3',
-        name: 'SmartAuditor',
-        description: 'Automated smart contract security auditing',
-        capabilities: ['security-audit', 'vulnerability-scan', 'code-review'],
-        rating: 4.9,
-        price: 1.2,
-        tasksCompleted: 97,
-        verified: true,
-        walletAddress: 'AuDiTQxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3J',
-      },
-      {
-        id: '4',
-        name: 'ContentCreator Pro',
-        description: 'Generate high-quality content for blogs, social media, and marketing',
-        capabilities: ['text-generation', 'seo-optimization', 'copywriting'],
-        rating: 4.4,
-        price: 0.3,
-        tasksCompleted: 521,
-        verified: false,
-        walletAddress: 'CoNtEnTxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3',
-      },
-      {
-        id: '5',
-        name: 'ImageVision AI',
-        description: 'Advanced image recognition and generation capabilities',
-        capabilities: ['image-analysis', 'image-generation', 'object-detection'],
-        rating: 4.7,
-        price: 0.6,
-        tasksCompleted: 278,
-        verified: true,
-        walletAddress: 'ImAgEVxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3J',
-      },
-      {
-        id: '6',
-        name: 'TradingBot Elite',
-        description: 'Automated trading strategies for DeFi protocols with risk management',
-        capabilities: ['trading', 'defi', 'risk-analysis'],
-        rating: 4.9,
-        price: 2.5,
-        tasksCompleted: 1247,
-        verified: true,
-        walletAddress: 'TrAdEbOtxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '7',
-        name: 'ResearchAssistant',
-        description: 'Academic research, paper analysis, and literature reviews',
-        capabilities: ['research', 'academic-writing', 'citation-management'],
-        rating: 4.3,
-        price: 0.4,
-        tasksCompleted: 156,
-        verified: true,
-        walletAddress: 'ReSeArChxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '8',
-        name: 'NFT Creator Studio',
-        description: 'Generate unique NFT art and metadata for collections',
-        capabilities: ['nft-generation', 'art-creation', 'metadata-generation'],
-        rating: 4.6,
-        price: 1.0,
-        tasksCompleted: 89,
-        verified: true,
-        walletAddress: 'NfTcReAtxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '9',
-        name: 'SEO Optimizer',
-        description: 'Search engine optimization and keyword research specialist',
-        capabilities: ['seo-optimization', 'keyword-research', 'content-strategy'],
-        rating: 4.5,
-        price: 0.35,
-        tasksCompleted: 423,
-        verified: true,
-        walletAddress: 'SeOoPtImxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '10',
-        name: 'Translation Master',
-        description: 'Multi-language translation with cultural context awareness',
-        capabilities: ['translation', 'localization', 'cultural-adaptation'],
-        rating: 4.7,
-        price: 0.25,
-        tasksCompleted: 678,
-        verified: true,
-        walletAddress: 'TrAnSlAtxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '11',
-        name: 'VideoEditor AI',
-        description: 'Automated video editing, trimming, and effects application',
-        capabilities: ['video-editing', 'audio-sync', 'effects'],
-        rating: 4.4,
-        price: 1.5,
-        tasksCompleted: 234,
-        verified: false,
-        walletAddress: 'ViDeOeDiTxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '12',
-        name: 'Math Solver Pro',
-        description: 'Complex mathematical problem solving and step-by-step explanations',
-        capabilities: ['mathematics', 'problem-solving', 'education'],
-        rating: 4.8,
-        price: 0.2,
-        tasksCompleted: 892,
-        verified: true,
-        walletAddress: 'MaThSoLvxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '13',
-        name: 'Social Media Manager',
-        description: 'Automated social media posting and engagement optimization',
-        capabilities: ['social-media', 'content-scheduling', 'analytics'],
-        rating: 4.2,
-        price: 0.45,
-        tasksCompleted: 567,
-        verified: true,
-        walletAddress: 'SoCiAlMdxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '14',
-        name: 'Legal Document AI',
-        description: 'Contract analysis and legal document generation',
-        capabilities: ['legal-analysis', 'contract-review', 'document-generation'],
-        rating: 4.9,
-        price: 3.0,
-        tasksCompleted: 145,
-        verified: true,
-        walletAddress: 'LeGaLdOcxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-      {
-        id: '15',
-        name: 'Voice Synthesis Studio',
-        description: 'Text-to-speech with multiple voices and languages',
-        capabilities: ['text-to-speech', 'voice-cloning', 'audio-generation'],
-        rating: 4.6,
-        price: 0.7,
-        tasksCompleted: 312,
-        verified: true,
-        walletAddress: 'VoIcEsYnxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ',
-      },
-    ]);
-  }, []);
+        walletAddress: listing.owner,
+        isRealAgent: true,
+      }));
+
+      // Combine all agents: real blockchain agents + marketplace listings + mock agents
+      const allAgents = [...realAgents, ...marketplaceAgents, ...mockAgents];
+      setAgents(allAgents);
+    }
+
+    loadAgents();
+  }, [spl8004Client]);
 
   // Fetch USDC balance
   useEffect(() => {

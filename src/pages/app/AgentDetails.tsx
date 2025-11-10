@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, MessageSquare, Star, Zap, TrendingUp, CheckCircle, XCircle, Clock, Users } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Star, Zap, TrendingUp, CheckCircle, XCircle, Clock, Users, DollarSign, Sparkles } from 'lucide-react';
 
 interface Agent {
   agentId: string;
@@ -46,6 +46,51 @@ export default function AgentDetails() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [targetAgent, setTargetAgent] = useState<string>('user');
   const [messageMode, setMessageMode] = useState<'user' | 'agent'>('user');
+  const [showRentDialog, setShowRentDialog] = useState(false);
+  const [rentPrice, setRentPrice] = useState('');
+  const [rentDuration, setRentDuration] = useState('hour');
+
+  const handleRentOut = () => {
+    if (!connected) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+    setShowRentDialog(true);
+  };
+
+  const confirmRentOut = () => {
+    const price = parseFloat(rentPrice);
+    if (!price || price <= 0) {
+      toast.error('Please enter a valid price');
+      return;
+    }
+
+    // Save to localStorage for marketplace
+    const marketplaceAgents = JSON.parse(localStorage.getItem('marketplaceAgents') || '[]');
+    const newListing = {
+      agentId: agent?.agentId,
+      owner: agent?.owner,
+      price: price,
+      duration: rentDuration,
+      reputation: agent?.reputation?.score || 5000,
+      successRate: agent?.reputation ? ((agent.reputation.successfulTasks / agent.reputation.totalTasks) * 100).toFixed(1) : '0.0',
+      listedAt: Date.now()
+    };
+    
+    marketplaceAgents.push(newListing);
+    localStorage.setItem('marketplaceAgents', JSON.stringify(marketplaceAgents));
+    
+    toast.success('Agent listed in marketplace!', {
+      description: `${agent?.agentId} is now available for ${price} USDC/${rentDuration}`,
+      action: {
+        label: 'View Marketplace',
+        onClick: () => window.location.href = '/app/marketplace'
+      }
+    });
+    
+    setShowRentDialog(false);
+    setRentPrice('');
+  };
 
   useEffect(() => {
     async function loadAgent() {
@@ -184,10 +229,79 @@ export default function AgentDetails() {
           <ArrowLeft className="w-4 h-4" />
           Back to Agents
         </Link>
-        <Badge variant={agent.isActive ? 'default' : 'destructive'}>
-          {agent.isActive ? 'Active' : 'Inactive'}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant={agent.isActive ? 'default' : 'destructive'}>
+            {agent.isActive ? 'Active' : 'Inactive'}
+          </Badge>
+          <Button 
+            onClick={handleRentOut}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg"
+          >
+            <DollarSign className="w-4 h-4 mr-2" />
+            Rent Out
+          </Button>
+        </div>
       </div>
+
+      {/* Rent Dialog */}
+      {showRentDialog && (
+        <Card className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border-emerald-500/30">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+              List Agent in Marketplace
+            </CardTitle>
+            <CardDescription className="text-slate-200">
+              Set rental price and duration for {agent.agentId}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-200">Price (USDC)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={rentPrice}
+                  onChange={(e) => setRentPrice(e.target.value)}
+                  placeholder="10.00"
+                  className="w-full px-3 py-2 bg-slate-800/60 border border-slate-600/30 rounded-lg text-white placeholder:text-slate-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-200">Duration</label>
+                <Select value={rentDuration} onValueChange={setRentDuration}>
+                  <SelectTrigger className="bg-slate-800/60 border-slate-600/30 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="hour">Per Hour</SelectItem>
+                    <SelectItem value="day">Per Day</SelectItem>
+                    <SelectItem value="week">Per Week</SelectItem>
+                    <SelectItem value="month">Per Month</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                onClick={confirmRentOut}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold"
+              >
+                Confirm Listing
+              </Button>
+              <Button 
+                onClick={() => setShowRentDialog(false)}
+                variant="outline"
+                className="flex-1 border-slate-600/30 text-slate-300 hover:bg-slate-800/60"
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Agent Info */}
       <Card className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-blue-500/30">
