@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Image, ExternalLink, ArrowRightLeft, Coins, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
 
 // X404 Program ID (deployed contract)
 const X404_PROGRAM_ID = new PublicKey('ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9');
@@ -20,6 +21,14 @@ export default function X404Bridge() {
   const [txSignature, setTxSignature] = useState('');
   const [nftMintAddress, setNftMintAddress] = useState('');
   const [walletApproved, setWalletApproved] = useState(false);
+  // Debug state
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [identityPda, setIdentityPda] = useState<string>('');
+  const [altIdentityPda, setAltIdentityPda] = useState<string>('');
+  const [identityExists, setIdentityExists] = useState<boolean | null>(null);
+  const [altIdentityExists, setAltIdentityExists] = useState<boolean | null>(null);
+  const [activeProgramId, setActiveProgramId] = useState<string>(SPL8004_PROGRAM_ID.toBase58());
+  const legacyProgramId = 'FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK';
 
   useEffect(() => {
     // Auto-approve wallet when connected
@@ -46,29 +55,57 @@ export default function X404Bridge() {
 
     setLoading(true);
     try {
-      // Get agent data from SPL-8004 program first
-      const SPL8004_PROGRAM_ID = new PublicKey('FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK');
-      const [agentPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('identity'), Buffer.from(agentId)],
-        SPL8004_PROGRAM_ID
-      );
+      // Derive PDAs with current & legacy program IDs for robustness
+      const [currentIdentityPda] = PublicKey.findProgramAddressSync([
+        Buffer.from('identity'),
+        Buffer.from(agentId)
+      ], SPL8004_PROGRAM_ID);
+      const [legacyIdentityPda] = PublicKey.findProgramAddressSync([
+        Buffer.from('identity'),
+        Buffer.from(agentId)
+      ], new PublicKey(legacyProgramId));
 
-      // Check if agent exists
-      const agentAccount = await connection.getAccountInfo(agentPda);
-      if (!agentAccount) {
+      setIdentityPda(currentIdentityPda.toBase58());
+      setAltIdentityPda(legacyIdentityPda.toBase58());
+      setActiveProgramId(SPL8004_PROGRAM_ID.toBase58());
+
+      const [currentAcc, legacyAcc] = await Promise.all([
+        connection.getAccountInfo(currentIdentityPda),
+        connection.getAccountInfo(legacyIdentityPda)
+      ]);
+      setIdentityExists(!!currentAcc);
+      setAltIdentityExists(!!legacyAcc);
+
+      const usingLegacy = !currentAcc && !!legacyAcc;
+      const chosenAccount = usingLegacy ? legacyAcc : currentAcc;
+      const chosenPda = usingLegacy ? legacyIdentityPda : currentIdentityPda;
+      const chosenProgramId = usingLegacy ? legacyProgramId : SPL8004_PROGRAM_ID.toBase58();
+
+      if (!chosenAccount) {
         toast.error('Agent not found on SPL-8004', {
           description: (
-            <div className="space-y-2">
-              <div>Agent ID "{agentId}" is not registered.</div>
-              <div className="text-xs">
-                Go to <a href="/app/create-agent" className="underline font-semibold">Create Agent</a> page to register your agent first, then return here to tokenize it.
+            <div className="space-y-3 text-xs">
+              <div className="text-red-300 font-semibold">Agent ID "{agentId}" bulunamadı.</div>
+              <div>PDA (current): <code className="break-all">{currentIdentityPda.toBase58()}</code></div>
+              <div>PDA (legacy): <code className="break-all">{legacyIdentityPda.toBase58()}</code></div>
+              <div>Program (current): {SPL8004_PROGRAM_ID.toBase58()}</div>
+              <div>Program (legacy): {legacyProgramId}</div>
+              <div className="pt-1">Kayıt yaptıysan tx onayını Explorer'da doğrula veya yeniden dene.</div>
+              <div>
+                <a href="/app/create-agent" className="underline font-semibold">Create Agent</a> sayfasından tekrar kayıt yap.
               </div>
             </div>
           ),
-          duration: 8000,
+          duration: 12000,
         });
         setLoading(false);
         return;
+      }
+
+      if (usingLegacy) {
+        toast.warning('Agent legacy program ID altında bulundu', {
+          description: `Using legacy program: ${legacyProgramId}. Lütfen güncel deployment'a migrate etmeyi düşünün.`
+        });
       }
 
       // Agent found - proceed with tokenization
@@ -197,6 +234,28 @@ export default function X404Bridge() {
               )}
             </div>
           </div>
+
+          {/* Debug toggle */}
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setDebugOpen(o => !o)}
+            className="w-full text-xs h-8"
+          >
+            {debugOpen ? 'Hide Debug Info' : 'Show Debug Info'}
+          </Button>
+
+          {debugOpen && (
+            <div className="p-3 rounded bg-black/30 border border-white/10 text-xs space-y-2 font-mono">
+              <div className="flex justify-between"><span>Program (current)</span><span>{SPL8004_PROGRAM_ID.toBase58()}</span></div>
+              <div className="flex justify-between"><span>Program (legacy)</span><span>{legacyProgramId}</span></div>
+              <div className="flex justify-between"><span>Derived PDA (current)</span><span className="truncate max-w-[180px]" title={identityPda}>{identityPda || '-'}</span></div>
+              <div className="flex justify-between"><span>Exists</span><span>{identityExists === null ? '-' : identityExists ? '✅' : '❌'}</span></div>
+              <div className="flex justify-between"><span>Derived PDA (legacy)</span><span className="truncate max-w-[180px]" title={altIdentityPda}>{altIdentityPda || '-'}</span></div>
+              <div className="flex justify-between"><span>Exists</span><span>{altIdentityExists === null ? '-' : altIdentityExists ? '✅' : '❌'}</span></div>
+              <div className="pt-2 text-[10px] text-slate-400">If current PDA doesn't exist but legacy does, migrate agent by re-registering.</div>
+            </div>
+          )}
 
           {!connected ? (
             <Alert className="bg-amber-500/10 border-amber-500/20">
