@@ -11,5 +11,11 @@
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
       ]
     }
+  ],
+  "redirects": [
+    { "source": "/app", "destination": "https://app.noemaprotocol.xyz", "permanent": true },
+    { "source": "/app/(.*)", "destination": "https://app.noemaprotocol.xyz/$1", "permanent": true },
+    { "source": "/dashboard", "destination": "https://app.noemaprotocol.xyz/dashboard", "permanent": true },
+    { "source": "/dashboard/(.*)", "destination": "https://app.noemaprotocol.xyz/dashboard/$1", "permanent": true }
   ]
 }
