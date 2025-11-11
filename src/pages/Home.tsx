@@ -17,10 +17,10 @@ export default function Home() {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="/documentation" className="text-sm font-medium text-slate-600 hover:text-slate-900">Docs</a>
-            <a href="https://noemaprotocol-app.vercel.app/agents" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agents</a>
-            <a href="https://noemaprotocol-app.vercel.app/marketplace" className="text-sm font-medium text-slate-600 hover:text-slate-900">Marketplace</a>
+            <a href="https://app.noemaprotocol.xyz/agents" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agents</a>
+            <a href="https://app.noemaprotocol.xyz/marketplace" className="text-sm font-medium text-slate-600 hover:text-slate-900">Marketplace</a>
             <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900">GitHub</a>
-            <a href="https://noemaprotocol-app.vercel.app/dashboard">
+            <a href="https://app.noemaprotocol.xyz/dashboard">
               <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Launch App</Button>
             </a>
           </nav>
@@ -45,7 +45,7 @@ export default function Home() {
                 On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (SPL-8004).
               </p>
               <div className="flex items-center gap-4">
-                <a href="https://noemaprotocol-app.vercel.app/dashboard" aria-label="Open application">
+                <a href="https://app.noemaprotocol.xyz/" aria-label="Open application">
                   <Button size="lg" className="bg-slate-900 hover:bg-slate-800 flex items-center gap-2">
                     Start Building <ArrowRight className="w-5 h-5" />
                   </Button>
@@ -191,7 +191,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-slate-900">Ready to Build?</h2>
             <p className="text-lg text-slate-600">Launch your AI agents on Solana in minutes.</p>
             <div className="flex items-center justify-center gap-4">
-              <a href="https://noemaprotocol-app.vercel.app/dashboard">
+              <a href="https://app.noemaprotocol.xyz/">
                 <Button size="lg" className="bg-slate-900 hover:bg-slate-800">Start Building →</Button>
               </a>
               <a href="/documentation">
@@ -218,9 +218,9 @@ export default function Home() {
               <h4 className="font-semibold mb-3">Protocol</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="/documentation" className="hover:text-white transition">Documentation</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/agents" className="hover:text-white transition">Agents</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/marketplace" className="hover:text-white transition">Marketplace</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/analytics" className="hover:text-white transition">Analytics</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/agents" className="hover:text-white transition">Agents</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/marketplace" className="hover:text-white transition">Marketplace</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/analytics" className="hover:text-white transition">Analytics</a></li>
               </ul>
             </div>
             <div>
@@ -228,8 +228,8 @@ export default function Home() {
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/create-agent" className="hover:text-white transition">Create Agent</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/validation" className="hover:text-white transition">Validator Guide</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/create-agent" className="hover:text-white transition">Create Agent</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/validation" className="hover:text-white transition">Validator Guide</a></li>
               </ul>
             </div>
             <div>
@@ -238,7 +238,7 @@ export default function Home() {
                 <li><a href="https://twitter.com/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Twitter</a></li>
                 <li><a href="https://discord.gg/noema" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Discord</a></li>
                 <li><a href="https://t.me/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Telegram</a></li>
-                <li><a href="https://noemaprotocol-app.vercel.app/settings" className="hover:text-white transition">Support</a></li>
+                <li><a href="https://app.noemaprotocol.xyz/settings" className="hover:text-white transition">Support</a></li>
                 <li><a href="mailto:info@noemaprotocol.xyz" className="hover:text-white transition">info@noemaprotocol.xyz</a></li>
               </ul>
             </div>
