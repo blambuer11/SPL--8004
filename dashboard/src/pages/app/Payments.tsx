@@ -3,6 +3,7 @@ import { useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { createX402Client } from '@/lib/x402-client';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction } from '@solana/spl-token';
+import { SendTransactionError, SystemProgram } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 
@@ -98,13 +99,29 @@ export default function Payments() {
   const recipientAta = await getAssociatedTokenAddress(usdcMint, recipientPk!, true);
 
       const ixs: TransactionInstruction[] = [];
+      // Detect unsupported recipient owner (e.g. PDA / off-curve) for ATA creation
+      const isRecipientOffCurve = (() => {
+        try {
+          // PublicKey has isOnCurve util internally; fallback to attempt derive ATA and later catch
+          // If recipientPk is a PDA, associated token account program will reject with 'Provided owner is not allowed'
+          // We optimistically proceed and surface readable error if it fails.
+          return false; // defer to actual creation attempt for precise error
+        } catch { return false; }
+      })();
+
       const payerAtaInfo = await connection.getAccountInfo(payerAta);
       if (!payerAtaInfo) {
         ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, payerAta, payer, usdcMint));
       }
       const recipientAtaInfo = await connection.getAccountInfo(recipientAta);
       if (!recipientAtaInfo) {
-        ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, recipientAta, recipientPk!, usdcMint));
+        try {
+          ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, recipientAta, recipientPk!, usdcMint));
+        } catch (createErr) {
+          toast.error('Alıcı için ATA oluşturulamadı', { description: (createErr as Error).message });
+          setLoading(false);
+          return;
+        }
       }
 
       const amountU64 = Math.floor(parsedAmount * 1_000_000);
@@ -119,8 +136,27 @@ export default function Payments() {
 
       toast.message('Opening wallet for signature…');
       const signed = await anchorWallet.signTransaction(tx);
+
+      // Optional preflight: simulate with signatures to surface detailed logs early
+      try {
+        const sim = await connection.simulateTransaction(signed);
+        if (sim.value.err) {
+          console.error('Simulation logs:', sim.value.logs);
+            toast.error('Simulation failed', { description: sim.value.logs?.slice(-6).join(' | ') || 'Unknown error' });
+            setLoading(false);
+            return;
+        }
+      } catch (simErr) {
+        console.warn('Simulation attempt failed, proceeding to send:', simErr);
+      }
+
       const sig = await connection.sendRawTransaction(signed.serialize(), { maxRetries: 3 });
-      await connection.confirmTransaction(sig, 'confirmed');
+      const confirmation = await connection.confirmTransaction(sig, 'confirmed');
+      if (confirmation.value.err) {
+        toast.error('Transaction failed after send', { description: JSON.stringify(confirmation.value.err) });
+        setLoading(false);
+        return;
+      }
 
       toast.success('Payment sent', { description: sig, action: { label: 'Explorer', onClick: () => window.open(`https://explorer.solana.com/tx/${sig}?cluster=devnet`, '_blank') } });
       setRecipient('');
@@ -128,7 +164,27 @@ export default function Payments() {
       setMemo('');
       setSenderAgentId('');
     } catch (e: unknown) {
-      toast.error('Payment failed', { description: (e as Error)?.message || String(e) });
+      if (e instanceof SendTransactionError) {
+        try {
+          const logs = await e.getLogs(connection);
+          const readable = logs?.join(' | ') || e.message;
+          // Specific known failure mapping
+          if (/Provided owner is not allowed/i.test(readable)) {
+            toast.error('Payment failed', { description: 'Alıcı adresi (owner) Associated Token Account programı tarafından kabul edilmedi. PDA (program derived) kullanıyorsan normal cüzdan adresi gir.' });
+          } else {
+            toast.error('Payment failed', { description: readable });
+          }
+        } catch {
+          toast.error('Payment failed', { description: e.message });
+        }
+      } else {
+        const msg = (e as Error)?.message || String(e);
+        if (/Provided owner is not allowed/i.test(msg)) {
+          toast.error('Payment failed', { description: 'Alıcı PDA olduğu için ATA oluşturulamadı. Lütfen gerçek wallet public key kullan.' });
+        } else {
+          toast.error('Payment failed', { description: msg });
+        }
+      }
     } finally {
       setLoading(false);
     }
