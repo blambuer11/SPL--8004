@@ -1,49 +1,84 @@
 import { Button } from '@/components/ui/button';
 import { Bot, Layers, Network, Shield, Coins, Code2, ArrowRight, Star, CheckCircle } from 'lucide-react';
+import HeroAnimation from '@/components/HeroAnimation';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+      {/* Header (Recreated) */}
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/branding/logo.svg" alt="Noema" className="w-10 h-10" />
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-900 text-lg leading-tight">Noema Protocol</span>
+              <span className="text-xs text-slate-500">SPL-8004 Suite</span>
+            </div>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="/documentation" className="text-sm font-medium text-slate-600 hover:text-slate-900">Docs</a>
+            <a href="https://noemaprotocol-app.vercel.app/agents" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agents</a>
+            <a href="https://noemaprotocol-app.vercel.app/marketplace" className="text-sm font-medium text-slate-600 hover:text-slate-900">Marketplace</a>
+            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900">GitHub</a>
+            <a href="https://noemaprotocol-app.vercel.app/dashboard">
+              <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Launch App</Button>
+            </a>
+          </nav>
+        </div>
+      </header>
       <main className="container mx-auto px-6 py-24">
         <div className="max-w-5xl mx-auto space-y-24">
           {/* HERO */}
-          <section className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-900 border border-indigo-200">
-              <Bot className="w-4 h-4" />
-              <span className="text-sm font-medium">Live on Devnet</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-slate-900">
-              The Neural Infrastructure
-              <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">for Autonomous Finance</span>
-            </h1>
-            <p className="text-xl text-slate-600 max-w-3xl leading-relaxed">
-              On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (SPL-8004).
-            </p>
-            <div className="flex items-center gap-4">
-              <a href="/app/dashboard" aria-label="Open application">
-                <Button size="lg" className="bg-slate-900 hover:bg-slate-800 flex items-center gap-2">
-                  Start Building <ArrowRight className="w-5 h-5" />
-                </Button>
-              </a>
-              <a href="/documentation" aria-label="Read documentation">
-                <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
-                  Read Docs
-                </Button>
-              </a>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-slate-500 pt-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span>400ms settlement</span>
+          <section className="grid md:grid-cols-2 gap-12 items-start">
+            {/* Left Content */}
+            <div className="space-y-8 order-2 md:order-1">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-900 border border-indigo-200">
+                <Bot className="w-4 h-4" />
+                <span className="text-sm font-medium">Live on Devnet</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span>$0.00025 avg fee</span>
+              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-slate-900">
+                The Neural Infrastructure
+                <br />
+                <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">for Autonomous Finance</span>
+              </h1>
+              <p className="text-xl text-slate-600 max-w-xl leading-relaxed">
+                On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (SPL-8004).
+              </p>
+              <div className="flex items-center gap-4">
+                <a href="https://noemaprotocol-app.vercel.app/dashboard" aria-label="Open application">
+                  <Button size="lg" className="bg-slate-900 hover:bg-slate-800 flex items-center gap-2">
+                    Start Building <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </a>
+                <a href="/documentation" aria-label="Read documentation">
+                  <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
+                    Read Docs
+                  </Button>
+                </a>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span>Live on Devnet</span>
+              <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 pt-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  <span>400ms settlement</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  <span>$0.00025 avg fee</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  <span>Live on Devnet</span>
+                </div>
+              </div>
+            </div>
+            {/* Right Animation */}
+            <div className="order-1 md:order-2">
+              <div className="relative h-[320px] w-full max-w-md mx-auto">
+                <div className="absolute inset-0 rounded-xl overflow-hidden ring-1 ring-slate-200/60 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+                  <HeroAnimation className="w-full h-full" />
+                  <div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-40 bg-[radial-gradient(circle_at_30%_40%,rgba(79,70,229,0.25),transparent_60%),radial-gradient(circle_at_70%_60%,rgba(6,182,212,0.25),transparent_55%)]" />
+                </div>
+                <div className="absolute bottom-2 left-2 text-[10px] font-mono text-slate-500 bg-white/60 backdrop-blur px-1.5 py-0.5 rounded shadow-sm">noema://topology v0.1</div>
               </div>
             </div>
           </section>
@@ -156,10 +191,10 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-slate-900">Ready to Build?</h2>
             <p className="text-lg text-slate-600">Launch your AI agents on Solana in minutes.</p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/app/dashboard">
+              <a href="https://noemaprotocol-app.vercel.app/dashboard">
                 <Button size="lg" className="bg-slate-900 hover:bg-slate-800">Start Building →</Button>
               </a>
-              <a href="/app/docs">
+              <a href="/documentation">
                 <Button size="lg" variant="outline" className="border-slate-300 hover:bg-white">Read Docs</Button>
               </a>
             </div>
@@ -173,10 +208,8 @@ export default function Home() {
         <div className="container mx-auto max-w-5xl">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
-                  ∩
-                </div>
+              <div className="flex items-center gap-3">
+                <img src="/branding/logo.svg" alt="Noema" className="w-10 h-10" />
                 <span className="text-xl font-bold">Noema Protocol</span>
               </div>
               <p className="text-sm text-slate-400">The Neural Infrastructure for Autonomous Finance on Solana</p>
@@ -185,9 +218,9 @@ export default function Home() {
               <h4 className="font-semibold mb-3">Protocol</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="/documentation" className="hover:text-white transition">Documentation</a></li>
-                <li><a href="/app/agents" className="hover:text-white transition">Agents</a></li>
-                <li><a href="/app/marketplace" className="hover:text-white transition">Marketplace</a></li>
-                <li><a href="/app/analytics" className="hover:text-white transition">Analytics</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/agents" className="hover:text-white transition">Agents</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/marketplace" className="hover:text-white transition">Marketplace</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/analytics" className="hover:text-white transition">Analytics</a></li>
               </ul>
             </div>
             <div>
@@ -195,8 +228,8 @@ export default function Home() {
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
-                <li><a href="/app/create-agent" className="hover:text-white transition">Create Agent</a></li>
-                <li><a href="/app/validation" className="hover:text-white transition">Validator Guide</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/create-agent" className="hover:text-white transition">Create Agent</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/validation" className="hover:text-white transition">Validator Guide</a></li>
               </ul>
             </div>
             <div>
@@ -205,7 +238,8 @@ export default function Home() {
                 <li><a href="https://twitter.com/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Twitter</a></li>
                 <li><a href="https://discord.gg/noema" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Discord</a></li>
                 <li><a href="https://t.me/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Telegram</a></li>
-                <li><a href="/app/settings" className="hover:text-white transition">Support</a></li>
+                <li><a href="https://noemaprotocol-app.vercel.app/settings" className="hover:text-white transition">Support</a></li>
+                <li><a href="mailto:info@noemaprotocol.xyz" className="hover:text-white transition">info@noemaprotocol.xyz</a></li>
               </ul>
             </div>
           </div>
