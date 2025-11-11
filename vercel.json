@@ -17,5 +17,11 @@
     { "source": "/app/(.*)", "destination": "https://app.noemaprotocol.xyz/$1", "permanent": true },
     { "source": "/dashboard", "destination": "https://app.noemaprotocol.xyz/dashboard", "permanent": true },
     { "source": "/dashboard/(.*)", "destination": "https://app.noemaprotocol.xyz/dashboard/$1", "permanent": true }
+  ],
+  "routes": [
+    { "src": "^/app$", "status": 308, "headers": { "Location": "https://app.noemaprotocol.xyz" } },
+    { "src": "^/app/(.*)$", "status": 308, "headers": { "Location": "https://app.noemaprotocol.xyz/$1" } },
+    { "src": "^/dashboard$", "status": 308, "headers": { "Location": "https://app.noemaprotocol.xyz/dashboard" } },
+    { "src": "^/dashboard/(.*)$", "status": 308, "headers": { "Location": "https://app.noemaprotocol.xyz/dashboard/$1" } }
   ]
 }
