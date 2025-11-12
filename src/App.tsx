@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from 'react-helmet-async';
 import { WalletProvider } from "./components/WalletProvider";
 import { NetworkProvider } from "./components/NetworkProvider";
 import { MessageProvider } from "./contexts/MessageContext";
@@ -44,15 +45,16 @@ const LoadingScreen = () => (
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <NetworkProvider>
-        <WalletProvider>
-          <MessageProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Navbar />
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <NetworkProvider>
+          <WalletProvider>
+            <MessageProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Navbar />
                 <Suspense fallback={<LoadingScreen /> }>
                   <Routes>
                     {/* Home root */}
@@ -90,6 +92,7 @@ const App = () => {
         </WalletProvider>
       </NetworkProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 

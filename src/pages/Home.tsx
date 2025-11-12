@@ -1,12 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Bot, Layers, Network, Shield, Coins, Code2, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation';
+import { Helmet } from 'react-helmet-async';
 
 const APP_BASE = import.meta.env.VITE_APP_BASE_URL ?? 'https://app.noemaprotocol.xyz';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+      <Helmet>
+        <title>Noema Protocol | SPL-8004 - AI Agent Infrastructure on Solana</title>
+        <meta name="description" content="On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents. Built on Solana with SPL-8004 standard." />
+        <link rel="icon" type="image/svg+xml" href="/branding/logo.svg" />
+        <meta property="og:title" content="Noema Protocol | SPL-8004" />
+        <meta property="og:description" content="The Neural Infrastructure for Autonomous Finance" />
+        <meta property="og:image" content="/branding/logo.svg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Noema Protocol | SPL-8004" />
+        <meta name="twitter:description" content="AI Agent Infrastructure on Solana" />
+      </Helmet>
       <main className="container mx-auto px-6 py-24">
         <div className="max-w-5xl mx-auto space-y-24">
           {/* HERO */}
