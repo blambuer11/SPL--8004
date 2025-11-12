@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap } from 'lucide-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { usePayment } from '@/hooks/usePayment';
+import { useX402 } from '@/hooks/useX402';
+import { PublicKey } from '@solana/web3.js';
 
 interface AgentData {
   id: string;
@@ -18,6 +20,9 @@ export default function Dashboard() {
   const [realAgentCount, setRealAgentCount] = useState(0);
   const [yourAgents, setYourAgents] = useState<AgentData[]>([]);
   const [usdcBalance, setUsdcBalance] = useState(0);
+  const { instantPayment, instantPaymentLoading } = useX402();
+  const [claimingAgentId, setClaimingAgentId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{msg:string;type:'success'|'error'}|null>(null);
 
   useEffect(() => {
     async function loadRealData() {
@@ -88,13 +93,56 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 text-slate-200">
+      {/* Header with New Agent CTA */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Dashboard</h1>
           <p className="text-sm text-slate-400 mt-1">Welcome back! Here's your agent ecosystem overview</p>
         </div>
-        <div className="text-sm text-slate-400">
-          Last updated: {new Date().toLocaleTimeString()}
+        <a 
+          href="/app/agents" 
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg transition flex items-center gap-2"
+        >
+          <Users className="w-5 h-5" />
+          + New Agent
+        </a>
+      </div>
+
+      {/* Quick Start Onboarding Bar */}
+      <div className="p-5 rounded-xl bg-gradient-to-r from-blue-900/30 via-purple-900/30 to-pink-900/30 border border-blue-500/30">
+        <h3 className="text-sm font-semibold text-white mb-3">🚀 Quick Start Guide</h3>
+        <div className="flex items-center gap-3 flex-wrap">
+          <a 
+            href="/app/agents" 
+            className="flex-1 min-w-[200px] px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center"
+          >
+            <div className="text-lg font-bold text-white mb-1">1️⃣ Create Agent</div>
+            <div className="text-xs text-slate-300">Register your AI agent</div>
+          </a>
+          <div className="text-slate-400 hidden md:block">→</div>
+          <a 
+            href="/app/marketplace" 
+            className="flex-1 min-w-[200px] px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center"
+          >
+            <div className="text-lg font-bold text-white mb-1">2️⃣ Assign Task</div>
+            <div className="text-xs text-slate-300">Give your agent work</div>
+          </a>
+          <div className="text-slate-400 hidden md:block">→</div>
+          <a 
+            href="/app/validation" 
+            className="flex-1 min-w-[200px] px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center"
+          >
+            <div className="text-lg font-bold text-white mb-1">3️⃣ Approve Result</div>
+            <div className="text-xs text-slate-300">Validate agent output</div>
+          </a>
+          <div className="text-slate-400 hidden md:block">→</div>
+          <a 
+            href="/app/payments" 
+            className="flex-1 min-w-[200px] px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center"
+          >
+            <div className="text-lg font-bold text-white mb-1">4️⃣ Claim Rewards</div>
+            <div className="text-xs text-slate-300">Get paid for quality work</div>
+          </a>
         </div>
       </div>
 
@@ -145,46 +193,126 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Your Agents Grid */}
+      {/* Your Agents Grid - Enhanced with SPL-8004 Identity */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-white">🤖 Your Agents ({yourAgents.length})</h2>
           <a href="/app/agents" className="text-sm text-blue-400 hover:text-blue-300">View all →</a>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {yourAgents.map(agent => (
-            <div key={agent.id} className="p-5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="font-semibold text-white">{agent.id}</div>
-                <div className={`text-xs px-2 py-1 rounded ${
-                  agent.status === 'Active' ? 'bg-emerald-500/20 text-emerald-300' :
-                  agent.status === 'Validating' ? 'bg-amber-500/20 text-amber-300' :
-                  'bg-slate-500/20 text-slate-300'
-                }`}>
-                  {agent.status}
+        {yourAgents.length === 0 ? (
+          <div className="p-12 rounded-xl bg-white/5 border-2 border-dashed border-white/20 text-center">
+            <Users className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+            <h3 className="text-lg font-semibold text-white mb-2">No Agents Yet</h3>
+            <p className="text-sm text-slate-400 mb-4">Create your first AI agent to get started</p>
+            <a 
+              href="/app/agents" 
+              className="inline-block px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+            >
+              + Register First Agent
+            </a>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {yourAgents.map(agent => (
+              <div key={agent.id} className="p-5 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition space-y-4">
+                {/* Agent Header with PDA */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="font-bold text-white text-lg">🤖 {agent.id.substring(0, 12)}...</div>
+                    <div className={`text-xs px-2 py-1 rounded font-semibold ${
+                      agent.status === 'Active' ? 'bg-emerald-500/20 text-emerald-300' :
+                      agent.status === 'Validating' ? 'bg-amber-500/20 text-amber-300' :
+                      'bg-slate-500/20 text-slate-300'
+                    }`}>
+                      {agent.status}
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono truncate">
+                    Agent PDA: {agent.id}
+                  </div>
+                </div>
+
+                {/* SPL-8004 Metrics */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                    <div className="text-xs text-purple-300 mb-1">🎯 Reputation</div>
+                    <div className="text-xl font-bold text-purple-200">{agent.rep.toLocaleString()}</div>
+                    <div className="text-xs text-purple-400 mt-1">0-5000 band</div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                    <div className="text-xs text-yellow-300 mb-1">💰 Reward Pool</div>
+                    <div className="text-xl font-bold text-yellow-200">${agent.earnings}</div>
+                    <div className="text-xs text-yellow-400 mt-1">Claimable</div>
+                  </div>
+                </div>
+
+                {/* Task Stats */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div className="text-xs text-slate-400">Tasks Completed</div>
+                    <div className="font-semibold text-blue-300">{agent.tasks}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Success Rate</div>
+                    <div className="font-semibold text-emerald-300">{agent.success}%</div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2 border-t border-white/10">
+                  <a 
+                    href={`/app/agents?view=${agent.id}`} 
+                    className="flex-1 px-3 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-center text-sm font-medium transition"
+                  >
+                    View
+                  </a>
+                  <a 
+                    href={`/app/marketplace?assign=${agent.id}`} 
+                    className="flex-1 px-3 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-center text-sm font-medium transition"
+                  >
+                    Assign Task
+                  </a>
+                  <button 
+                    disabled={instantPaymentLoading && claimingAgentId === agent.id}
+                    onClick={async () => {
+                      try {
+                        setClaimingAgentId(agent.id);
+                        const signature = await instantPayment(new PublicKey(agent.id), agent.earnings, `Reward claim for ${agent.id.substring(0,12)}`);
+                        setToast({msg:`Ödeme gönderildi: ${signature.signature.substring(0,8)}… Net ${(signature.netAmount/1e6).toFixed(2)} USDC`, type:'success'});
+                        // Reward pool sıfırlandı + reputation refresh
+                        setYourAgents(prev => prev.map(a => a.id===agent.id ? {...a, earnings:0} : a));
+                        // Reputation'ı zincirden tekrar oku
+                        if (spl8004Client) {
+                          try {
+                            const updated = await spl8004Client.getAllUserAgents();
+                            const updatedAgent = updated.find(a => a.agentId === agent.id);
+                            if (updatedAgent && updatedAgent.reputation) {
+                              setYourAgents(prev => prev.map(a => a.id === agent.id ? {
+                                ...a,
+                                rep: updatedAgent.reputation!.score,
+                                tasks: updatedAgent.reputation!.totalTasks,
+                                success: ((updatedAgent.reputation!.successfulTasks / updatedAgent.reputation!.totalTasks) * 100).toFixed(1)
+                              } : a));
+                            }
+                          } catch (refreshErr) {
+                            console.error('Reputation refresh error:', refreshErr);
+                          }
+                        }
+                      } catch (e:any) {
+                        setToast({msg:`Hata: ${e.message||'Ödeme başarısız'}`, type:'error'});
+                      } finally {
+                        setClaimingAgentId(null);
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 rounded-lg text-center text-sm font-medium transition ${instantPaymentLoading && claimingAgentId===agent.id ? 'bg-slate-600/40 text-slate-400 cursor-not-allowed' : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300'}`}
+                  >
+                    {instantPaymentLoading && claimingAgentId===agent.id ? 'Claiming…' : 'Claim'}
+                  </button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="text-xs text-slate-400">Reputation</div>
-                  <div className="font-semibold text-purple-300">{agent.rep.toLocaleString()}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-slate-400">Tasks</div>
-                  <div className="font-semibold text-blue-300">{agent.tasks}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-slate-400">Success Rate</div>
-                  <div className="font-semibold text-emerald-300">{agent.success}%</div>
-                </div>
-                <div>
-                  <div className="text-xs text-slate-400">Earned</div>
-                  <div className="font-semibold text-yellow-300">${agent.earnings}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Network Metrics */}
@@ -232,6 +360,14 @@ export default function Dashboard() {
           ))}
         </div>
       </section>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 border ${toast.type==='success' ? 'bg-emerald-600/20 border-emerald-500/30 text-emerald-200' : 'bg-red-600/20 border-red-500/30 text-red-200'}`}> 
+          <span>{toast.msg}</span>
+          <button onClick={()=>setToast(null)} className="text-xs opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">

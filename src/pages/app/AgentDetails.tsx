@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
+import { PublicKey } from '@solana/web3.js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +39,7 @@ export default function AgentDetails() {
   const { agentId } = useParams<{ agentId: string }>();
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getConversation } = useMessages();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [allAgents, setAllAgents] = useState<Agent[]>([]);
@@ -307,15 +310,45 @@ export default function AgentDetails() {
       <Card className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-blue-500/30">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div>
+            <div className="flex-1">
               <CardTitle className="text-3xl text-white">{agent.agentId}</CardTitle>
               <CardDescription className="text-slate-200 mt-2">
                 Owner: {agent.owner.slice(0, 8)}...{agent.owner.slice(-8)}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2 bg-amber-500/30 px-3 py-1.5 rounded-full">
-              <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
-              <span className="font-bold text-amber-200">{agent.reputation?.score || 5000}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-amber-500/30 px-3 py-1.5 rounded-full">
+                <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
+                <span className="font-bold text-amber-200">{agent.reputation?.score || 5000}</span>
+              </div>
+              <Button
+                disabled={instantPaymentLoading}
+                onClick={async () => {
+                  try {
+                    const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                    const res = await instantPayment(
+                      new PublicKey(agent.agentId), 
+                      reward, 
+                      `Reward claim for ${agent.agentId}`
+                    );
+                    toast.success('Reward claimed!', { 
+                      description: `${(res.netAmount / 1e6).toFixed(3)} USDC sent • ${res.signature.substring(0, 8)}…` 
+                    });
+                    // Reload agent data
+                    if (client) {
+                      const userAgents = await client.getAllUserAgents();
+                      const updated = userAgents.find(a => a.agentId === agentId);
+                      if (updated) setAgent(updated);
+                    }
+                  } catch (e: any) {
+                    toast.error('Claim failed: ' + (e.message || 'Unknown error'));
+                  }
+                }}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg"
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                {instantPaymentLoading ? 'Claiming...' : 'Claim Reward'}
+              </Button>
             </div>
           </div>
         </CardHeader>

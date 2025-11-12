@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -30,9 +32,12 @@ interface Agent {
 export default function Agents() {
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getMessagesForAgent } = useMessages();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [claimToast, setClaimToast] = useState<{msg:string;type:'success'|'error'}|null>(null);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [showCommunication, setShowCommunication] = useState(false);
@@ -286,24 +291,56 @@ console.log('Message sent:', message);`
       ) : (
         <div className="grid md:grid-cols-3 gap-4">
           {agents.map(agent => (
-            <Link 
+            <div 
               key={agent.agentId} 
-              to={`/app/agents/${agent.agentId}`} 
-              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-400/40 transition flex flex-col gap-3"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="font-medium">{agent.agentId}</div>
+              <div className="flex items-start justify-between">
+                <Link to={`/app/agents/${agent.agentId}`} className="font-medium hover:underline">
+                  {agent.agentId}
+                </Link>
                 <div className={`text-xs px-2 py-0.5 rounded ${agent.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
                   {agent.isActive ? 'Active' : 'Inactive'}
                 </div>
               </div>
-              <div className="text-xs text-slate-400 space-y-1">
-                <div>Score: {agent.reputation?.score ?? 5000}</div>
-                <div>Tasks: {agent.reputation?.totalTasks ?? 0}</div>
-                <div className="truncate">URI: {agent.metadataUri || 'None'}</div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-400">
+                <div>Score: <span className="text-slate-200 font-semibold">{agent.reputation?.score ?? 5000}</span></div>
+                <div>Tasks: <span className="text-slate-200 font-semibold">{agent.reputation?.totalTasks ?? 0}</span></div>
+                <div className="col-span-2 truncate">URI: {agent.metadataUri || 'None'}</div>
               </div>
-            </Link>
+              <div className="flex gap-2 mt-auto pt-2 border-t border-white/10">
+                <Link
+                  to={`/app/agents/${agent.agentId}`}
+                  className="flex-1 text-center text-xs px-3 py-2 rounded bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 font-medium transition"
+                >Details</Link>
+                <button
+                  disabled={instantPaymentLoading && claimingId===agent.agentId}
+                  onClick={async () => {
+                    try {
+                      setClaimingId(agent.agentId);
+                      const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                      const res = await instantPayment(new PublicKey(agent.agentId), reward, `Auto reward for ${agent.agentId}`);
+                      setClaimToast({msg:`Claim sent: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
+                    } catch(e:any) {
+                      setClaimToast({msg:`Claim failed: ${e.message || 'error'}`, type:'error'});
+                    } finally {
+                      setClaimingId(null);
+                    }
+                  }}
+                  className={`flex-1 text-center text-xs px-3 py-2 rounded font-medium transition ${instantPaymentLoading && claimingId===agent.agentId ? 'bg-slate-600/30 text-slate-400 cursor-not-allowed' : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300'}`}
+                >
+                  {instantPaymentLoading && claimingId===agent.agentId ? 'Claiming…' : 'Claim'}
+                </button>
+              </div>
+            </div>
           ))}
+        </div>
+      )}
+      
+      {claimToast && (
+        <div className={`fixed bottom-6 left-6 px-4 py-2 rounded-lg text-xs font-medium shadow border ${claimToast.type==='success' ? 'bg-emerald-600/20 border-emerald-500/30 text-emerald-200' : 'bg-red-600/20 border-red-500/30 text-red-200'}`}> 
+          <span>{claimToast.msg}</span>
+          <button onClick={()=>setClaimToast(null)} className="ml-3 opacity-70 hover:opacity-100">✕</button>
         </div>
       )}
     </div>

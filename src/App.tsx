@@ -10,6 +10,11 @@ import { MessageProvider } from "./contexts/MessageContext";
 import { Navbar } from "./components/Navbar";
 import Home from './pages/Home';
 import Documentation from './pages/Documentation';
+// App section pages (lazy import yerine direkt)
+import AppLayout from './layouts/AppLayout';
+import Dashboard from './pages/app/Dashboard';
+import Agents from './pages/app/Agents';
+import AgentDetails from './pages/app/AgentDetails';
 import ErrorBoundary from "./components/ErrorBoundary";
 // Tek sayfa mimariye geçildi; diğer importlar kaldırıldı
 
@@ -40,7 +45,15 @@ const App = () => {
                   <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
                   {/* Documentation standalone */}
                   <Route path="/documentation" element={<ErrorBoundary><Documentation /></ErrorBoundary>} />
-                  {/* All /app and /dashboard routes redirect to app.noemaprotocol.xyz via vercel.json */}
+                  
+                  {/* App section - internal routes for local dev */}
+                  <Route path="/app" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/app/agents" element={<AppLayout><Agents /></AppLayout>} />
+                  <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
+                  
+                  {/* Fallback */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
             </BrowserRouter>
