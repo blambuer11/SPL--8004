@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap } from 'lucide-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { usePayment } from '@/hooks/usePayment';
@@ -107,7 +108,7 @@ export default function Dashboard() {
         >
           <Users className="w-5 h-5" />
           + New Agent
-        </a>
+        </Link>
       </div>
 
       {/* Quick Start Onboarding Bar */}
@@ -120,7 +121,7 @@ export default function Dashboard() {
           >
             <div className="text-lg font-bold text-white mb-1">1️⃣ Create Agent</div>
             <div className="text-xs text-slate-300">Register your AI agent</div>
-          </a>
+          </Link>
           <div className="text-slate-400 hidden md:block">→</div>
           <a 
             href="/app/marketplace" 
@@ -128,7 +129,7 @@ export default function Dashboard() {
           >
             <div className="text-lg font-bold text-white mb-1">2️⃣ Assign Task</div>
             <div className="text-xs text-slate-300">Give your agent work</div>
-          </a>
+          </Link>
           <div className="text-slate-400 hidden md:block">→</div>
           <a 
             href="/app/validation" 
@@ -136,7 +137,7 @@ export default function Dashboard() {
           >
             <div className="text-lg font-bold text-white mb-1">3️⃣ Approve Result</div>
             <div className="text-xs text-slate-300">Validate agent output</div>
-          </a>
+          </Link>
           <div className="text-slate-400 hidden md:block">→</div>
           <a 
             href="/app/payments" 
@@ -144,7 +145,7 @@ export default function Dashboard() {
           >
             <div className="text-lg font-bold text-white mb-1">4️⃣ Claim Rewards</div>
             <div className="text-xs text-slate-300">Get paid for quality work</div>
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -199,7 +200,7 @@ export default function Dashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-white">🤖 Your Agents ({yourAgents.length})</h2>
-          <a href="/app/agents" className="text-sm text-blue-400 hover:text-blue-300">View all →</a>
+          <Link to="/app/agents" className="text-sm text-blue-400 hover:text-blue-300">View all →</Link>
         </div>
         {yourAgents.length === 0 ? (
           <div className="p-12 rounded-xl bg-white/5 border-2 border-dashed border-white/20 text-center">
@@ -211,7 +212,7 @@ export default function Dashboard() {
               className="inline-block px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
             >
               + Register First Agent
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -267,13 +268,13 @@ export default function Dashboard() {
                     className="flex-1 px-3 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-center text-sm font-medium transition"
                   >
                     View
-                  </a>
+                  </Link>
                   <a 
                     href={`/app/marketplace?assign=${agent.id}`} 
                     className="flex-1 px-3 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-center text-sm font-medium transition"
                   >
                     Assign Task
-                  </a>
+                  </Link>
                   <button 
                     disabled={instantPaymentLoading && claimingAgentId === agent.id}
                     onClick={async () => {
@@ -333,7 +334,7 @@ export default function Dashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-white">📊 Recent Activity</h2>
-          <a href="/app/payments" className="text-sm text-blue-400 hover:text-blue-300">View all transactions →</a>
+          <Link to="/app/payments" className="text-sm text-blue-400 hover:text-blue-300">View all transactions →</Link>
         </div>
         <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-3 max-h-96 overflow-y-auto">
           {recentActivity.map((activity, idx) => (
@@ -374,21 +375,21 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="/app/agents" className="p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-blue-500/30 hover:border-blue-400/50 transition text-center">
+        <Link to="/app/agents" className="p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-blue-500/30 hover:border-blue-400/50 transition text-center">
           <div className="text-3xl mb-2">🤖</div>
           <div className="font-semibold text-white">Register New Agent</div>
           <div className="text-xs text-slate-400 mt-1">Add agent to network</div>
-        </a>
-        <a href="/app/marketplace" className="p-6 rounded-xl bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 hover:border-purple-400/50 transition text-center">
+        </Link>
+        <Link to="/app/marketplace" className="p-6 rounded-xl bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 hover:border-purple-400/50 transition text-center">
           <div className="text-3xl mb-2">🏪</div>
           <div className="font-semibold text-white">Browse Marketplace</div>
           <div className="text-xs text-slate-400 mt-1">Hire AI agents</div>
-        </a>
-        <a href="/app/staking" className="p-6 rounded-xl bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 hover:border-emerald-400/50 transition text-center">
+        </Link>
+        <Link to="/app/staking" className="p-6 rounded-xl bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 hover:border-emerald-400/50 transition text-center">
           <div className="text-3xl mb-2">💎</div>
           <div className="font-semibold text-white">Stake & Validate</div>
           <div className="text-xs text-slate-400 mt-1">Earn rewards</div>
-        </a>
+        </Link>
       </section>
     </div>
   );

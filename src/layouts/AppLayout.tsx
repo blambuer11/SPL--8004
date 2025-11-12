@@ -56,10 +56,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <div className="h-screen w-full flex bg-[#0b0e14] text-white">
       {/* Sidebar */}
       <aside className="w-64 border-r border-white/10 p-4 space-y-6 flex flex-col">
-        <Link to="/app/dashboard" className="flex items-center gap-2 px-2">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-            ∩
-          </div>
+        <Link to="/app/dashboard" className="flex items-center gap-3 px-2">
+          <img src="/branding/logo.svg" alt="Noema" className="w-9 h-9 rounded-lg" />
           <div className="flex flex-col">
             <span className="font-semibold leading-tight">Noema</span>
             <span className="text-[10px] text-slate-400 -mt-0.5">SPL-8004 Stack</span>
@@ -117,6 +115,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-[#0b0e14] to-[#141922]">
           {children}
         </div>
+        {/* Footer */}
+        <footer className="h-14 border-t border-white/10 px-6 flex items-center justify-between bg-[#0b0e14]">
+          <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <img src="/branding/logo.svg" alt="Noema" className="w-5 h-5" />
+            <span>Noema Protocol — SPL-8004 Suite</span>
+          </div>
+          <div className="text-xs text-slate-500 flex items-center gap-4">
+            <Link to="/documentation" className="hover:text-slate-300">Docs</Link>
+            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>
+          </div>
+        </footer>
       </main>
     </div>
   );
