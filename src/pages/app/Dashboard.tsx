@@ -7,6 +7,7 @@ import { PublicKey } from '@solana/web3.js';
 
 interface AgentData {
   id: string;
+  owner: string; // Wallet address of agent owner
   rep: number;
   status: string;
   tasks: number;
@@ -36,6 +37,7 @@ export default function Dashboard() {
         // Transform agents for display
         const agentData = agents.slice(0, 6).map(agent => ({
           id: agent.agentId,
+          owner: agent.owner, // Add owner address for payments
           rep: agent.reputation?.score || 5000,
           status: agent.isActive ? 'Active' : 'Inactive',
           tasks: agent.reputation?.totalTasks || 0,
@@ -277,7 +279,8 @@ export default function Dashboard() {
                     onClick={async () => {
                       try {
                         setClaimingAgentId(agent.id);
-                        const signature = await instantPayment(new PublicKey(agent.id), agent.earnings, `Reward claim for ${agent.id.substring(0,12)}`);
+                        // Send to owner address, not agentId
+                        const signature = await instantPayment(new PublicKey(agent.owner), agent.earnings, `Reward claim for ${agent.id.substring(0,12)}`);
                         setToast({msg:`Ödeme gönderildi: ${signature.signature.substring(0,8)}… Net ${(signature.netAmount/1e6).toFixed(2)} USDC`, type:'success'});
                         // Reward pool sıfırlandı + reputation refresh
                         setYourAgents(prev => prev.map(a => a.id===agent.id ? {...a, earnings:0} : a));

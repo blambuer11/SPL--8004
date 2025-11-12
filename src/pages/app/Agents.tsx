@@ -321,10 +321,26 @@ console.log('Message sent:', message);`
                   onClick={async () => {
                     try {
                       setClaimingId(agent.agentId);
+                      console.log('🎯 Claiming for agent:', agent.agentId);
+                      console.log('Agent owner:', agent.owner);
+                      
                       const reward = ((agent.reputation?.score ?? 5000) * 0.001);
-                      const res = await instantPayment(new PublicKey(agent.agentId), reward, `Auto reward for ${agent.agentId}`);
+                      console.log('Reward amount:', reward, 'USDC');
+                      
+                      // Send reward to agent OWNER (wallet address), not agentId
+                      const recipientPubkey = new PublicKey(agent.owner);
+                      console.log('✅ Sending to owner:', recipientPubkey.toBase58());
+                      
+                      const res = await instantPayment(recipientPubkey, reward, `Reward for ${agent.agentId}`);
                       setClaimToast({msg:`Claim sent: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
+                      
+                      // Refresh agent data after claim
+                      if (client) {
+                        const updated = await client.getAllUserAgents();
+                        setAgents(updated);
+                      }
                     } catch(e:any) {
+                      console.error('❌ Claim error:', e);
                       setClaimToast({msg:`Claim failed: ${e.message || 'error'}`, type:'error'});
                     } finally {
                       setClaimingId(null);

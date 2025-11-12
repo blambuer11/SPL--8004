@@ -326,8 +326,9 @@ export default function AgentDetails() {
                 onClick={async () => {
                   try {
                     const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                    // Send to owner address, not agentId
                     const res = await instantPayment(
-                      new PublicKey(agent.agentId), 
+                      new PublicKey(agent.owner), 
                       reward, 
                       `Reward claim for ${agent.agentId}`
                     );
