@@ -1,6 +1,19 @@
-import { BookOpen, Code, Zap, DollarSign, Lock, Terminal } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Code, Zap, DollarSign, Lock, Terminal, Menu, X, ChevronRight } from 'lucide-react';
 
 export default function Docs() {
+  const [activeSection, setActiveSection] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const sections = [
+    { id: 'overview', title: 'Overview', icon: BookOpen },
+    { id: 'api-endpoints', title: 'API Endpoints', icon: Terminal },
+    { id: 'x402-api', title: 'X402 Payment API', icon: Zap },
+    { id: 'code-examples', title: 'Code Examples', icon: Code },
+    { id: 'pricing', title: 'Pricing', icon: DollarSign },
+    { id: 'authentication', title: 'Authentication', icon: Lock },
+  ];
+
   const apiEndpoints = [
     {
       method: 'POST',
@@ -16,7 +29,7 @@ export default function Docs() {
       auth: 'Public',
       pricing: 'Free',
     },
-      {
+    {
       method: 'POST',
       path: '/api/messaging/send',
       description: 'Send agent-to-agent message via SPL-ACP',
@@ -30,12 +43,12 @@ export default function Docs() {
       auth: 'Agent signature required',
       pricing: 'Free',
     },
-      {
+    {
       method: 'POST',
-      path: '/api/payments/send',
-      description: 'Send USDC payment via X402 protocol',
-      auth: 'Wallet signature required',
-      pricing: '0.1% fee via X402',
+      path: '/api/x402/payment',
+      description: 'Create instant USDC payment via X402 protocol',
+      auth: 'API key required (x-api-key header)',
+      pricing: '0.5% fee',
     },
     {
       method: 'POST',
@@ -166,44 +179,185 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
   };
 
   return (
-    <div className="space-y-8 text-slate-200 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20">
-          <BookOpen className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-semibold text-purple-300">Developer Documentation</span>
+    <div className="flex gap-6 text-slate-200">
+      {/* Sidebar */}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0`}>
+        <div className={`sticky top-6 ${sidebarOpen ? 'block' : 'hidden'}`}>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-white">Documentation</h3>
+              <button onClick={() => setSidebarOpen(false)} className="p-1 hover:bg-white/10 rounded">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <nav className="space-y-1">
+              {sections.map((section) => {
+                const Icon = section.icon;
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => {
+                      setActiveSection(section.id);
+                      document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                      activeSection === section.id
+                        ? 'bg-purple-500/20 text-purple-300 font-semibold'
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="flex-1 text-left">{section.title}</span>
+                    {activeSection === section.id && <ChevronRight className="w-4 h-4" />}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
-        <h1 className="text-4xl font-bold text-white">SPL-8004 API Reference</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          Complete API documentation, code examples, and pricing information for building on SPL-8004
-        </p>
-      </div>
+      </aside>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <a href="#api-endpoints" className="p-4 rounded-xl bg-blue-900/30 border border-blue-500/30 hover:border-blue-400/50 transition text-center">
-          <Terminal className="w-8 h-8 mx-auto mb-2 text-blue-400" />
-          <div className="font-semibold text-white">API Endpoints</div>
-        </a>
-        <a href="#code-examples" className="p-4 rounded-xl bg-purple-900/30 border border-purple-500/30 hover:border-purple-400/50 transition text-center">
-          <Code className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-          <div className="font-semibold text-white">Code Examples</div>
-        </a>
-        <a href="#pricing" className="p-4 rounded-xl bg-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/50 transition text-center">
-          <DollarSign className="w-8 h-8 mx-auto mb-2 text-emerald-400" />
-          <div className="font-semibold text-white">Pricing</div>
-        </a>
-        <a href="#authentication" className="p-4 rounded-xl bg-amber-900/30 border border-amber-500/30 hover:border-amber-400/50 transition text-center">
-          <Lock className="w-8 h-8 mx-auto mb-2 text-amber-400" />
-          <div className="font-semibold text-white">Authentication</div>
-        </a>
-      </div>
+      {/* Main Content */}
+      <div className="flex-1 space-y-8 max-w-4xl">
+        {/* Sidebar Toggle (when closed) */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed left-6 top-24 p-2 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition z-10"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Header */}
+        <div id="overview" className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20">
+            <BookOpen className="w-4 h-4 text-purple-400" />
+            <span className="text-sm font-semibold text-purple-300">Developer Documentation</span>
+          </div>
+          <h1 className="text-4xl font-bold text-white">Noema Protocol API Reference</h1>
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Complete API documentation for SPL-8004, X402, and multi-protocol integration
+          </p>
+        </div>
+
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/30">
+            <h3 className="font-bold text-white mb-2">SPL-8004 Core</h3>
+            <p className="text-sm text-slate-300">Agent identity, reputation, and on-chain registry</p>
+          </div>
+          <div className="p-5 rounded-xl bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border border-blue-500/30">
+            <h3 className="font-bold text-white mb-2">X402 Payments</h3>
+            <p className="text-sm text-slate-300">Instant USDC settlements with 0.5% fee</p>
+          </div>
+          <div className="p-5 rounded-xl bg-gradient-to-br from-emerald-900/30 to-teal-900/30 border border-emerald-500/30">
+            <h3 className="font-bold text-white mb-2">Multi-Protocol Router</h3>
+            <p className="text-sm text-slate-300">ACP, TAP, FCP, Solana Pay integration</p>
+          </div>
+          <div className="p-5 rounded-xl bg-gradient-to-br from-amber-900/30 to-orange-900/30 border border-amber-500/30">
+            <h3 className="font-bold text-white mb-2">REST API Gateway</h3>
+            <p className="text-sm text-slate-300">Secure, rate-limited HTTP endpoints</p>
+          </div>
+        </div>
+
+      {/* X402 Payment API */}
+      <section id="x402-api" className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Zap className="w-6 h-6 text-yellow-400" />
+          <h2 className="text-2xl font-bold text-white">X402 Payment API</h2>
+        </div>
+        <div className="p-6 rounded-xl bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border border-yellow-500/30">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Instant USDC Payments</h3>
+              <p className="text-sm text-slate-300">
+                Create X402 payment transactions with automatic USDC settlement in ~400ms
+              </p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs font-semibold">
+              LIVE
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-black/30">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-mono font-semibold">POST</span>
+                <code className="text-sm text-purple-300">https://api.noemaprotocol.xyz/api/x402/payment</code>
+              </div>
+              <p className="text-xs text-slate-400 mb-3">Create instant payment transaction</p>
+              
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  <span className="text-slate-400">Authentication: API Key (x-api-key header)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-3 h-3 text-emerald-400" />
+                  <span className="text-slate-400">Fee: 0.5% of payment amount</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Request Body:</h4>
+              <pre className="p-3 rounded-lg bg-slate-950 border border-white/10 text-xs overflow-x-auto">
+                <code className="text-emerald-300">{`{
+  "amount": 0.01,        // USDC amount
+  "recipient": "WALLET_ADDRESS",
+  "memo": "AI task payment"
+}`}</code>
+              </pre>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Example cURL:</h4>
+              <pre className="p-3 rounded-lg bg-slate-950 border border-white/10 text-xs overflow-x-auto">
+                <code className="text-blue-300">{`curl -X POST https://api.noemaprotocol.xyz/api/x402/payment \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: noema_sk_demo_12345" \\
+  -d '{
+    "amount": 0.01,
+    "recipient": "2eMCYLPtxuN7gYNTxWfecbuHEKFsoXLfKLPcMERYaNfJ",
+    "memo": "Task payment"
+  }'`}</code>
+              </pre>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Response:</h4>
+              <pre className="p-3 rounded-lg bg-slate-950 border border-white/10 text-xs overflow-x-auto">
+                <code className="text-purple-300">{`{
+  "success": true,
+  "transactionId": "PAYMENT_PDA_ADDRESS",
+  "paymentInfo": {
+    "amount": 0.01,
+    "recipient": "2eMCY...",
+    "fee": 0.00005,
+    "netAmount": 0.00995,
+    "timestamp": 1699564800000
+  },
+  "transaction": "BASE64_SERIALIZED_TX"
+}`}</code>
+              </pre>
+            </div>
+
+            <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+              <p className="text-xs text-blue-300">
+                <strong>💡 Integration Guide:</strong> Get your API key from Settings → API Keys. 
+                Rate limit: 10 requests/minute. For higher limits, contact enterprise@noemaprotocol.xyz
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* API Endpoints */}
       <section id="api-endpoints" className="space-y-4">
         <div className="flex items-center gap-3">
           <Terminal className="w-6 h-6 text-blue-400" />
-          <h2 className="text-2xl font-bold text-white">API Endpoints</h2>
+          <h2 className="text-2xl font-bold text-white">All API Endpoints</h2>
         </div>
         <div className="space-y-3">
           {apiEndpoints.map((endpoint, idx) => (
@@ -331,6 +485,7 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
           </a>
         </div>
       </section>
+      </div>
     </div>
   );
 }

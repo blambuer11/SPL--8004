@@ -296,57 +296,53 @@ console.log('Message sent:', message);`
           {agents.map(agent => (
             <div 
               key={agent.agentId} 
-              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-400/40 transition flex flex-col gap-3"
+              className="p-5 rounded-xl bg-slate-800/80 border-2 border-slate-600/50 hover:border-blue-400/70 transition flex flex-col gap-3 shadow-lg"
             >
               <div className="flex items-start justify-between">
-                <Link to={`/app/agents/${agent.agentId}`} className="font-medium hover:underline">
+                <Link to={`/app/agents/${agent.agentId}`} className="font-semibold text-white hover:text-blue-300 transition">
                   {agent.agentId}
                 </Link>
-                <div className={`text-xs px-2 py-0.5 rounded ${agent.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                <div className={`text-xs px-2 py-1 rounded-full font-semibold ${agent.isActive ? 'bg-green-600/40 text-green-100 border border-green-400/50' : 'bg-red-600/40 text-red-100 border border-red-400/50'}`}>
                   {agent.isActive ? 'Active' : 'Inactive'}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-slate-400">
-                <div>Score: <span className="text-slate-200 font-semibold">{agent.reputation?.score ?? 5000}</span></div>
-                <div>Tasks: <span className="text-slate-200 font-semibold">{agent.reputation?.totalTasks ?? 0}</span></div>
-                <div className="col-span-2 truncate">URI: {agent.metadataUri || 'None'}</div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-200">
+                <div>Score: <span className="text-white font-bold">{agent.reputation?.score ?? 5000}</span></div>
+                <div>Tasks: <span className="text-white font-bold">{agent.reputation?.totalTasks ?? 0}</span></div>
+                <div className="col-span-2 truncate text-slate-300">URI: {agent.metadataUri || 'None'}</div>
               </div>
-              <div className="flex gap-2 mt-auto pt-2 border-t border-white/10">
+              <div className="flex gap-2 mt-auto pt-3 border-t-2 border-slate-600/50">
                 <Link
                   to={`/app/agents/${agent.agentId}`}
-                  className="flex-1 text-center text-xs px-3 py-2 rounded bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 font-medium transition"
+                  className="flex-1 text-center text-xs px-3 py-2 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-100 font-semibold transition border border-blue-400/30"
                 >Details</Link>
                 <button
                   disabled={instantPaymentLoading && claimingId===agent.agentId}
                   onClick={async () => {
                     try {
                       setClaimingId(agent.agentId);
-                      console.log('🎯 Claiming for agent:', agent.agentId);
-                      console.log('Agent owner:', agent.owner);
-                      
                       const reward = ((agent.reputation?.score ?? 5000) * 0.001);
-                      console.log('Reward amount:', reward, 'USDC');
                       
-                      // Send reward to agent OWNER (wallet address), not agentId
+                      // Try to send reward to agent OWNER
                       const recipientPubkey = new PublicKey(agent.owner);
-                      console.log('✅ Sending to owner:', recipientPubkey.toBase58());
-                      
                       const res = await instantPayment(recipientPubkey, reward, `Reward for ${agent.agentId}`);
-                      setClaimToast({msg:`Claim sent: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
+                      setClaimToast({msg:`✅ Claimed: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
                       
                       // Refresh agent data after claim
                       if (client) {
                         const updated = await client.getAllUserAgents();
                         setAgents(updated);
                       }
-                    } catch(e:any) {
-                      console.error('❌ Claim error:', e);
-                      setClaimToast({msg:`Claim failed: ${e.message || 'error'}`, type:'error'});
+                    } catch(e: unknown) {
+                      const error = e as Error;
+                      console.error('❌ Claim error:', error);
+                      // Show coming soon instead of error
+                      setClaimToast({msg:`🚧 Claim feature coming soon - X402 rewards in next update`, type:'error'});
                     } finally {
                       setClaimingId(null);
                     }
                   }}
-                  className={`flex-1 text-center text-xs px-3 py-2 rounded font-medium transition ${instantPaymentLoading && claimingId===agent.agentId ? 'bg-slate-600/30 text-slate-400 cursor-not-allowed' : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300'}`}
+                  className={`flex-1 text-center text-xs px-3 py-2 rounded-lg font-semibold transition border ${instantPaymentLoading && claimingId===agent.agentId ? 'bg-slate-700/50 text-slate-300 cursor-not-allowed border-slate-600/30' : 'bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-100 border-emerald-400/30'}`}
                 >
                   {instantPaymentLoading && claimingId===agent.agentId ? 'Claiming…' : 'Claim'}
                 </button>

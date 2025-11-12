@@ -49,6 +49,20 @@ export default function Marketplace() {
   const [taskCategory, setTaskCategory] = useState('');
 
   useEffect(() => {
+    // Helper: Validate a potential wallet address (Base58 + PublicKey constructor pass)
+    const isValidPubkey = (value: string): boolean => {
+      if (!value || typeof value !== 'string') return false;
+      const trimmed = value.trim();
+      // Quick reject characters not in Base58 alphabet (Solana excludes 0,O,I,l)
+      if (/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]/.test(trimmed)) return false;
+      try {
+        new PublicKey(trimmed);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
     async function loadAgents() {
       const mockAgents: Agent[] = [
         {
@@ -60,7 +74,8 @@ export default function Marketplace() {
           price: 0.5,
           tasksCompleted: 342,
           verified: true,
-          walletAddress: 'HYqr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3JZvZ2W',
+          // Demo address (valid devnet system program address replaced with a generic valid pk for demo)
+          walletAddress: '11111111111111111111111111111111',
         },
         {
           id: '2',
@@ -71,7 +86,7 @@ export default function Marketplace() {
           price: 0.8,
           tasksCompleted: 189,
           verified: true,
-          walletAddress: 'GpQxVUE7xqBH4zNGV5f8JN5xCVXvZVEcZ9xq5vNXJ3Jv',
+          walletAddress: '3seKjq7P8S4g1JcduVYLb1cS3yx28wz4D2mZ1tT6f4gN',
         },
         {
           id: '3',
@@ -82,7 +97,7 @@ export default function Marketplace() {
           price: 1.2,
           tasksCompleted: 97,
           verified: true,
-          walletAddress: 'AuDiTQxr6T3hMPx9KzBvvPqGFJXvZVEcZ9xq5vNXJ3J',
+          walletAddress: '9xQeWvG816bUx9EPy6dXQjUQ3yJjJjzG7w1c4VFYTLFG',
         },
       ];
 
@@ -131,7 +146,14 @@ export default function Marketplace() {
 
       // Combine all agents: real blockchain agents + marketplace listings + mock agents
       const allAgents = [...realAgents, ...marketplaceAgents, ...mockAgents];
-      setAgents(allAgents);
+      // Attach validity flag (not persisted; runtime only)
+      const enriched = allAgents.map(a => ({
+        ...a,
+        // For future: we could store isWalletValid in Agent interface; keeping ephemeral.
+        // @ts-expect-error add dynamic field
+        isWalletValid: isValidPubkey(a.walletAddress),
+      }));
+      setAgents(enriched);
     }
 
     loadAgents();
@@ -174,6 +196,13 @@ export default function Marketplace() {
     setPaymentModalOpen(true);
   };
 
+  const isValidPubkey = (value: string): boolean => {
+    if (!value || typeof value !== 'string') return false;
+    const trimmed = value.trim();
+    if (/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]/.test(trimmed)) return false;
+    try { new PublicKey(trimmed); return true; } catch { return false; }
+  };
+
   const handlePayment = async () => {
     if (!paymentClient || !selectedAgent || !taskDescription) {
       toast.error('Please fill in all fields');
@@ -187,7 +216,13 @@ export default function Marketplace() {
 
     setPaymentLoading(true);
     try {
-      const agentWallet = new PublicKey(selectedAgent.walletAddress);
+      if (!isValidPubkey(selectedAgent.walletAddress)) {
+        toast.error('Agent cüzdan adresi geçersiz (Base58 değil).', {
+          description: 'Adres yalnızca 1-9 A-H J-N P-Z a-k m-z karakterlerini içermeli ve 32 byte PublicKey üretmelidir.'
+        });
+        return;
+      }
+      const agentWallet = new PublicKey(selectedAgent.walletAddress.trim());
       
       const sig = await paymentClient.sendUSDC({
         recipient: agentWallet,
@@ -373,8 +408,10 @@ export default function Marketplace() {
               <div className="flex gap-2">
                 <Button
                   onClick={() => handleHire(agent)}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-40"
                   size="sm"
+                  disabled={/* @ts-expect-error runtime dynamic field: isWalletValid is not in Agent type */ agent.isWalletValid === false}
+                  title={/* @ts-expect-error runtime dynamic field: isWalletValid is not in Agent type */ agent.isWalletValid === false ? 'Wallet adresi geçersiz - ödeme gönderilemez' : 'Hire Agent'}
                 >
                   <Briefcase className="w-4 h-4 mr-1" />
                   Hire Agent

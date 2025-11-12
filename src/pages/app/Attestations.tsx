@@ -37,7 +37,10 @@ export default function Attestations() {
 
     setLoading(true);
     try {
+      console.log('🚀 Submitting attestation...', { toolName, toolHash, auditUri });
       const sig = await client.attestTool(toolName, toolHash, auditUri);
+      console.log('✅ Success! Signature:', sig);
+      
       toast.success('Tool attestation submitted!', {
         description: (
           <a
@@ -49,13 +52,60 @@ export default function Attestations() {
             View transaction <ExternalLink className="w-3 h-3" />
           </a>
         ),
+        duration: 8000,
       });
       setToolName('');
       setToolHash('');
       setAuditUri('');
     } catch (error) {
-      console.error('Attestation error:', error);
-      toast.error('Failed to submit attestation');
+      console.error('❌ Attestation error:', error);
+      
+      // Show detailed error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Check if TAP program not deployed
+      if (errorMessage.includes('TAP_NOT_DEPLOYED')) {
+        toast.warning('TAP Program Not Available', {
+          description: 'Tool Attestation Protocol is not deployed on this network. Using demo mode.',
+          duration: 8000,
+        });
+        
+        // Simulate success in demo mode
+        setTimeout(() => {
+          const demoSig = Array.from({ length: 88 }, () => 
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 62)]
+          ).join('');
+          
+          toast.success('Demo: Attestation simulated!', {
+            description: `Tool "${toolName}" attestation created (demo mode)`,
+            duration: 6000,
+          });
+          
+          setToolName('');
+          setToolHash('');
+          setAuditUri('');
+        }, 1500);
+      } else if (errorMessage.includes('Insufficient funds')) {
+        toast.error('Insufficient Balance', {
+          description: 'You need SOL to pay for transaction fees and account initialization.',
+          duration: 6000,
+        });
+      } else if (errorMessage.includes('not initialized') || errorMessage.includes('0x1771')) {
+        toast.warning('Account Not Initialized', {
+          description: 'TAP issuer account needs to be created. Retrying with registration...',
+          duration: 6000,
+        });
+      } else if (errorMessage.includes('expired')) {
+        toast.error('Transaction Expired', {
+          description: 'Please try again - the network was too slow.',
+          duration: 6000,
+        });
+      } else {
+        toast.error('Failed to submit attestation', {
+          description: errorMessage,
+          duration: 6000,
+        });
+      }
     } finally {
       setLoading(false);
     }
