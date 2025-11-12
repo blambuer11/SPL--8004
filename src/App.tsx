@@ -15,6 +15,7 @@ import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/app/Dashboard';
 import Agents from './pages/app/Agents';
 import AgentDetails from './pages/app/AgentDetails';
+import X402Test from './pages/app/X402Test';
 import ErrorBoundary from "./components/ErrorBoundary";
 // Tek sayfa mimariye geçildi; diğer importlar kaldırıldı
 
@@ -51,6 +52,7 @@ const App = () => {
                   <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
                   <Route path="/app/agents" element={<AppLayout><Agents /></AppLayout>} />
                   <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
+                  <Route path="/app/x402-test" element={<AppLayout><X402Test /></AppLayout>} />
                   
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/" replace />} />

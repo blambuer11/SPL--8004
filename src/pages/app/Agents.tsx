@@ -43,6 +43,9 @@ export default function Agents() {
   const [showCommunication, setShowCommunication] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
 
+  // DEBUG: Log hook availability
+  console.log('🔍 useX402 hook:', { instantPayment: !!instantPayment, instantPaymentLoading });
+
   useEffect(() => {
     async function loadAgents() {
       if (!client) {
