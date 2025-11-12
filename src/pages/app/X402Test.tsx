@@ -12,7 +12,7 @@ export default function X402Test() {
   const { instantPayment, instantPaymentLoading, checkFacilitator, getFacilitatorInfo } = useX402();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-  const [facilitatorStatus, setFacilitatorStatus] = useState<any>(null);
+  const [facilitatorStatus, setFacilitatorStatus] = useState<{ healthy: boolean; message?: string } | null>(null);
 
   const handleTest = async () => {
     if (!recipient || !amount) {
@@ -34,10 +34,11 @@ export default function X402Test() {
       toast.success(`Payment sent! ${result.signature.substring(0, 8)}...`, {
         description: `Net: ${(result.netAmount / 1e6).toFixed(3)} USDC • Fee: ${(result.fee / 1e6).toFixed(3)} USDC`
       });
-    } catch (error: any) {
-      console.error('❌ Payment failed:', error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('❌ Payment failed:', err);
       toast.error('Payment failed', {
-        description: error.message || 'Unknown error'
+        description: err.message || 'Unknown error'
       });
     }
   };
@@ -45,11 +46,12 @@ export default function X402Test() {
   const handleCheckFacilitator = async () => {
     try {
       const status = await checkFacilitator();
-      setFacilitatorStatus(status);
+      setFacilitatorStatus({ healthy: status, message: status ? 'Healthy' : 'Offline' });
       toast.success('Facilitator checked');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       toast.error('Facilitator check failed', {
-        description: error.message
+        description: err.message
       });
     }
   };

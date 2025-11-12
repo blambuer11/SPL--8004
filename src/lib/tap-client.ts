@@ -62,16 +62,43 @@ export class TAPClient {
 
   async attestTool(toolName: string, toolHash: string, auditUri: string): Promise<string> {
     try {
+      console.log('🔐 Starting attestation...', { toolName, toolHash, auditUri });
+      
       const agentId = toolName;
       const attestationType = toolHash;
       const issuerPubkey = this.wallet.publicKey;
       
+      // First check if TAP program is deployed
+      console.log('🔍 Checking TAP program deployment...');
+      const programInfo = await this.connection.getAccountInfo(this.programId);
+      if (!programInfo || !programInfo.executable) {
+        console.log('⚠️ TAP program not deployed');
+        throw new Error('TAP_NOT_DEPLOYED: Tool Attestation Protocol not available on this network');
+      }
+      console.log('✅ TAP program deployed');
+      
+      console.log('📍 Finding PDAs...');
       const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPubkey);
       const [issuerPda] = this.findIssuerPda(issuerPubkey);
       
-      // Check if issuer account exists, if not we need to initialize it first
-      const issuerAccount = await this.connection.getAccountInfo(issuerPda);
+      console.log('✅ PDAs found:', {
+        attestationPda: attestationPda.toBase58(),
+        issuerPda: issuerPda.toBase58(),
+      });
       
+      // Check if issuer account exists, if not we need to initialize it first
+      console.log('🔍 Checking issuer account...');
+      const issuerAccount = await this.connection.getAccountInfo(issuerPda);
+      console.log('Issuer account exists:', !!issuerAccount);
+      
+      // If issuer doesn't exist, we need to register first
+      if (!issuerAccount) {
+        console.log('📝 Registering issuer first...');
+        await this.registerIssuer();
+        console.log('✅ Issuer registered');
+      }
+      
+      console.log('⚙️ Building instruction...');
       const disc = await this.discriminator("issue_attestation");
 
       // Parameters: agent_id: String, attestation_type: String, claims_uri: String, expires_at: i64, signature: [u8; 64]
@@ -79,7 +106,7 @@ export class TAPClient {
       const attestationTypeBytes = new TextEncoder().encode(attestationType);
       const claimsUriBytes = new TextEncoder().encode(auditUri);
       const expiresAt = BigInt(Date.now() / 1000 + (365 * 24 * 60 * 60)); // 1 year from now
-      const signature = new Uint8Array(64).fill(0); // Dummy signature for now
+      const dummySignature = new Uint8Array(64).fill(0); // Dummy signature for now
 
       // Borsh: disc(8) + agent_id(4+len) + attestation_type(4+len) + claims_uri(4+len) + expires_at(8) + signature(64)
       const dataLen = 8 + 4 + agentIdBytes.length + 4 + attestationTypeBytes.length + 4 + claimsUriBytes.length + 8 + 64;
@@ -112,7 +139,7 @@ export class TAPClient {
       offset += 8;
 
       // signature [u8; 64]
-      data.set(signature, offset);
+      data.set(dummySignature, offset);
 
       // Build instruction with proper account keys
       const keys = [
@@ -134,9 +161,36 @@ export class TAPClient {
         data: Buffer.from(data),
       });
 
-      return this.send([ix]);
+      console.log('📤 Sending transaction...');
+      console.log('Instruction:', {
+        programId: this.programId.toBase58(),
+        keys: keys.map(k => ({ pubkey: k.pubkey.toBase58(), isSigner: k.isSigner, isWritable: k.isWritable })),
+        dataLength: data.length,
+      });
+      
+      const signature = await this.send([ix]);
+      console.log('✅ Attestation submitted!', signature);
+      return signature;
     } catch (error) {
-      console.error('Error in attestTool:', error);
+      console.error('❌ Error in attestTool:', error);
+      
+      // Better error messages
+      if (error instanceof Error) {
+        if (error.message.includes('TAP_NOT_DEPLOYED')) {
+          throw error; // Pass through our custom error
+        } else if (error.message.includes('insufficient')) {
+          throw new Error('Insufficient SOL balance for transaction fees');
+        } else if (error.message.includes('0x1771')) {
+          throw new Error('Account not initialized - TAP program may not be deployed');
+        } else if (error.message.includes('0x1')) {
+          throw new Error('Insufficient funds to initialize issuer account');
+        } else if (error.message.includes('blockhash')) {
+          throw new Error('Transaction expired - please retry');
+        } else if (error.message.includes('simulation failed')) {
+          throw new Error('Transaction simulation failed - check program state');
+        }
+      }
+      
       throw new Error(`Failed to submit attestation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -271,6 +325,56 @@ export class TAPClient {
     } catch (error) {
       console.error("Error verifying attestation:", error);
       return null;
+    }
+  }
+
+  async registerIssuer(): Promise<string> {
+    try {
+      console.log('📝 Registering issuer account...');
+      
+      const [issuerPda] = this.findIssuerPda(this.wallet.publicKey);
+      const disc = await this.discriminator("register_issuer");
+      
+      // Parameters: name: String, contact_info: String
+      const name = "Noema Protocol Issuer";
+      const contactInfo = "https://noemaprotocol.xyz";
+      
+      const nameBytes = new TextEncoder().encode(name);
+      const contactBytes = new TextEncoder().encode(contactInfo);
+      
+      const data = new Uint8Array(8 + 4 + nameBytes.length + 4 + contactBytes.length);
+      let offset = 0;
+      
+      data.set(disc, offset);
+      offset += 8;
+      
+      // name
+      new DataView(data.buffer).setUint32(offset, nameBytes.length, true);
+      offset += 4;
+      data.set(nameBytes, offset);
+      offset += nameBytes.length;
+      
+      // contact_info
+      new DataView(data.buffer).setUint32(offset, contactBytes.length, true);
+      offset += 4;
+      data.set(contactBytes, offset);
+      
+      const ix = new TransactionInstruction({
+        programId: this.programId,
+        keys: [
+          { pubkey: issuerPda, isSigner: false, isWritable: true },
+          { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        ],
+        data: Buffer.from(data),
+      });
+      
+      const signature = await this.send([ix]);
+      console.log('✅ Issuer registered:', signature);
+      return signature;
+    } catch (error) {
+      console.error('❌ Failed to register issuer:', error);
+      throw error;
     }
   }
 

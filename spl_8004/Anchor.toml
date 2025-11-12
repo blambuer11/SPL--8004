@@ -3,6 +3,10 @@ seeds = false
 skip-lint = false
 [programs.localnet]
 spl_8004 = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+x402_facilitator = "Fma6gBu46bG4SE2rt2QQxUAC9Sc1aFmtELVtwvuJfCQf"
+
+[programs.devnet]
+x402_facilitator = "Fma6gBu46bG4SE2rt2QQxUAC9Sc1aFmtELVtwvuJfCQf"
 
 [registry]
 url = "https://api.apr.dev"

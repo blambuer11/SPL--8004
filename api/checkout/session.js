@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     }
 
     const stripe = new Stripe(stripeSecret, { apiVersion: '2024-06-20' });
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:8080';
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://noemaprotocol.xyz';
     const successUrl = `${baseUrl}/?checkout=success`;
     const cancelUrl = `${baseUrl}/pricing?checkout=cancel`;
 

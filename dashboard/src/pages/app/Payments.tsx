@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
-import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionInstruction, Keypair } from '@solana/web3.js';
 import { createX402Client } from '@/lib/x402-client';
-import { getAssociatedTokenAddress, createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction } from '@solana/spl-token';
+import { 
+  getAssociatedTokenAddress, 
+  createAssociatedTokenAccountIdempotentInstruction, 
+  createTransferInstruction,
+  getMinimumBalanceForRentExemptAccount,
+  createInitializeAccountInstruction,
+  TOKEN_PROGRAM_ID,
+  AccountLayout,
+} from '@solana/spl-token';
 import { SendTransactionError, SystemProgram } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { useSPL8004 } from '@/hooks/useSPL8004';
@@ -64,9 +72,9 @@ export default function Payments() {
       return;
     }
 
+    const connection = new Connection(import.meta.env.VITE_RPC_ENDPOINT || 'https://api.devnet.solana.com', 'confirmed');
     try {
       setLoading(true);
-      const connection = new Connection(import.meta.env.VITE_RPC_ENDPOINT || 'https://api.devnet.solana.com', 'confirmed');
 
       // Resolve recipient: Wallet address or Agent ID -> owner wallet
       let recipientPk: PublicKey | null = null;
@@ -94,38 +102,62 @@ export default function Payments() {
       // Manual USDC SPL transfer (wallet-signed, always real)
       const payer = publicKey;
       const usdcMint = new PublicKey(import.meta.env.VITE_USDC_MINT || '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU');
+      const payerAta = await getAssociatedTokenAddress(usdcMint, payer);
 
-  const payerAta = await getAssociatedTokenAddress(usdcMint, payer);
-  const recipientAta = await getAssociatedTokenAddress(usdcMint, recipientPk!, true);
+      // Check if recipient is on-curve (normal wallet) or PDA (off-curve)
+      const recipientIsOnCurve = PublicKey.isOnCurve(recipientPk!.toBytes());
 
       const ixs: TransactionInstruction[] = [];
-      // Detect unsupported recipient owner (e.g. PDA / off-curve) for ATA creation
-      const isRecipientOffCurve = (() => {
-        try {
-          // PublicKey has isOnCurve util internally; fallback to attempt derive ATA and later catch
-          // If recipientPk is a PDA, associated token account program will reject with 'Provided owner is not allowed'
-          // We optimistically proceed and surface readable error if it fails.
-          return false; // defer to actual creation attempt for precise error
-        } catch { return false; }
-      })();
 
       const payerAtaInfo = await connection.getAccountInfo(payerAta);
       if (!payerAtaInfo) {
         ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, payerAta, payer, usdcMint));
       }
-      const recipientAtaInfo = await connection.getAccountInfo(recipientAta);
-      if (!recipientAtaInfo) {
-        try {
-          ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, recipientAta, recipientPk!, usdcMint));
-        } catch (createErr) {
-          toast.error('Alıcı için ATA oluşturulamadı', { description: (createErr as Error).message });
-          setLoading(false);
-          return;
+
+      // Determine destination token account for recipient
+      let destinationTokenAccount: PublicKey | null = null;
+
+      if (recipientIsOnCurve) {
+        // Standard wallet: use ATA (idempotent)
+        const recipientAta = await getAssociatedTokenAddress(usdcMint, recipientPk!, true);
+        const recipientAtaInfo = await connection.getAccountInfo(recipientAta);
+        if (!recipientAtaInfo) {
+          try {
+            ixs.push(createAssociatedTokenAccountIdempotentInstruction(payer, recipientAta, recipientPk!, usdcMint));
+          } catch (createErr) {
+            toast.error('Alıcı için ATA oluşturulamadı', { description: (createErr as Error).message });
+            setLoading(false);
+            return;
+          }
         }
+        destinationTokenAccount = recipientAta;
+      } else {
+        // PDA/off-curve owner: fall back to manual token account creation owned by recipient
+        toast.message('Alıcı PDA: ATA yerine normal token hesabı oluşturuluyor…');
+        const newTokenAccount = Keypair.generate();
+        const rentLamports = await getMinimumBalanceForRentExemptAccount(connection);
+        // Create account owned by token program
+        ixs.push(
+          SystemProgram.createAccount({
+            fromPubkey: payer,
+            newAccountPubkey: newTokenAccount.publicKey,
+            lamports: rentLamports,
+            space: AccountLayout.span,
+            programId: TOKEN_PROGRAM_ID,
+          })
+        );
+        // Initialize as token account with owner = recipient PDA
+        ixs.push(createInitializeAccountInstruction(newTokenAccount.publicKey, usdcMint, recipientPk!, TOKEN_PROGRAM_ID));
+        destinationTokenAccount = newTokenAccount.publicKey;
+
+        // Note: We'll need to partially sign with the new token account keypair before wallet signature
+        // We'll handle partialSign below when assembling the transaction
+        // Attach the keypair to closure for later signing
+  (ixs as any)._newTokenAccountSigner = newTokenAccount;
       }
 
       const amountU64 = Math.floor(parsedAmount * 1_000_000);
-      ixs.push(createTransferInstruction(payerAta, recipientAta, payer, amountU64));
+      ixs.push(createTransferInstruction(payerAta, destinationTokenAccount!, payer, amountU64));
       if (memo) {
         ixs.push(new TransactionInstruction({ keys: [], programId: new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'), data: Buffer.from(memo) }));
       }
@@ -133,6 +165,13 @@ export default function Payments() {
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       const tx = new Transaction({ feePayer: payer, blockhash, lastValidBlockHeight });
       tx.add(...ixs);
+
+      // If we created a manual token account, partially sign with it before wallet signs
+      // @ts-ignore internal attachment for signer
+      const tmpSigner = (ixs as any)._newTokenAccountSigner as Keypair | undefined;
+      if (tmpSigner) {
+        tx.partialSign(tmpSigner);
+      }
 
       toast.message('Opening wallet for signature…');
       const signed = await anchorWallet.signTransaction(tx);

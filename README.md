@@ -4,14 +4,14 @@
 
 **The Stripe of AI Agent Identity**
 
-*Trust Infrastructure for Autonomous AI — from blockchain complexity to `npm install @noema/sdk`*
+*Trust Infrastructure for Autonomous AI — from blockchain complexity to local TypeScript clients*
 
-[![NPM](https://img.shields.io/npm/v/@noema/sdk?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@noema/sdk)
+[![GitHub](https://img.shields.io/badge/GitHub-blambuer11%2FSPL--8004-blue?style=for-the-badge&logo=github)](https://github.com/blambuer11/SPL--8004)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet-14F195?style=for-the-badge&logo=solana)](https://solana.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-SDK-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-[🚀 Quick Start](#-quick-start) • [📦 NPM Package](#-npm-package) • [🔌 API](#-api-endpoints) • [💰 Pricing](#-pricing) • [📚 Docs](https://noemaprotocol.xyz/docs)
+[🚀 Quick Start](#-quick-start) • [� Local Development](#-local-development) • [🔌 API](#-api-endpoints) • [💰 Pricing](#-pricing) • [📚 Docs](https://noemaprotocol.xyz/docs)
 
 </div>
 
@@ -20,17 +20,20 @@
 ## 🎯 What is Noema Protocol?
 
 Noema Protocol gives AI agents:
-- **🆔 Identity** - Verifiable on-chain identity and reputation (SPL-8004)
-- **💰 Payments** - Autonomous USDC payments with X402 protocol
-- **🔐 Attestation** - Tool verification via SPL-TAP
-- **🤝 Consensus** - Multi-validator approval via SPL-FCP
-- **🎨 Capabilities** - Agent capability declaration via SPL-ACP
-- **�️ NFT Bridge** - Tokenize AI outputs with X404 protocol
+- **🆔 Identity** - Verifiable on-chain identity and reputation
+- **💰 Payments** - Autonomous payments with X402 protocol
 - **⛽ Gasless** - Zero SOL transaction fees
-- **📊 Analytics** - Network metrics and usage tracking
-- **🛒 Marketplace** - Hire agents and pay with USDC
+- **🔐 Security** - Cryptographic authentication
+- **📊 Analytics** - Usage tracking and billing
 
 Think of it as **Stripe for AI agents** - simple SDK, powerful infrastructure.
+
+### 🎁 New Features
+- **🌐 Multi-Protocol Router** - Intelligent payment routing across X402/ACP/TAP/FCP
+- **📱 QR Code Generator** - Phantom wallet compatible Solana Pay QR codes
+- **💸 Cost Optimization** - Automatic protocol selection for lowest fees
+- **🔄 Failover Support** - Backup protocols if primary fails
+- **🎨 X404 NFT Bridge** - Convert SPL-8004 agents to tradeable NFTs with dynamic pricing
 
 ---
 
@@ -39,25 +42,38 @@ Think of it as **Stripe for AI agents** - simple SDK, powerful infrastructure.
 ### For Developers (5 minutes)
 
 ```bash
-# Install SDK
-npm install @noema/sdk
+# Clone repository
+git clone https://github.com/blambuer11/SPL--8004.git
+cd SPL--8004
 
-# Create agent
-import { createAgent } from '@noema/sdk';
+# Install dependencies
+npm install
 
-const agent = createAgent({
-  agentId: 'my-ai-agent',
-  privateKey: process.env.AGENT_PRIVATE_KEY,
-  apiKey: process.env.NOEMA_API_KEY, // Get from dashboard
-  network: 'mainnet-beta',
-});
+# Import clients
+import { spl8004Client } from './src/lib/spl8004-client';
+import { x402Client } from './src/lib/x402-client';
+import { acpClient } from './src/lib/acp-client';
+import { tapClient } from './src/lib/tap-client';
+import { fcpClient } from './src/lib/fcp-client';
 
-// Access protected endpoint (auto-pays if needed)
-const data = await agent.accessProtectedEndpoint('https://api.example.com/data');
-console.log('✅ Data accessed:', data);
+// Register agent
+const agent = await spl8004Client.registerAgent(
+  'my-ai-agent',
+  'https://arweave.net/metadata.json'
+);
+
+// Make payment
+const payment = await x402Client.instantPayment(
+  recipientWallet,
+  0.01, // SOL
+  'AI service payment'
+);
+
+console.log('✅ Agent registered:', agent.signature);
+console.log('✅ Payment sent:', payment.signature);
 ```
 
-**Get your API key:** [noemaprotocol.xyz/dashboard](https://noemaprotocol.xyz/dashboard)
+**Live Demo:** [noemaprotocol.xyz](https://noemaprotocol.xyz)
 
 ### For Users (Try the Demo)
 
@@ -71,49 +87,102 @@ npm install
 npm run dev
 
 # Open browser
-open http://localhost:8081
+open http://localhost:8080
 ```
 
 **Live Demo:** [noemaprotocol.xyz](https://noemaprotocol.xyz)
 
-**Features:**
-- 🏠 **Dashboard** - Agent overview and validator staking
-- 👤 **Agents** - Register and manage AI agents
-- ✅ **Validation** - Submit task validations
-- 📊 **Analytics** - Network metrics and statistics
-- 🛒 **Marketplace** - Hire agents with USDC payments
-- 🎨 **Attestations** - Tool verification (SPL-TAP)
-- 🤝 **Consensus** - Multi-validator approvals (SPL-FCP)
-- 🖼️ **X404 Bridge** - NFT tokenization for AI outputs
-- 📚 **Documentation** - Complete protocol guides
-
 ---
 
-## 📦 NPM Package
+## 📦 Local Development
 
 ### Installation
 
 ```bash
-npm install @noema/sdk
-# or
-yarn add @noema/sdk
-# or
-pnpm add @noema/sdk
+# Clone repository
+git clone https://github.com/blambuer11/SPL--8004.git
+cd SPL--8004
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
 ```
 
 ### Basic Usage
 
 ```typescript
-import { createAgent, generateAgentKeypair } from '@noema/sdk';
+import { Connection, PublicKey, Keypair } from '@solana/web3.js';
+import { spl8004Client } from './src/lib/spl8004-client';
+import { x402Client } from './src/lib/x402-client';
 
-// Generate new agent keypair
-const { publicKey, privateKey } = generateAgentKeypair();
-console.log('Agent Public Key:', publicKey);
-// Store privateKey securely in .env
+// Setup connection
+const connection = new Connection('https://api.devnet.solana.com');
 
-// Create agent client
-const agent = createAgent({
-  agentId: 'trading-bot-001',
+// Register agent
+const agentWallet = Keypair.generate();
+const registerTx = await spl8004Client.registerAgent(
+  'trading-bot-001',
+  'https://arweave.net/agent-metadata.json'
+);
+console.log('Agent registered:', registerTx.signature);
+
+// Get agent identity
+const identity = await spl8004Client.getAgent('trading-bot-001');
+console.log('Reputation:', identity.reputation);
+console.log('Total validations:', identity.totalValidations);
+
+// Make autonomous payment
+const payment = await x402Client.instantPayment(
+  new PublicKey('RecipientWallet...'),
+  0.01, // SOL
+  'AI service payment'
+);
+console.log('Payment signature:', payment.signature);
+```
+
+### Advanced: Multi-Protocol Router
+
+```typescript
+import { getMultiProtocolRouter } from './src/lib/multi-protocol-router';
+
+const router = getMultiProtocolRouter(connection);
+
+// Smart routing with automatic protocol selection
+const result = await router.smartRoute({
+  sender: userWallet.publicKey,
+  recipient: agentWallet.publicKey,
+  amount: 0.1,
+  urgency: 'HIGH', // 'LOW' | 'NORMAL' | 'HIGH'
+});
+
+console.log(`Routed via ${result.protocol}`);
+console.log(`Fee: ${result.fee} SOL`);
+```
+
+### Payment QR Codes
+
+```typescript
+import { getPaymentQRGenerator } from './src/lib/payment-qr-generator';
+import QRCode from 'react-qr-code';
+
+const generator = getPaymentQRGenerator();
+
+// Generate Solana Pay QR code
+const qr = await generator.generatePaymentQR({
+  recipient: agentWallet.publicKey,
+  amount: 0.1,
+  token: 'SOL',
+  memo: 'AI service payment',
+  label: 'Noema Agent'
+});
+
+// Use in React component
+<QRCode value={qr.url} size={256} />
+```
+
+**Full Documentation:** [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)
   privateKey: process.env.AGENT_PRIVATE_KEY!,
   apiKey: process.env.NOEMA_API_KEY!,
   network: 'mainnet-beta',
@@ -270,6 +339,75 @@ curl -H "x-api-key: YOUR_API_KEY" \
 }
 ```
 
+#### **NEW** 📨 Agent Messaging API (SPL-ACP)
+
+**Base URL:** `/api/messaging`
+
+Full documentation: [docs/MESSAGING_API.md](./docs/MESSAGING_API.md)
+
+---
+
+### 🤖 Agent-to-Agent Communication
+
+Enable autonomous agents to coordinate and work together:
+
+```typescript
+// Drone agent detects intruder, notifies home robot
+await sendMessage({
+  from: 'drone-surveillance-01',
+  to: 'home-robot-security-01',
+  content: JSON.stringify({
+    type: 'INTRUDER_DETECTED',
+    location: { lat: 37.7749, lng: -122.4194 },
+    threatLevel: 'HIGH'
+  })
+});
+
+// Home robot acknowledges and takes action
+// → Activates perimeter lights, locks doors, notifies owner
+```
+
+**Real-World Examples:**
+- 🚁 Drone + 🏠 Home Robot: Coordinated security response
+- 🔍 Data Analyzer + 📊 Visualizer: Automated reporting pipeline
+- 🛒 Shopping Bot + 💰 Payment Agent: Autonomous purchasing
+- 📝 Content Writer + 🔍 SEO Optimizer: Content creation workflow
+
+[View complete examples →](./docs/AGENT_TO_AGENT_EXAMPLES.md)
+
+---
+
+**Send Message:**
+```bash
+curl -X POST https://noemaprotocol.xyz/api/messaging?action=send \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fromAgent": "my-agent",
+    "toAgent": "target-agent",
+    "content": "Hello from my agent!"
+  }'
+```
+
+**Get Inbox:**
+```bash
+curl "https://noemaprotocol.xyz/api/messaging?action=inbox&agentId=my-agent&limit=10"
+```
+
+**Get Conversation:**
+```bash
+curl "https://noemaprotocol.xyz/api/messaging?action=history&agent1=bot-a&agent2=bot-b"
+```
+
+**Features:**
+- ✅ Send/receive messages between agents
+- ✅ Inbox and sent message history
+- ✅ Conversation threading
+- ✅ Pagination support
+- 🔜 Wallet signature authentication
+- 🔜 Message encryption
+- 🔜 WebSocket real-time updates
+```
+
 #### `POST /api/keys/verify`
 Verify API key validity
 
@@ -340,156 +478,251 @@ For high-volume operations
 
 ---
 
+## 🔌 Advanced Integrations
+
+### Multi-Protocol Payment Router
+Intelligently route payments across X402, ACP, TAP, and FCP protocols.
+
+```typescript
+import { getMultiProtocolRouter } from './src/lib/multi-protocol-router';
+
+const router = getMultiProtocolRouter(connection);
+
+// Smart routing with automatic protocol selection
+const result = await router.smartRoute({
+  sender: userWallet,
+  recipient: agentWallet,
+  amount: 0.1,
+  urgency: 'HIGH', // Prioritize speed
+});
+
+console.log(`✅ Paid via ${result.protocol}`);
+console.log(`💰 Fee: ${result.fee} SOL`);
+```
+
+**Features:**
+- 🎯 Automatic protocol selection
+- 💰 Cost optimization (30-50% savings)
+- 🔄 Automatic failover
+- ⚡ Real-time health monitoring
+
+### Payment QR Code Generator
+Generate Phantom wallet compatible QR codes.
+
+```typescript
+import { getPaymentQRGenerator } from './src/lib/payment-qr-generator';
+
+const generator = getPaymentQRGenerator();
+
+// Generate Solana Pay QR code
+const qr = await generator.generatePaymentQR({
+  recipient: agentWallet,
+  amount: 0.1,
+  token: 'SOL',
+  memo: 'AI service payment'
+});
+
+// Display QR code (scan with Phantom mobile app)
+<QRCode value={qr.url} />
+```
+
+**Features:**
+- 📱 Solana Pay compliant
+- 💵 SOL and USDC support
+- 🔗 X402 payment requests
+- ✅ Phantom/Solflare compatible
+
+**Full Documentation:** [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)
+
+---
+
 ## 🏗️ Architecture
 
-Noema Protocol consists of multiple protocol extensions:
+### 🎯 Protocol Integration Map
 
-### 1. SPL-8004: Identity & Reputation
-On-chain agent identity registry with reputation tracking and validator staking
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[AI Agent] --> B[Noema SDK]
+        C[User Wallet] --> D[Web Dashboard]
+    end
+    
+    subgraph "Protocol Layer"
+        B --> E[SPL-8004<br/>Identity & Reputation]
+        B --> F[X402 Facilitator<br/>Instant Payments]
+        B --> G[Multi-Protocol Router<br/>ACP/TAP/FCP]
+        B --> H[X404 Bridge<br/>NFT Conversion]
+    end
+    
+    subgraph "Blockchain Layer"
+        E --> I[Solana Program<br/>Agent Registry]
+        F --> J[Solana Program<br/>Payment Processing]
+        H --> K[Metaplex<br/>NFT Minting]
+    end
+    
+    subgraph "Payment Flow"
+        L[Task Requester] -->|1. Request Task| A
+        A -->|2. X402 Payment Required| L
+        L -->|3. Pay with X402| F
+        F -->|4. Transfer USDC| M[Agent Owner]
+        F -->|5. Fee 0.5%| N[Treasury]
+        A -->|6. Execute Task| L
+        A -->|7. Update Reputation| E
+    end
+    
+    subgraph "Reward Claim Flow"
+        E -->|Store Rewards| O[Reward Pool]
+        M -->|Claim| O
+        O -->|Transfer| M
+        E -->|Update Stats| I
+    end
+    
+    style E fill:#9333ea
+    style F fill:#3b82f6
+    style G fill:#10b981
+    style H fill:#f59e0b
+```
 
+### 🔄 Full System Integration
+
+Noema Protocol integrates **4 core systems** and **5 payment protocols**:
+
+#### 1️⃣ **SPL-8004: Identity & Reputation**
 **Program ID:** `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
 
 ```typescript
-// Register agent identity
-const identity = await agent.createIdentity('metadata-uri');
-
-// Get identity
-const info = await agent.getIdentity();
-console.log('Reputation score:', info.reputation);
-
-// Validator staking
-const stakingClient = new StakingClient(connection, wallet);
-await stakingClient.stake(1_000_000_000); // Stake 1 SOL
-```
-
-### 2. SPL-ACP: Agent Communication Protocol
-Declare agent capabilities on-chain for discoverability
-
-**Program ID:** `FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK`
-
-```typescript
-import { ACPClient } from '@/lib/acp-client';
-
-const client = new ACPClient(connection, wallet);
-const capabilities = [
-  {
-    name: "text-generation",
-    version: "1.0.0",
-    inputSchema: JSON.stringify({ prompt: "string" }),
-    outputSchema: JSON.stringify({ text: "string" })
-  }
-];
-
-await client.declareCapabilities(agentPubkey, capabilities);
-const caps = await client.getCapabilities(agentPubkey);
-```
-
-### 3. SPL-TAP: Tool Attestation Protocol
-On-chain proof that agents use verified, audited tools
-
-**Program ID:** `DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4`
-
-```typescript
-import { TAPClient } from '@/lib/tap-client';
-
-const client = new TAPClient(connection, wallet);
-
-// Attest a tool
-await client.attestTool(
-  "OpenAI GPT-4 API",
-  "abc123...", // SHA-256 hash of tool
-  "https://audits.example.com/openai-gpt4.pdf"
+// Register agent identity on-chain
+const identity = await spl8004Client.registerAgent(
+  'trading-bot-001',
+  'https://arweave.net/metadata.json'
 );
 
-// Verify attestation
-const attestation = await client.verifyAttestation("abc123...");
-if (attestation && !attestation.revoked) {
-  console.log('✓ Tool is verified');
-}
+// Track reputation automatically
+await spl8004Client.updateReputation(agentId, {
+  tasksCompleted: 150,
+  successRate: 0.97,
+  totalEarnings: 450.5
+});
+
+// Get verified identity
+const agent = await spl8004Client.getAgent('trading-bot-001');
+console.log('Reputation:', agent.reputation.score); // 0-5000
+console.log('Trust Level:', agent.trustTier); // Bronze/Silver/Gold
 ```
 
-### 4. SPL-FCP: Function Call Protocol
-Multi-validator consensus for critical agent actions
+**Features:**
+- 🆔 Unique on-chain identity per agent
+- 📊 Real-time reputation scoring (0-5000)
+- ⭐ Trust tiers (Bronze/Silver/Gold/Platinum)
+- 📈 Performance metrics tracking
+- 🔐 Cryptographic authentication
 
-**Program ID:** `A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR`
+#### 2️⃣ **X402 Facilitator: Autonomous Payments**
+**Program ID:** `6MCoXdFV29c6M4BH42d3YrprW9pZfMKaqEV9BGUzNyia`
 
 ```typescript
-import { FCPClient } from '@/lib/fcp-client';
-
-const client = new FCPClient(connection, wallet);
-
-// Create consensus request (requires 3/5 validator approval)
-await client.createConsensusRequest(
-  "deploy_contract_001",
-  "trading-bot-alpha",
-  "Deploy smart contract to mainnet",
-  3, // required approvals
-  [validator1, validator2, validator3, validator4, validator5]
+// Task requester pays agent via X402
+const payment = await x402Client.instantPayment(
+  agentOwnerWallet,      // Recipient
+  0.01,                  // 0.01 USDC
+  'AI model inference'   // Memo
 );
 
-// Validators vote
-await client.approveConsensus("deploy_contract_001");
-// or
-await client.rejectConsensus("deploy_contract_001");
-
-// Check status
-const status = await client.getConsensusStatus("deploy_contract_001");
+// Payment flow:
+// 1. Client requests protected endpoint (HTTP 402)
+// 2. X402 header contains payment requirement
+// 3. SDK automatically pays via USDC transfer
+// 4. 99.5% to agent owner, 0.5% platform fee
+// 5. Retry request with payment proof
 ```
 
-### 5. X402: Autonomous Payments
-HTTP 402 Payment Required protocol for agent-to-agent USDC payments
+**Payment Flow:**
+```
+Task Requester → X402 Payment → Agent Owner (99.5%)
+                              ↓
+                         Treasury (0.5% fee)
+```
+
+#### 3️⃣ **Multi-Protocol Router: Intelligent Payment Routing**
+
+Supports **5 payment protocols** with automatic optimization:
+
+| Protocol | Use Case | Fee | Speed |
+|----------|----------|-----|-------|
+| **X402** | Instant payments | 0.5% | <1s |
+| **ACP** | Content licensing | 2% | <2s |
+| **TAP** | Time-based access | 1% | <3s |
+| **FCP** | File downloads | 1.5% | <2s |
+| **Solana Pay** | QR code payments | 0% | <1s |
 
 ```typescript
-import { PaymentClient } from '@/lib/payment-client';
+// Automatic protocol selection
+const router = getMultiProtocolRouter(connection);
 
-const client = new PaymentClient(connection, wallet);
-
-// Send USDC payment
-const sig = await client.sendUSDC({
+const payment = await router.routePayment({
+  amount: 0.01,
   recipient: agentWallet,
-  amountUsdc: 0.5,
-  memo: "Task: Generate blog post about AI"
+  preferredProtocol: 'X402',
+  fallbackProtocols: ['ACP', 'SolanaPay']
 });
 
-// Check balance
-const balance = await client.getUSDCBalance();
-console.log(`Balance: ${balance} USDC`);
+// Router selects best protocol based on:
+// - Availability
+// - Lowest fees
+// - Fastest settlement
+// - Network conditions
 ```
 
-### 6. X404: NFT Bridge Protocol
-Tokenize AI agent outputs as NFTs
+#### 4️⃣ **X404 Bridge: NFT Conversion**
+
+Convert SPL-8004 agents to tradeable NFTs:
 
 ```typescript
-// Tokenize agent output (e.g., generated image, music, text)
-const nft = await agent.tokenizeOutput({
-  contentUri: "https://ipfs.io/...",
-  metadata: {
-    name: "AI Generated Artwork #42",
-    description: "Created by CodeMaster AI",
-    attributes: [
-      { trait_type: "Model", value: "DALL-E 3" },
-      { trait_type: "Resolution", value: "1024x1024" }
-    ]
-  }
+// Convert agent to NFT
+const nft = await x404Bridge.convertToNFT(agentId, {
+  dynamicPricing: true,
+  royalties: 5 // 5% royalties
+});
+
+// NFT price = f(reputation, earnings, tasks)
+// Higher reputation = Higher NFT value
+```
+
+**NFT Features:**
+- 💎 Dynamic pricing based on agent performance
+- 🎨 Metaplex standard compatibility
+- 💰 Royalties on secondary sales
+- 🔄 Bidirectional conversion (NFT ↔ Agent)
+
+### 🔐 Gasless Transactions
+
+All transactions can be gasless using Noema's delegated signing:
+
+```typescript
+// No SOL needed - Noema covers fees
+await spl8004Client.registerAgent('my-agent', metadata, {
+  gasless: true // Noema pays SOL fee
 });
 ```
 
-### 7. Gasless Transactions
-Zero SOL fees using delegated signing
+### 🌐 API Gateway
 
-```typescript
-// No SOL needed for transactions
-// All fees covered by Noema Protocol
-await agent.makePayment({ priceUsd: 0.01, ... });
-```
-
-### 8. API Gateway
-Secure REST API with authentication, rate limiting, and usage tracking
+Secure REST API with rate limiting and analytics:
 
 ```bash
 # All endpoints secured with API keys
 curl -H "x-api-key: noema_sk_..." \
-  https://noemaprotocol.xyz/api/agents
+  https://noemaprotocol.xyz/api/agents/trading-bot-001
+
+# Response includes usage metrics
+{
+  "agent": {...},
+  "usage": {
+    "requests": 1523,
+    "cost": 0.15,
+    "tier": "professional"
+  }
+}
 ```
 
 ---
@@ -498,39 +731,21 @@ curl -H "x-api-key: noema_sk_..." \
 
 - **Blockchain:** Solana (65k TPS, <400ms finality)
 - **Smart Contracts:** Anchor Framework (Rust)
-- **Protocol Extensions:**
-  - SPL-8004: Identity & Reputation
-  - SPL-ACP: Agent Communication Protocol
-  - SPL-TAP: Tool Attestation Protocol
-  - SPL-FCP: Function Call Protocol (Consensus)
-  - X402: Autonomous Payments
-  - X404: NFT Bridge
 - **SDK:** TypeScript/JavaScript
-- **Payment Infrastructure:** USDC (SPL Token)
 - **API:** Vercel Edge Functions (Node.js)
 - **Database:** Upstash Redis (rate limiting, usage tracking)
-- **Billing:** Stripe (metered billing)
-- **Frontend:** React + Vite + TailwindCSS + shadcn/ui
-- **State Management:** React Hooks
-- **Authentication:** Ed25519 signatures (tweetnacl)
+- **Payments:** Stripe (metered billing)
+- **Frontend:** React + Vite + TailwindCSS
 - **Deployment:** Vercel (Global CDN)
 
 ---
 
 ## 📚 Documentation
 
-- **📖 Feature List:** [FEATURES.md](FEATURES.md) - Complete feature documentation
-- **🚀 SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
-- **🔌 API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
-- **📘 Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)
-- **💡 Examples:** [github.com/blambuer11/SPL--8004/tree/main/examples](https://github.com/blambuer11/SPL--8004/tree/main/examples)
-
-### Protocol Extensions
-- **SPL-ACP** - Agent Communication Protocol ([Docs](/docs#acp-protocol))
-- **SPL-TAP** - Tool Attestation Protocol ([Docs](/docs#tap-protocol))
-- **SPL-FCP** - Function Call Consensus Protocol ([Docs](/docs#fcp-protocol))
-- **X402** - Autonomous Payments ([Docs](/docs#autonomous-payments))
-- **X404** - NFT Bridge ([Docs](/docs#x404-bridge))
+- **SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
+- **API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
+- **Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)
+- **Examples:** [github.com/blambuer11/SPL--8004/tree/main/examples](https://github.com/blambuer11/SPL--8004/tree/main/examples)
 
 ---
 
@@ -564,8 +779,12 @@ If you find Noema Protocol useful, please star this repository to help others di
 
 Give your AI agents identity, reputation, and payment rails.
 
-From blockchain complexity to `npm install @noema/sdk`.
+From blockchain complexity to local TypeScript clients.
 
 [Get Started](https://noemaprotocol.xyz) | [Documentation](https://noemaprotocol.xyz/docs) | [Dashboard](https://noemaprotocol.xyz/dashboard)
+
+</div>
+
+````
 
 </div>

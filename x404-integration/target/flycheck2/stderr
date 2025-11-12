@@ -1,13 +1,57 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-error: rustc 1.79.0 is not supported by the following packages:
-  indexmap@2.12.0 requires rustc 1.82
-  rayon@1.11.0 requires rustc 1.80
-  rayon-core@1.13.0 requires rustc 1.80
-  rayon-core@1.13.0 requires rustc 1.80
-  rayon-core@1.13.0 requires rustc 1.80
-Either upgrade rustc or select compatible dependency versions with
-`cargo update <name>@<current-ver> --precise <compatible-ver>`
-where `<compatible-ver>` is the latest version supporting rustc 1.79.0
+   0.774772917s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: false }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
+   0.774803625s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-6a714468aef4d198/lib-x404_agent_nft`
 
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+   0.852752750s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: true }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
+   0.852770292s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-f04799b7bfcda333/test-lib-x404_agent_nft`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+    Checking x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)
+error: could not compile `x404-agent-nft` (lib) due to 1 previous error; 15 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `x404-agent-nft` (lib test) due to 1 previous error; 15 warnings emitted

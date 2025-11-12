@@ -35,7 +35,8 @@ const HeroAnimation: React.FC<Props> = ({ className, mountId }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = 0, height = 0, dpr = Math.max(1, window.devicePixelRatio || 1);
+    let width = 0, height = 0;
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
     let rafId = 0;
     let particles: Particle[] = [];
     const countBase = 60; // particle density base

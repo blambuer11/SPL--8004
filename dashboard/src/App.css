@@ -1,0 +1,44 @@
+/* Custom Gradients */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #7C3AED 0%, #4338CA 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+}
+
+.bg-gradient-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+/* Glow Effects */
+.glow-text {
+  text-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+}
+
+.shadow-glow-lg {
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
+}
+
+.shadow-button {
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Custom Components */
+.ai-badge {
+  background: linear-gradient(135deg, #7C3AED 0%, #4338CA 100%);
+}

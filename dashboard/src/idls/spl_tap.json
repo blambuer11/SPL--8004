@@ -1,0 +1,340 @@
+{
+  "version": "0.1.0",
+  "name": "spl_tap",
+  "instructions": [
+    {
+      "name": "initializeConfig",
+      "docs": [
+        "Initialize global config"
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "authority",
+          "type": "publicKey"
+        },
+        {
+          "name": "minStakeForIssuer",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "registerIssuer",
+      "docs": [
+        "Register as attestation issuer (requires stake)"
+      ],
+      "accounts": [
+        {
+          "name": "issuer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "issuerName",
+          "type": "string"
+        },
+        {
+          "name": "metadataUri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "issueAttestation",
+      "docs": [
+        "Issue attestation for an agent"
+      ],
+      "accounts": [
+        {
+          "name": "attestation",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "issuer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "agentId",
+          "type": "string"
+        },
+        {
+          "name": "attestationType",
+          "type": "string"
+        },
+        {
+          "name": "claimsUri",
+          "type": "string"
+        },
+        {
+          "name": "expiresAt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "revokeAttestation",
+      "docs": [
+        "Revoke attestation"
+      ],
+      "accounts": [
+        {
+          "name": "attestation",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "issuer",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "verifyAttestation",
+      "docs": [
+        "Verify attestation validity"
+      ],
+      "accounts": [
+        {
+          "name": "attestation",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [],
+      "returns": "bool"
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GlobalConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "minStakeForIssuer",
+            "type": "u64"
+          },
+          {
+            "name": "totalIssuers",
+            "type": "u64"
+          },
+          {
+            "name": "totalAttestations",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IssuerRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "metadataUri",
+            "type": "string"
+          },
+          {
+            "name": "stakeAmount",
+            "type": "u64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "name": "totalAttestations",
+            "type": "u64"
+          },
+          {
+            "name": "registeredAt",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AttestationRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agentId",
+            "type": "string"
+          },
+          {
+            "name": "issuer",
+            "type": "publicKey"
+          },
+          {
+            "name": "attestationType",
+            "type": "string"
+          },
+          {
+            "name": "claimsUri",
+            "type": "string"
+          },
+          {
+            "name": "issuedAt",
+            "type": "i64"
+          },
+          {
+            "name": "expiresAt",
+            "type": "i64"
+          },
+          {
+            "name": "signature",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "isRevoked",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AgentIdTooLong",
+      "msg": "Agent ID too long (max 32 chars)"
+    },
+    {
+      "code": 6001,
+      "name": "IssuerNameTooLong",
+      "msg": "Issuer name too long (max 64 chars)"
+    },
+    {
+      "code": 6002,
+      "name": "AttestationTypeTooLong",
+      "msg": "Attestation type too long (max 64 chars)"
+    },
+    {
+      "code": 6003,
+      "name": "MetadataUriTooLong",
+      "msg": "Metadata URI too long (max 200 chars)"
+    },
+    {
+      "code": 6004,
+      "name": "ReasonTooLong",
+      "msg": "Reason too long (max 200 chars)"
+    },
+    {
+      "code": 6005,
+      "name": "IssuerNotActive",
+      "msg": "Issuer is not active"
+    },
+    {
+      "code": 6006,
+      "name": "AttestationAlreadyRevoked",
+      "msg": "Attestation already revoked"
+    },
+    {
+      "code": 6007,
+      "name": "UnauthorizedIssuer",
+      "msg": "Unauthorized issuer"
+    }
+  ],
+  "metadata": {
+    "address": "DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4"
+  }
+}

@@ -1,0 +1,6 @@
+<svg width="480" height="120" viewBox="0 0 480 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M40 60 Q120 20 240 60 Q360 100 440 60" stroke="#00FFC6" stroke-width="4" fill="none"/>
+  <circle id="particle" cx="40" cy="60" r="8" fill="#7C4DFF">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M40 60 Q120 20 240 60 Q360 100 440 60"/>
+  </circle>
+</svg>

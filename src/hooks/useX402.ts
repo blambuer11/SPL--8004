@@ -57,50 +57,102 @@ export function useX402(options?: UseX402Options) {
       setInstantPaymentLoading(true);
 
       try {
+        console.log('🚀 Starting instant payment:', {
+          sender: wallet.publicKey.toBase58(),
+          recipient: recipient.toBase58(),
+          amount,
+          memo
+        });
+
         // Derive config PDA
         const [configPda] = PublicKey.findProgramAddressSync(
           [Buffer.from('config')],
           X402_PROGRAM_ID
         );
+        console.log('📝 Config PDA:', configPda.toBase58());
 
-        // Derive payment PDA with timestamp
-        const timestamp = Date.now();
-        const tsBuf = Buffer.alloc(8);
-        tsBuf.writeBigUInt64LE(BigInt(timestamp));
-        const [paymentPda] = PublicKey.findProgramAddressSync(
-          [
-            Buffer.from('payment'),
-            wallet.publicKey.toBuffer(),
-            recipient.toBuffer(),
-            tsBuf,
-          ],
-          X402_PROGRAM_ID
-        );
+        // Try multiple timestamp offsets to match blockchain time
+        let paymentPda: PublicKey | null = null;
+        let successTimestamp = 0;
+        
+        const baseTimestamp = Math.floor(Date.now() / 1000);
+        console.log('⏰ Base timestamp:', baseTimestamp);
+        
+        // Try offsets from -3 to +3 seconds
+        for (let offset = -3; offset <= 3; offset++) {
+          const testTimestamp = baseTimestamp + offset;
+          
+          // Write timestamp as little-endian 64-bit integer (manual to avoid BigInt CSP issues)
+          const tsBuf = Buffer.alloc(8);
+          let ts = testTimestamp;
+          for (let i = 0; i < 8; i++) {
+            tsBuf[i] = ts & 0xff;
+            ts = Math.floor(ts / 256);
+          }
+          
+          const [testPda] = PublicKey.findProgramAddressSync(
+            [
+              Buffer.from('payment'),
+              wallet.publicKey.toBuffer(),
+              recipient.toBuffer(),
+              tsBuf,
+            ],
+            X402_PROGRAM_ID
+          );
+          
+          // Check if account already exists
+          const existing = await connection.getAccountInfo(testPda);
+          if (!existing) {
+            paymentPda = testPda;
+            successTimestamp = testTimestamp;
+            console.log(`✅ Using timestamp ${testTimestamp} (offset ${offset}s)`);
+            break;
+          }
+        }
+        
+        if (!paymentPda) {
+          throw new Error('Could not find available payment PDA (all timestamps used)');
+        }
+        
+        console.log('💳 Payment PDA:', paymentPda.toBase58());
 
         // Get token accounts
         const senderTokenAccount = await getAssociatedTokenAddress(
           USDC_MINT,
           wallet.publicKey
         );
+        console.log('💰 Sender token account:', senderTokenAccount.toBase58());
+
         const recipientTokenAccount = await getAssociatedTokenAddress(
           USDC_MINT,
           recipient
         );
+        console.log('💰 Recipient token account:', recipientTokenAccount.toBase58());
 
         // Read treasury from config
         const configInfo = await connection.getAccountInfo(configPda);
         if (!configInfo) throw new Error('Config not initialized');
         
         const treasuryPubkey = new PublicKey(configInfo.data.subarray(8 + 32, 8 + 32 + 32));
+        console.log('🏦 Treasury:', treasuryPubkey.toBase58());
+        
         const treasuryTokenAccount = await getAssociatedTokenAddress(
           USDC_MINT,
           treasuryPubkey
         );
+        console.log('🏦 Treasury token account:', treasuryTokenAccount.toBase58());
 
         // Build instruction data
-  const discriminator = INSTANT_PAYMENT_DISCRIMINATOR;
+        const discriminator = INSTANT_PAYMENT_DISCRIMINATOR;
+        
+        // Write amount as little-endian 64-bit (manual to avoid BigInt CSP issues)
         const amountBuffer = Buffer.alloc(8);
-        amountBuffer.writeBigUInt64LE(BigInt(Math.floor(amount * 1e6)));
+        const amountMicroUsdc = Math.floor(amount * 1e6);
+        let amt = amountMicroUsdc;
+        for (let i = 0; i < 8; i++) {
+          amountBuffer[i] = amt & 0xff;
+          amt = Math.floor(amt / 256);
+        }
         
         const memoBuffer = Buffer.from(memo, 'utf-8');
         const memoLengthBuffer = Buffer.alloc(4);
@@ -132,10 +184,14 @@ export function useX402(options?: UseX402Options) {
 
         // Send transaction
         const tx = new Transaction().add(ix);
+        console.log('📤 Sending transaction...');
         const signature = await wallet.sendTransaction(tx, connection);
+        console.log('✅ Transaction sent:', signature);
         
         // Confirm
+        console.log('⏳ Confirming...');
         await connection.confirmTransaction(signature, 'confirmed');
+        console.log('✅ Transaction confirmed!');
 
         setLastPaymentSignature(signature);
         setInstantPaymentLoading(false);
@@ -146,12 +202,30 @@ export function useX402(options?: UseX402Options) {
           fee: Math.floor(amount * 1e6 * 0.005),
           paymentPda: paymentPda.toBase58(),
         };
-      } catch (err) {
-        setInstantPaymentLoading(false);
-        throw err;
+      } catch (err: unknown) {
+        const error = err as { message?: string; logs?: string[]; name?: string; code?: string; data?: unknown };
+        console.error('❌ instant_payment failed:', {
+          message: error.message,
+          logs: error.logs,
+          name: error.name,
+          code: error.code,
+          data: error.data
+        });
+
+        let userMsg = 'Payment failed';
+        if (error.message?.includes('insufficient')) {
+          userMsg = 'Insufficient funds';
+        } else if (error.message?.includes('signature')) {
+          userMsg = 'Transaction rejected';
+        } else if (error.logs && error.logs.length > 0) {
+          const lastLog = error.logs[error.logs.length - 1];
+          if (lastLog.includes('Error')) {
+            userMsg = lastLog.substring(0, 100);
+          }
+        }
       }
     },
-    [wallet.publicKey, wallet.sendTransaction, connection]
+    [connection, wallet, INSTANT_PAYMENT_DISCRIMINATOR]
   );
 
   // Create X402 client

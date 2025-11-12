@@ -238,6 +238,18 @@ console.log('━━━━━━━━━━━━━━━━━━━━━━�
   await getListedNFTsExample(mockBridge);
   await calculateValuationExample(mockBridge);
   await startReputationOracleExample(mockBridge);
+  // ============================================
+  // EXAMPLE 9: X402 Instant Payment (Demo Only)
+  // ============================================
+  console.log('💸 Example: X402 Instant Payment to Agent (Demo)\n');
+  console.log('Would execute:');
+  console.log('  1. Read GlobalConfig PDA for treasury');
+  console.log('  2. Derive payment PDA with timestamp');
+  console.log('  3. Build instant_payment instruction');
+  console.log('  4. Send USDC: net=99.5%, fee=0.5% to treasury');
+  console.log('  5. Confirm and log explorer URL');
+  console.log('\nRun this for a real transfer:');
+  console.log('  RECIPIENT=<agent_wallet> AMOUNT=10.5 MEMO="Task reward" node spl-8004-program/x402-facilitator-program/scripts/instant-payment.mjs\n');
   
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('✅ All examples completed!');

@@ -1,9 +1,12 @@
+[toolchain]
+anchor_version = "0.29.0"
+
 [features]
-seeds = false
+resolution = true
 skip-lint = false
 
 [programs.devnet]
-x404_bridge = "ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9"
+x404_bridge = "8py2SrLVTEUwMV728BENyTSEhdDEkVss7z8PQxg2NEeY"
 
 [programs.mainnet]
 x404_bridge = "ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9"
