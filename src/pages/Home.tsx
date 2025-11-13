@@ -31,7 +31,7 @@ export default function Home() {
             <nav className="hidden md:flex items-center gap-6">
               <a href="#overview" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Protocol</a>
               <a href="#integration" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Integration</a>
-              <a href="/documentation" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Docs</a>
+              <a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Docs</a>
               <a href={APP_BASE}>
                 <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Launch App</Button>
               </a>
@@ -64,7 +64,7 @@ export default function Home() {
                     Start Building <ArrowRight className="w-5 h-5" />
                   </Button>
                 </a>
-                <a href="/documentation" aria-label="Read documentation">
+                <a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" aria-label="Read documentation">
                   <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
                     Read Docs
                   </Button>
@@ -328,7 +328,7 @@ export default function Home() {
               <a href={APP_BASE}>
                 <Button size="lg" className="bg-slate-900 hover:bg-slate-800">Start Building →</Button>
               </a>
-              <a href="/documentation">
+              <a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" variant="outline" className="border-slate-300 hover:bg-white">Read Docs</Button>
               </a>
             </div>
@@ -351,7 +351,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Protocol</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="/documentation" className="hover:text-white transition">Documentation</a></li>
+                <li><a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Documentation</a></li>
                 <li><a href={`${APP_BASE}/agents`} className="hover:text-white transition">Agents</a></li>
                 <li><a href={`${APP_BASE}/marketplace`} className="hover:text-white transition">Marketplace</a></li>
                 <li><a href={`${APP_BASE}/analytics`} className="hover:text-white transition">Analytics</a></li>
@@ -360,7 +360,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Developers</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
+                <li><a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">API Reference</a></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
                 <li><a href={`${APP_BASE}/create-agent`} className="hover:text-white transition">Create Agent</a></li>
                 <li><a href={`${APP_BASE}/staking`} className="hover:text-white transition">Validator Guide</a></li>
