@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { useFCP } from '@/hooks/useFCP';
 import type { ConsensusRequest } from '@/lib/fcp-client';
+import { getExplorerTxUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,13 +26,30 @@ export default function Consensus() {
   const [pendingRequests, setPendingRequests] = useState<ConsensusRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
+  const refreshPendingRequests = useCallback(async () => {
+    if (!client || !publicKey) {
+      setPendingRequests([]);
+      return;
+    }
+    setLoadingRequests(true);
+    try {
+      const list = await client.listConsensusRequests({ status: 'pending', wallet: publicKey });
+      setPendingRequests(list);
+    } catch (error) {
+      console.error('Failed to load consensus requests:', error);
+      toast.error('Failed to load pending consensus requests');
+    } finally {
+      setLoadingRequests(false);
+    }
+  }, [client, publicKey]);
+
   useEffect(() => {
-    if (client && connected) {
-      // Mock pending requests for demo
-      // In production, fetch from program accounts
+    if (client && connected && publicKey) {
+      void refreshPendingRequests();
+    } else {
       setPendingRequests([]);
     }
-  }, [client, connected]);
+  }, [client, connected, publicKey, refreshPendingRequests]);
 
   const handleSubmitConsensus = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +99,7 @@ export default function Consensus() {
       setAgentId('');
       setAction('');
       setValidatorsInput('');
+      await refreshPendingRequests();
     } catch (error) {
       console.error('Consensus error:', error);
       toast.error('Failed to create consensus request');
@@ -89,26 +108,56 @@ export default function Consensus() {
     }
   };
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (request: ConsensusRequest) => {
     if (!client) return;
     try {
-      const sig = await client.approveConsensus(id);
+      const sig = await client.approveConsensusWithDetails(
+        request.agentId,
+        request.action,
+        request.address.toBase58(),
+        request.address
+      );
       toast.success('Approval submitted!', {
-        description: `Transaction: ${sig.slice(0, 8)}...`,
+        description: (
+          <a
+            href={getExplorerTxUrl(sig)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            View transaction
+          </a>
+        ),
       });
+      await refreshPendingRequests();
     } catch (error) {
       console.error('Approval error:', error);
       toast.error('Failed to approve');
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (request: ConsensusRequest) => {
     if (!client) return;
     try {
-      const sig = await client.rejectConsensus(id);
+      const sig = await client.rejectConsensusWithDetails(
+        request.agentId,
+        request.action,
+        request.address.toBase58(),
+        request.address
+      );
       toast.warning('Rejection submitted', {
-        description: `Transaction: ${sig.slice(0, 8)}...`,
+        description: (
+          <a
+            href={getExplorerTxUrl(sig)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            View transaction
+          </a>
+        ),
       });
+      await refreshPendingRequests();
     } catch (error) {
       console.error('Rejection error:', error);
       toast.error('Failed to reject');
@@ -174,7 +223,9 @@ export default function Consensus() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {pendingRequests.length === 0 ? (
+          {loadingRequests ? (
+            <div className="text-center py-8 text-slate-400">Loading pending requests…</div>
+          ) : pendingRequests.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
               <Vote className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>No pending consensus requests</p>
@@ -182,50 +233,74 @@ export default function Consensus() {
             </div>
           ) : (
             <div className="space-y-3">
-              {pendingRequests.map(request => (
-                <div key={request.id} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="font-medium text-white">{request.agentId}</p>
-                      <p className="text-sm text-slate-400">{request.action}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-slate-500">
-                        Approvals: {request.approvals.filter(a => a === 1).length}/{request.requiredApprovals}
-                      </p>
-                      <div className="flex gap-1 mt-1">
-                        {request.approvals.map((approved, idx) => (
-                          <span key={idx} className={approved ? 'text-green-400' : 'text-slate-600'}>
-                            {approved ? '✓' : '○'}
-                          </span>
-                        ))}
+              {pendingRequests.map(request => {
+                const isValidator = publicKey ? request.validators.some(v => v.equals(publicKey)) : false;
+                const approvalPercent = request.requiredApprovals === 0
+                  ? 0
+                  : Math.min(1, request.approvals / request.requiredApprovals) * 100;
+                return (
+                  <div key={request.id} className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-white">{request.agentId}</p>
+                        <p className="text-sm text-slate-400">{request.action}</p>
+                        <p className="text-xs text-slate-500 mt-1">Requester: {request.requester.toBase58()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500">Approvals {request.approvals}/{request.requiredApprovals}</p>
+                        <p className="text-xs text-slate-500">Validators {request.validators.length}</p>
+                        <p className="text-xs text-slate-600 mt-1">
+                          Created {new Date(request.createdAt * 1000).toLocaleString()}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  
-                  {publicKey && request.validators.some(v => v.equals(publicKey)) && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(request.id)}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleReject(request.id)}
-                        className="border-red-500/50 hover:bg-red-500/10"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
+
+                    <div className="w-full h-2 rounded bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500"
+                        style={{ width: `${approvalPercent}%` }}
+                      />
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    <div className="flex flex-wrap gap-2 text-xs text-slate-300">
+                      {request.validators.map((validatorKey) => {
+                        const base58 = validatorKey.toBase58();
+                        const highlight = publicKey && validatorKey.equals(publicKey);
+                        return (
+                          <span
+                            key={base58}
+                            className={`px-2 py-1 rounded-full border ${highlight ? 'border-emerald-400/60 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-slate-400 bg-white/5'}`}
+                          >
+                            {base58.slice(0, 4)}…{base58.slice(-4)}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {isValidator && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(request)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReject(request)}
+                          className="border-red-500/50 hover:bg-red-500/10"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>

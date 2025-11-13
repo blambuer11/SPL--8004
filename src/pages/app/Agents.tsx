@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { useSPL8004 } from '@/hooks/useSPL8004';
@@ -42,6 +42,12 @@ export default function Agents() {
   const [messageContent, setMessageContent] = useState('');
   const [showCommunication, setShowCommunication] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newAgentId, setNewAgentId] = useState('');
+  const [newAgentDescription, setNewAgentDescription] = useState('');
+  const [newAgentMetadataUri, setNewAgentMetadataUri] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // DEBUG: Log hook availability
   console.log('🔍 useX402 hook:', { instantPayment: !!instantPayment, instantPaymentLoading });
@@ -69,6 +75,57 @@ export default function Agents() {
 
     loadAgents();
   }, [client, connected]);
+
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      setCreateModalOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleCreateModalChange = (open: boolean) => {
+    setCreateModalOpen(open);
+    const next = new URLSearchParams(searchParams);
+    if (open) {
+      next.set('create', '1');
+    } else {
+      next.delete('create');
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleCreateAgent = async () => {
+    if (!client || !newAgentId.trim()) {
+      toast.error('Please enter an agent ID');
+      return;
+    }
+    if (!newAgentMetadataUri.trim()) {
+      toast.error('Metadata link is required');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      await client.registerAgent(newAgentId.trim(), newAgentMetadataUri.trim());
+      toast.success('Agent created successfully!', {
+        description: `Agent ID: ${newAgentId}`
+      });
+
+      setNewAgentId('');
+      setNewAgentDescription('');
+      setNewAgentMetadataUri('');
+      handleCreateModalChange(false);
+
+      const userAgents = await client.getAllUserAgents();
+      setAgents(userAgents);
+    } catch (error) {
+      console.error('Failed to create agent:', error);
+      toast.error('Failed to create agent', {
+        description: error instanceof Error ? error.message : 'Unknown error'
+      });
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (!connected) {
     return (
@@ -105,12 +162,75 @@ export default function Agents() {
             <Radio className="h-4 w-4" />
             {showCommunication ? 'Hide' : 'Show'} Network
           </Button>
-          <Link 
-            to="/app/create-agent" 
-            className="px-4 py-2 bg-slate-100 text-black rounded hover:bg-slate-200 transition text-sm font-medium"
-          >
-            + Create Agent
-          </Link>
+          <Dialog open={createModalOpen} onOpenChange={handleCreateModalChange}>
+            <DialogTrigger asChild>
+              <Button className="bg-slate-100 text-black hover:bg-slate-200">
+                + Create Agent
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#0b0e14] border-white/10">
+              <DialogHeader>
+                <DialogTitle className="text-white">Create New Agent</DialogTitle>
+                <DialogDescription className="text-slate-400">
+                  Register a new AI agent identity on SPL-8004
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="agentId" className="text-slate-300">Agent ID</Label>
+                  <Input
+                    id="agentId"
+                    placeholder="my-agent-001"
+                    value={newAgentId}
+                    onChange={(e) => setNewAgentId(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Unique identifier for your agent (letters, numbers, hyphens)
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="metadataUri" className="text-slate-300">Metadata Link</Label>
+                  <Input
+                    id="metadataUri"
+                    placeholder="https://arweave.net/your-agent.json"
+                    value={newAgentMetadataUri}
+                    onChange={(e) => setNewAgentMetadataUri(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Public URI containing agent metadata (IPFS, Arweave, HTTPS)</p>
+                </div>
+                <div>
+                  <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe your agent's capabilities..."
+                    value={newAgentDescription}
+                    onChange={(e) => setNewAgentDescription(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    onClick={() => handleCreateModalChange(false)}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={creating}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCreateAgent}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    disabled={creating || !connected || !newAgentId.trim() || !newAgentMetadataUri.trim()}
+                  >
+                    {creating ? 'Creating...' : 'Create Agent'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

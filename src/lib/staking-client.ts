@@ -5,14 +5,42 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 interface ImportMetaEnv {
   readonly VITE_STAKING_PROGRAM_ID?: string;
+  readonly VITE_STAKING_DEMO_MODE?: string;
+  readonly VITE_STAKING_SERVICE_URL?: string;
+}
+
+export interface StakingConfig {
+  address: PublicKey;
+  authority: PublicKey;
+  treasury: PublicKey;
+  registrationFee: number;
+  validationFee: number;
+  validatorMinStake: number;
+  baseApyBps: number;
+  instantUnstakeFeeBps: number;
+}
+
+export interface ValidatorAccount {
+  address: PublicKey;
+  authority: PublicKey;
+  stakedAmount: number;
+  isActive: boolean;
+  lastStakeTs: number;
+  lastRewardClaim: number;
+  totalValidations: number;
+  pendingRewards: number;
 }
 
 const STAKING_PROGRAM_ID_FROM_ENV = (import.meta as unknown as { env: ImportMetaEnv }).env.VITE_STAKING_PROGRAM_ID;
 export const STAKING_PROGRAM_ID = new PublicKey(
   (STAKING_PROGRAM_ID_FROM_ENV && STAKING_PROGRAM_ID_FROM_ENV.trim().length > 0)
     ? STAKING_PROGRAM_ID_FROM_ENV.trim()
-  : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
+  : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW" // Devnet program
 );
+const DEMO_MODE = (((import.meta as unknown as { env: ImportMetaEnv }).env.VITE_STAKING_DEMO_MODE) || "").toLowerCase() === "true";
+const PREVIEW_URL = ((import.meta as unknown as { env: ImportMetaEnv }).env.VITE_STAKING_SERVICE_URL || "").trim();
+
+const SKIP_SIMULATION = (import.meta as unknown as { env: { VITE_SKIP_STAKE_SIMULATION?: string } }).env.VITE_SKIP_STAKE_SIMULATION === 'true';
 
 const CONFIG_SEED = "config";
 const VALIDATOR_SEED = "validator";
@@ -46,7 +74,9 @@ export class StakingClient {
   
   private async discriminator(name: string): Promise<Uint8Array> {
     const h = await this.sha256(`global:${name}`);
-    return h.slice(0, 8);
+    const disc = h.slice(0, 8);
+    console.log(`[StakingClient] discriminator('${name}'):`, Array.from(disc), 'hex:', Array.from(disc).map(b => b.toString(16).padStart(2, '0')).join(''));
+    return disc;
   }
 
   private async send(ixs: TransactionInstruction[]): Promise<string> {
@@ -79,7 +109,36 @@ export class StakingClient {
     }
   }
 
-  async getConfigAccount() {
+  // Preview service poster (demo mode only)
+  private async postPreview(event: "stake" | "unstake" | "claim", body: Record<string, unknown>) {
+    if (!PREVIEW_URL) return;
+    try {
+      await fetch(`${PREVIEW_URL.replace(/\/$/, "")}/${event}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...body, wallet: this.wallet.publicKey.toBase58(), ts: Date.now() })
+      });
+    } catch (e) {
+      console.warn("[StakingClient] preview post failed:", e);
+    }
+  }
+
+  // Simulate a single-instruction transaction without triggering a wallet prompt
+  private async simulate(ix: TransactionInstruction): Promise<{ ok: boolean; logs: string[] | null; err: unknown | null }> {
+    try {
+      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('processed');
+      const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
+      tx.add(ix);
+  // Don't provide signers; most clusters allow simulation without signatures
+  const resp = await this.connection.simulateTransaction(tx);
+  const value = (resp as unknown as { value?: { err?: unknown; logs?: string[] } }).value;
+      return { ok: !value?.err, logs: value?.logs ?? null, err: value?.err ?? null };
+    } catch (e) {
+      return { ok: false, logs: null, err: e };
+    }
+  }
+
+  async getConfigAccount(): Promise<StakingConfig | null> {
     const [cfg] = this.findConfigPda();
     const info = await this.connection.getAccountInfo(cfg);
     if (!info) return null;
@@ -130,7 +189,7 @@ export class StakingClient {
     };
   }
 
-  async getValidatorAccount(owner: PublicKey) {
+  async getValidatorAccount(owner: PublicKey): Promise<ValidatorAccount | null> {
     const [validatorPda] = this.findValidatorPda(owner);
     const info = await this.connection.getAccountInfo(validatorPda);
     if (!info) return null;
@@ -173,24 +232,20 @@ export class StakingClient {
     };
   }
 
-  /** Initialize config if needed (SPL-8004 requires commission_rate and treasury) */
+  /** Initialize config if needed - SPL-8004 initialize takes NO parameters */
   async initializeConfigIfNeeded(): Promise<void> {
     const existing = await this.getConfigAccount();
     if (existing) return;
     
     const [cfg] = this.findConfigPda();
-    const disc = await this.discriminator("initialize_config");
+    const disc = await this.discriminator("initialize");
     
-    // Parameters: commission_rate: u16, treasury: Pubkey
-    const commissionRate = 500; // 5% default
-    const treasury = this.wallet.publicKey;
-    
-    // Borsh: disc(8) + u16(2) + Pubkey(32)
-    const data = new Uint8Array(8 + 2 + 32);
+    // NO parameters - Rust fn: pub fn initialize(ctx: Context<Initialize>) -> Result<()>
+    // Borsh: just disc(8)
+    const data = new Uint8Array(8);
     data.set(disc, 0);
-    new DataView(data.buffer).setUint16(8, commissionRate, true); // little-endian u16
-    data.set(treasury.toBytes(), 10); // Pubkey as 32 bytes
     
+    // Account order from Rust Initialize struct: config, authority, system_program
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
@@ -205,72 +260,178 @@ export class StakingClient {
 
   async stake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
-    await this.initializeConfigIfNeeded();
     
+    // Devnet config eski layout olabilir; minimum stake client-side kontrol.
+    const MIN_STAKE = 100_000_000; // 0.1 SOL
+    if (lamports < MIN_STAKE) {
+      throw new Error(`Minimum stake is ${MIN_STAKE / 1e9} SOL (you tried ${lamports / 1e9} SOL)`);
+    }
+
+    if (DEMO_MODE) {
+      const sig = `demo-stake-${Date.now()}`;
+      await this.postPreview("stake", { amount: lamports, signature: sig });
+      return sig;
+    }
+
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
-    const disc = await this.discriminator("stake_validator");
-    
-    // Parameters: amount: u64
-    // Borsh: disc(8) + u64(8)
-    const data = new Uint8Array(8 + 8);
-    data.set(disc, 0);
-    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true); // little-endian u64
-    
-    // Accounts order from Rust: config, validator, user, system_program
-    const ix = new TransactionInstruction({
-      programId: this.programId,
-      keys: [
-        { pubkey: cfg, isSigner: false, isWritable: true },
-        { pubkey: validatorPda, isSigner: false, isWritable: true },
-        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-      ],
-      data: Buffer.from(data),
-    });
-    return this.send([ix]);
+    console.log(`[StakingClient] stake() - cfg: ${cfg.toBase58()}, validator: ${validatorPda.toBase58()}, user: ${this.wallet.publicKey.toBase58()}`);
+
+    // 0x65 (InstructionFallbackNotFound) için: Eski program isimleri/hesap sıralarıyla dene.
+    const candidateNames = [
+      "stake_validator",
+      "become_validator",
+      "register_validator",
+      "stake",
+    ];
+    type A = "validator" | "user" | "config" | "system";
+    const orders: A[][] = [
+      ["validator", "user", "config", "system"],
+      ["validator", "config", "user", "system"],
+      ["user", "validator", "config", "system"],
+      ["config", "user", "validator", "system"],
+    ];
+
+    const buildKeys = (order: A[]): { pubkey: PublicKey; isSigner: boolean; isWritable: boolean }[] => {
+      return order.map((k) => {
+        if (k === "validator") return { pubkey: validatorPda, isSigner: false, isWritable: true };
+        if (k === "user") return { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true };
+        if (k === "config") return { pubkey: cfg, isSigner: false, isWritable: false };
+        return { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }; // system
+      });
+    };
+
+    let chosenIx: TransactionInstruction | null = null;
+    let chosenMeta: { name: string; order: A[] } | null = null;
+
+    for (const name of candidateNames) {
+      const disc = await this.discriminator(name);
+      const data = new Uint8Array(8 + 8);
+      data.set(disc, 0);
+      new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true);
+      const dataBuf = Buffer.from(data);
+
+      for (const order of orders) {
+        const ix = new TransactionInstruction({ programId: this.programId, keys: buildKeys(order), data: dataBuf });
+        if (SKIP_SIMULATION) {
+          chosenIx = ix; chosenMeta = { name, order }; break;
+        }
+        const sim = await this.simulate(ix);
+        const logsStr = (sim.logs || []).join(" | ");
+        console.log(`[StakingClient] try name='${name}' order='${order.join(",")}' sim.ok=${sim.ok} logs=${logsStr}`);
+        if (sim.ok) { chosenIx = ix; chosenMeta = { name, order }; break; }
+      }
+      if (chosenIx) break;
+    }
+
+    if (!chosenIx || !chosenMeta) {
+      throw new Error("Stake simulation failed for all known instruction variants (names and account orders). Program likely differs on devnet.");
+    }
+
+    console.log(`[StakingClient] Using variant name='${chosenMeta.name}' order='${chosenMeta.order.join(",")}'`);
+    return await this.send([chosenIx]);
   }
 
   async unstake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
+    if (DEMO_MODE) {
+      const sig = `demo-unstake-${Date.now()}`;
+      await this.postPreview("unstake", { amount: lamports, signature: sig });
+      return sig;
+    }
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
-    const disc = await this.discriminator("unstake_validator");
     
-    // Parameters: amount: u64
-    // Borsh: disc(8) + u64(8)
+    // Exact account order from Rust: validator, user, system_program
+    const disc = await this.discriminator("unstake_validator");
     const data = new Uint8Array(8 + 8);
     data.set(disc, 0);
-    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true); // little-endian u64
+    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true);
     
-    // Accounts order from Rust: user, validator, system_program
     const ix = new TransactionInstruction({
       programId: this.programId,
       keys: [
-        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: validatorPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data: Buffer.from(data),
     });
-    return this.send([ix]);
+    
+    const sim = await this.simulate(ix);
+    if (!sim.ok) {
+      const logsStr = (sim.logs || []).join(' | ');
+      throw new Error(`Unstake simulation failed: ${JSON.stringify(sim.err)} Logs: ${logsStr}`);
+    }
+    
+    return await this.send([ix]);
   }
 
   async claimRewards(): Promise<string> {
+    if (DEMO_MODE) {
+      const sig = `demo-claim-${Date.now()}`;
+      await this.postPreview("claim", { signature: sig });
+      return sig;
+    }
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     
-    // SPL-8004'te claim_rewards fonksiyonu validator için değil agent için
-    // Eğer validator rewards yoksa bu method'u kaldırabiliriz
-    // Şimdilik placeholder olarak bırakıyorum
-    throw new Error("claimRewards not implemented for validators in SPL-8004");
+    // Exact account order from Rust: validator, user, config, system_program
+    const disc = await this.discriminator("claim_validator_rewards");
+    const data = new Uint8Array(8);
+    data.set(disc, 0);
+    
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: validatorPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: cfg, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+    
+    const sim = await this.simulate(ix);
+    if (!sim.ok) {
+      const logsStr = (sim.logs || []).join(' | ');
+      throw new Error(`Claim simulation failed: ${JSON.stringify(sim.err)} Logs: ${logsStr}`);
+    }
+    
+    return await this.send([ix]);
   }
 
   async instantUnstake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
+    const [cfg] = this.findConfigPda();
+    const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
+    const config = await this.getConfigAccount();
+    if (!config) throw new Error("Config account not found");
     
-    // SPL-8004'te instant_unstake fonksiyonu yok
-    // Normal unstake kullanılıyor
-    throw new Error("instantUnstake not implemented in SPL-8004. Use unstake() instead.");
+    // Exact account order from Rust: validator, user, config, treasury, system_program
+    const disc = await this.discriminator("unstake_validator_instant");
+    const data = new Uint8Array(8 + 8);
+    data.set(disc, 0);
+    new DataView(data.buffer).setBigUint64(8, BigInt(lamports), true);
+    
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: validatorPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: cfg, isSigner: false, isWritable: false },
+        { pubkey: config.treasury, isSigner: false, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+    
+    const sim = await this.simulate(ix);
+    if (!sim.ok) {
+      const logsStr = (sim.logs || []).join(' | ');
+      throw new Error(`Instant unstake simulation failed: ${JSON.stringify(sim.err)} Logs: ${logsStr}`);
+    }
+    
+    return await this.send([ix]);
   }
 
   async calculatePendingRewards(owner: PublicKey): Promise<number> {

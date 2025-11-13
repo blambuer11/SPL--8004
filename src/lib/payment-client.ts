@@ -3,8 +3,10 @@ import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID 
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import nacl from "tweetnacl";
 
-// USDC Mainnet Mint
-export const USDC_MINT = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
+// USDC Mint (env-driven). Default: Devnet Circle USDC (Gh9Zw...)
+export const USDC_MINT = new PublicKey(
+  import.meta.env.VITE_USDC_MINT || 'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+);
 
 export interface PaymentRequest {
   recipient: PublicKey;
@@ -154,6 +156,7 @@ export class PaymentClient {
     fromAddress: PublicKey,
     timeoutMs = 60000
   ): Promise<boolean> {
+    type ParsedIx = { parsed?: { type?: string; info?: { destination?: string; authority?: string; amount?: string } } };
     const recipientTokenAccount = await getAssociatedTokenAddress(
       USDC_MINT,
       this.wallet.publicKey
@@ -179,16 +182,14 @@ export class PaymentClient {
           if (!tx) continue;
 
           // Look for token transfer instruction
-          const tokenTransfer = tx.transaction.message.instructions.find(
-            (ix: { parsed?: { type?: string; info?: { destination?: string; authority?: string; amount?: string } } }) => {
-              if (!('parsed' in ix)) return false;
-              return (
-                ix.parsed?.type === 'transfer' &&
-                ix.parsed?.info?.destination === recipientTokenAccount.toBase58() &&
-                ix.parsed?.info?.authority === fromAddress.toBase58()
-              );
-            }
-          );
+          const tokenTransfer = (tx.transaction.message.instructions as ParsedIx[]).find((ix: ParsedIx) => {
+            if (!ix || !ix.parsed) return false;
+            return (
+              ix.parsed?.type === 'transfer' &&
+              ix.parsed?.info?.destination === recipientTokenAccount.toBase58() &&
+              ix.parsed?.info?.authority === fromAddress.toBase58()
+            );
+          });
 
           if (tokenTransfer && 'parsed' in tokenTransfer) {
             const amount = parseInt(tokenTransfer.parsed.info.amount);

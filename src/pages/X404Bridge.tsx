@@ -9,18 +9,23 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Image, ExternalLink, ArrowRightLeft, Coins, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
+import { addX404Mint, listX404Mints, clearX404Mints } from '@/lib/x404-storage';
 
-// X404 Program ID (deployed contract)
-const X404_PROGRAM_ID = new PublicKey('ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9');
+// X404 Program ID (env-driven with fallback)
+const X404_PROGRAM_ID = new PublicKey(
+  import.meta.env.VITE_X404_PROGRAM_ID || 'ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9'
+);
 
 export default function X404Bridge() {
   const { connected, publicKey } = useWallet();
   const { connection } = useConnection();
-  const [agentId, setAgentId] = useState('');
+  const [agentId, setAgentId] = useState('demo-agent-001');
   const [loading, setLoading] = useState(false);
   const [txSignature, setTxSignature] = useState('');
   const [nftMintAddress, setNftMintAddress] = useState('');
   const [walletApproved, setWalletApproved] = useState(false);
+  const [recentMints, setRecentMints] = useState(() => listX404Mints());
+  const [x404Deployed, setX404Deployed] = useState<boolean | null>(null);
   // Debug state
   const [debugOpen, setDebugOpen] = useState(false);
   const [identityPda, setIdentityPda] = useState<string>('');
@@ -31,16 +36,53 @@ export default function X404Bridge() {
   const legacyProgramId = 'FAnRqmauRE5vtk7ft3FWHicrKKRw3XwbxvYVxuaeRcCK';
 
   useEffect(() => {
-    // Auto-approve wallet when connected
-    if (connected && publicKey) {
+    // Reset approval on connect/disconnect; require explicit approval
+    if (!connected || !publicKey) {
+      setWalletApproved(false);
+    }
+  }, [connected, publicKey]);
+
+  // Detect X404 deployment status on mount and on network change
+  useEffect(() => {
+    let disposed = false;
+    (async () => {
+      try {
+        const info = await connection.getAccountInfo(X404_PROGRAM_ID);
+        if (!disposed) setX404Deployed(!!info?.executable);
+      } catch (e) {
+        if (!disposed) setX404Deployed(null);
+      }
+    })();
+    return () => { disposed = true; };
+  }, [connection]);
+
+  const approveWallet = async () => {
+    try {
+      if (!connected || !publicKey) {
+        toast.error('Please connect your wallet');
+        return;
+      }
+
+      // Prefer signMessage if wallet supports it; otherwise sign an empty transaction
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyWindow = window as any;
+      const wallet = anyWindow?.solana || {};
+      const adapter: { signMessage?: (m: Uint8Array) => Promise<Uint8Array> } = wallet;
+
+      if (adapter?.signMessage) {
+        const msg = new TextEncoder().encode('Approve X404 Bridge access');
+        await adapter.signMessage(msg);
+      }
+
       setWalletApproved(true);
       toast.success('Wallet approved for X404 Bridge', {
         description: `Connected: ${publicKey.toBase58().slice(0, 8)}...${publicKey.toBase58().slice(-8)}`,
       });
-    } else {
-      setWalletApproved(false);
+    } catch (err) {
+      console.error('Wallet approval failed:', err);
+      toast.error('Wallet approval failed');
     }
-  }, [connected, publicKey]);
+  };
 
   const handleTokenize = async () => {
     if (!connected || !publicKey) {
@@ -96,14 +138,14 @@ export default function X404Bridge() {
         toast.error('Agent not found on SPL-8004', {
           description: (
             <div className="space-y-3 text-xs">
-              <div className="text-red-300 font-semibold">Agent ID "{agentId}" bulunamadı.</div>
+              <div className="text-red-300 font-semibold">Agent ID "{agentId}" not found.</div>
               <div>PDA (current): <code className="break-all">{currentIdentityPda.toBase58()}</code></div>
               <div>PDA (legacy): <code className="break-all">{legacyIdentityPda.toBase58()}</code></div>
               <div>Program (current): {SPL8004_PROGRAM_ID.toBase58()}</div>
               <div>Program (legacy): {legacyProgramId}</div>
-              <div className="pt-1">Kayıt yaptıysan tx onayını Explorer'da doğrula veya yeniden dene.</div>
+              <div className="pt-1">If you registered already, verify the tx on Explorer or try again.</div>
               <div>
-                <a href="/app/create-agent" className="underline font-semibold">Create Agent</a> sayfasından tekrar kayıt yap.
+                Go to <a href="/app/agents?create=1" className="underline font-semibold">Create Agent</a> page to register.
               </div>
             </div>
           ),
@@ -114,8 +156,8 @@ export default function X404Bridge() {
       }
 
       if (usingLegacy) {
-        toast.warning('Agent legacy program ID altında bulundu', {
-          description: `Using legacy program: ${legacyProgramId}. Lütfen güncel deployment'a migrate etmeyi düşünün.`
+        toast.warning('Agent found under legacy program ID', {
+          description: `Using legacy program: ${legacyProgramId}. Consider migrating to the latest deployment.`
         });
       }
 
@@ -124,28 +166,21 @@ export default function X404Bridge() {
         description: 'Creating NFT with dynamic reputation pricing',
       });
 
-      // Step 1: Verify X404 program
+  // Step 1: Verify X404 program
       console.log('🔍 Checking X404 program...');
       const x404ProgramInfo = await connection.getAccountInfo(X404_PROGRAM_ID);
       const isX404Deployed = x404ProgramInfo && x404ProgramInfo.executable;
+  setX404Deployed(!!isX404Deployed);
       
-      if (!isX404Deployed) {
-        console.log('⚠️ X404 program not deployed yet');
-        toast.info('X404 NFT Creation Ready', {
-          description: (
-            <div className="space-y-2">
-              <div className="font-semibold">✅ Full Functionality Active</div>
-              <div className="text-xs">
-                Creating your X404 NFT with real PDA derivation.
-                Wallet signature will be requested for the transaction.
-              </div>
-            </div>
-          ),
-          duration: 5000,
-        });
-      } else {
+      if (isX404Deployed) {
         toast.success('X404 Live Mode', {
           description: 'X404 program deployed! Creating real NFT on-chain.',
+          duration: 4000,
+        });
+      } else {
+        console.log('⚠️ X404 program not deployed');
+        toast.info('X404 Preview Mode', {
+          description: 'NFT will be created with verified PDA. Ready for on-chain minting when X404 deploys.',
           duration: 4000,
         });
       }
@@ -174,7 +209,32 @@ export default function X404Bridge() {
           ).join('');
       setTxSignature(mockTxSig);
 
-      toast.success(isX404Deployed ? 'X404 NFT Minted On-Chain!' : 'NFT Preview Ready!', {
+      // Persist to local storage for visibility
+      addX404Mint({
+        agentId,
+        nftMint: realMintAddress,
+        txSignature: mockTxSig,
+        programId: X404_PROGRAM_ID.toBase58(),
+        previewMode: !isX404Deployed,
+        createdAt: Date.now(),
+      });
+      setRecentMints(listX404Mints());
+
+      // Optionally mirror to Docker preview API if configured
+      const svc = import.meta.env.VITE_X404_SERVICE_URL as string | undefined;
+      if (svc) {
+        try {
+          await fetch(`${svc.replace(/\/$/, '')}/mint`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId }),
+          });
+        } catch (e) {
+          console.warn('x404 preview service not reachable:', e);
+        }
+      }
+
+      toast.success(isX404Deployed ? 'X404 NFT Minted (Devnet)!' : 'NFT Preview Ready!', {
         description: (
           <div className="space-y-2">
             <div className="font-semibold">Agent: {agentId}</div>
@@ -192,7 +252,7 @@ export default function X404Bridge() {
               </div>
             ) : (
               <div className="text-green-200 text-xs">
-                ✅ Minted successfully on Solana blockchain
+                ✅ Minted successfully on Solana devnet
               </div>
             )}
           </div>
@@ -212,22 +272,39 @@ export default function X404Bridge() {
   return (
     <div className="space-y-6">
       {/* Program Status Banner */}
-      <Alert className="bg-blue-500/10 border-blue-500/30">
-        <AlertDescription className="text-blue-200">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-              <span className="text-lg">🚀</span>
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold text-blue-100 mb-1">X404 Preview Mode Active</div>
-              <div className="text-sm text-blue-200">
-                All bridge features are fully functional! The X404 Solana program will be deployed soon. 
-                Your NFTs are being prepared with real PDAs that will automatically mint on-chain once deployed.
+      {x404Deployed ? (
+        <Alert className="bg-emerald-500/10 border-emerald-500/30">
+          <AlertDescription className="text-emerald-200">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <span className="text-lg">�</span>
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-emerald-100 mb-1">X404 Devnet — On-Chain</div>
+                <div className="text-sm text-emerald-200">
+                  X404 program is live on devnet. Minting will submit real transactions to the blockchain.
+                </div>
               </div>
             </div>
-          </div>
-        </AlertDescription>
-      </Alert>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="bg-blue-500/10 border-blue-500/30">
+          <AlertDescription className="text-blue-200">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <span className="text-lg">🚀</span>
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-blue-100 mb-1">X404 Preview Mode</div>
+                <div className="text-sm text-blue-200">
+                  NFTs will be created with verified PDAs and metadata. Seamless transition to on-chain when X404 program deploys.
+                </div>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -242,10 +319,12 @@ export default function X404Bridge() {
               <span className="text-sm font-semibold text-green-300">Wallet Approved</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-purple-400">
-              <Image className="w-5 h-5" />
-              <span className="font-semibold">Dynamic NFTs</span>
-            </div>
+            <button
+              onClick={approveWallet}
+              className="px-3 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-sm font-semibold"
+            >
+              Approve Wallet
+            </button>
           )}
         </div>
       </div>
@@ -361,7 +440,7 @@ export default function X404Bridge() {
 
           <Button
             onClick={handleTokenize}
-            disabled={!connected || !agentId.trim() || loading}
+            disabled={!connected || !walletApproved || !agentId.trim() || loading}
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           >
             {loading ? 'Minting NFT...' : 'Mint X404 NFT'}
@@ -374,7 +453,7 @@ export default function X404Bridge() {
                 <div className="font-semibold">Don't have an agent yet?</div>
                 <div className="text-xs text-blue-200">
                   You need to register your agent on SPL-8004 before tokenizing it as an NFT.
-                  Go to the <a href="/app/create-agent" className="underline font-bold hover:text-blue-100">Create Agent</a> page
+                  Go to the <a href="/app/agents?create=1" className="underline font-bold hover:text-blue-100">Create Agent</a> page
                   to register your agent identity first.
                 </div>
               </div>
@@ -465,6 +544,51 @@ export default function X404Bridge() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-slate-400">
+
+        {/* Recent Mints */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white text-base flex items-center justify-between">
+              <span>Recent X404 Mints</span>
+              {recentMints.length > 0 && (
+                <button
+                  className="text-xs text-slate-400 hover:text-slate-200 underline"
+                  onClick={() => { clearX404Mints(); setRecentMints([]); }}
+                >
+                  Clear
+                </button>
+              )}
+            </CardTitle>
+            <CardDescription>Saved locally after each mint for quick access</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentMints.length === 0 ? (
+              <div className="text-sm text-slate-400">No mints yet. Mint an X404 NFT to see it here.</div>
+            ) : (
+              <div className="space-y-2">
+                {recentMints.map((r) => (
+                  <div key={r.txSignature} className="p-3 rounded-lg bg-black/20 border border-white/10 text-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="text-white font-medium">{r.agentId}</div>
+                        <div className="text-slate-400 font-mono text-xs">Mint: {r.nftMint.slice(0,12)}...{r.nftMint.slice(-12)}</div>
+                        <div className="text-slate-500 text-xs">{new Date(r.createdAt).toLocaleString()} • Program: {r.programId} {r.previewMode ? '• Preview' : ''}</div>
+                      </div>
+                      <a
+                        className="text-purple-300 hover:text-purple-200 text-xs inline-flex items-center gap-1 underline"
+                        href={`https://explorer.solana.com/address/${r.nftMint}?cluster=devnet`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
               NFT holders receive a share of agent validation rewards proportional to ownership
             </p>
           </CardContent>

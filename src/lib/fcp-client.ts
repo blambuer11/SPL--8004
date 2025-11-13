@@ -1,4 +1,4 @@
-import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Connection, PublicKey, SendTransactionError, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 // SPL-FCP Program ID
@@ -15,9 +15,14 @@ export interface ConsensusRequest {
   action: string;
   requiredApprovals: number;
   validators: PublicKey[];
-  approvals: number[];
+  approvals: number;
+  rejections: number;
   status: "pending" | "approved" | "rejected";
   createdAt: number;
+  finalizedAt: number;
+  requester: PublicKey;
+  address: PublicKey;
+  dataHash: Uint8Array;
 }
 
 export class FCPClient {
@@ -70,6 +75,73 @@ export class FCPClient {
     return h.slice(0, 8);
   }
 
+  private parseConsensusAccount(address: PublicKey, data: Uint8Array): ConsensusRequest {
+    let offset = 8; // skip discriminator
+    const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+
+    const agentIdLen = dv.getUint32(offset, true); offset += 4;
+    const agentId = new TextDecoder().decode(data.slice(offset, offset + agentIdLen)); offset += agentIdLen;
+
+    const requester = new PublicKey(data.slice(offset, offset + 32)); offset += 32;
+
+    const actionTypeLen = dv.getUint32(offset, true); offset += 4;
+    const action = new TextDecoder().decode(data.slice(offset, offset + actionTypeLen)); offset += actionTypeLen;
+
+    const dataHash = data.slice(offset, offset + 32); offset += 32;
+
+    const threshold = data[offset]; offset += 1;
+
+    const validatorsCount = dv.getUint32(offset, true); offset += 4;
+    const validators: PublicKey[] = [];
+    for (let i = 0; i < validatorsCount; i++) {
+      validators.push(new PublicKey(data.slice(offset, offset + 32)));
+      offset += 32;
+    }
+
+    const approvals = data[offset]; offset += 1;
+    const rejections = data[offset]; offset += 1;
+
+    const statusByte = data[offset]; offset += 1;
+    const status: "pending" | "approved" | "rejected" = statusByte === 0 ? "pending" : statusByte === 1 ? "approved" : "rejected";
+
+    const createdAt = Number(dv.getBigInt64(offset, true)); offset += 8;
+    const finalizedAt = Number(dv.getBigInt64(offset, true)); offset += 8;
+
+    // bump (1 byte) exists but unused
+
+    return {
+      id: address.toBase58(),
+      agentId,
+      action,
+      requiredApprovals: threshold,
+      validators,
+      approvals,
+      rejections,
+      status,
+      createdAt,
+      finalizedAt,
+      requester,
+      address,
+      dataHash,
+    };
+  }
+
+  async listConsensusRequests(options: { status?: "pending" | "approved" | "rejected"; wallet?: PublicKey } = {}): Promise<ConsensusRequest[]> {
+    const accounts = await this.connection.getProgramAccounts(this.programId, {
+      filters: [{ dataSize: 521 }],
+    });
+
+    const items = accounts.map(({ pubkey, account }) => this.parseConsensusAccount(pubkey, account.data));
+
+    const filtered = items.filter((item) => {
+      if (options.status && item.status !== options.status) return false;
+      if (!options.wallet) return true;
+      return item.requester.equals(options.wallet) || item.validators.some((v) => v.equals(options.wallet));
+    });
+
+    return filtered.sort((a, b) => b.createdAt - a.createdAt);
+  }
+
   async createConsensusRequest(
     consensusId: string,
     agentId: string,
@@ -77,17 +149,18 @@ export class FCPClient {
     requiredApprovals: number,
     validators: PublicKey[]
   ): Promise<string> {
-    const actionType = action;
-    const requester = this.wallet.publicKey;
+  const actionType = action;
+  const requester = this.wallet.publicKey;
     
-    const [consensusPda] = this.findConsensusPda(agentId, actionType, requester);
-    const [configPda] = this.findConfigPda();
-    const disc = await this.discriminator("request_consensus");
+  const [consensusPda] = this.findConsensusPda(agentId, actionType, requester);
+  const [configPda] = this.findConfigPda();
+  const disc = await this.discriminator("request_consensus");
 
-    // Parameters: agent_id: String, action_type: String, data_hash: [u8; 32], threshold: u8, validator_keys: Vec<Pubkey>
-    const agentIdBytes = new TextEncoder().encode(agentId);
-    const actionTypeBytes = new TextEncoder().encode(actionType);
-    const dataHash = new Uint8Array(32).fill(0); // Dummy hash for now
+  // Parameters: agent_id: String, action_type: String, data_hash: [u8; 32], threshold: u8, validator_keys: Vec<Pubkey>
+  const agentIdBytes = new TextEncoder().encode(agentId);
+  const actionTypeBytes = new TextEncoder().encode(actionType);
+  const hashSource = consensusId || `${agentId}:${actionType}`;
+  const dataHash = await this.sha256(hashSource);
     const threshold = requiredApprovals;
 
     // Borsh: disc(8) + agent_id(4+len) + action_type(4+len) + data_hash(32) + threshold(1) + validator_keys_len(4) + validators(32*count)
@@ -269,58 +342,7 @@ export class FCPClient {
       
       if (!accountInfo || accountInfo.data.length === 0) return null;
 
-      const data = accountInfo.data;
-      let offset = 8; // Skip discriminator
-
-      // Read agent_id
-      const agentIdLen = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
-      offset += 4;
-      const id = new TextDecoder().decode(data.slice(offset, offset + agentIdLen));
-      offset += agentIdLen;
-
-      // Read requester (32 bytes pubkey)
-      const requesterValue = new PublicKey(data.slice(offset, offset + 32));
-      offset += 32;
-
-      // Read action_type
-      const actionTypeLen = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
-      offset += 4;
-      const action = new TextDecoder().decode(data.slice(offset, offset + actionTypeLen));
-      offset += actionTypeLen;
-
-      // Read data_hash [u8; 32]
-      offset += 32;
-
-      // Read threshold u8
-      const requiredApprovals = data[offset];
-      offset += 1;
-
-      // Read validator_keys Vec<Pubkey> - length prefix + data
-      const validatorsCount = new DataView(data.buffer, data.byteOffset).getUint32(offset, true);
-      offset += 4;
-
-      const validators: PublicKey[] = [];
-      for (let i = 0; i < validatorsCount; i++) {
-        validators.push(new PublicKey(data.slice(offset, offset + 32)));
-        offset += 32;
-      }
-
-      // Read approvals u8
-      const approvals = [data[offset]];
-      offset += 1;
-
-      // Read rejections u8
-      offset += 1;
-
-      // Read status enum (1 byte: 0=Pending, 1=Approved, 2=Rejected)
-      const statusByte = data[offset];
-      offset += 1;
-      const status = statusByte === 0 ? "pending" : statusByte === 1 ? "approved" : "rejected";
-
-      // Read requested_at i64
-      const createdAt = Number(new DataView(data.buffer, data.byteOffset).getBigInt64(offset, true));
-
-      return { id, agentId: id, action, requiredApprovals, validators, approvals, status, createdAt };
+      return this.parseConsensusAccount(consensusPda, accountInfo.data);
     } catch (error) {
       console.error("Error fetching consensus status:", error);
       return null;
@@ -328,12 +350,28 @@ export class FCPClient {
   }
 
   private async send(ixs: TransactionInstruction[]): Promise<string> {
-    const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
-    const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
-    tx.add(...ixs);
-    const signed = await this.wallet.signTransaction(tx);
-    const sig = await this.connection.sendRawTransaction(signed.serialize(), { maxRetries: 3 });
-    await this.connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
-    return sig;
+    try {
+      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+      const tx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
+      tx.add(...ixs);
+      const signed = await this.wallet.signTransaction(tx);
+      const signature = await this.connection.sendRawTransaction(signed.serialize(), { maxRetries: 3 });
+      const confirmation = await this.connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, "confirmed");
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+      }
+      return signature;
+    } catch (error) {
+      if (error instanceof SendTransactionError) {
+        try {
+          const logs = await error.getLogs(this.connection);
+          const details = (logs || []).join('\n');
+          throw new Error(`${error.message}\nLogs:\n${details}`);
+        } catch (_) {
+          throw error;
+        }
+      }
+      throw error as Error;
+    }
   }
 }

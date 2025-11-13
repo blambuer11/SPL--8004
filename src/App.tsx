@@ -20,12 +20,10 @@ import AgentDetails from './pages/app/AgentDetails';
 import X402Test from './pages/app/X402Test';
 import CreateAgent from './pages/app/CreateAgent';
 import Staking from './pages/app/Staking';
-import Validation from './pages/app/Validation';
 import Payments from './pages/app/Payments';
 import X404Bridge from './pages/X404Bridge';
 import Attestations from './pages/app/Attestations';
 import Consensus from './pages/app/Consensus';
-import Analytics from './pages/app/Analytics';
 import Marketplace from './pages/app/Marketplace';
 import Docs from './pages/app/Docs';
 import Settings from './pages/app/Settings';
@@ -71,12 +69,12 @@ const App = () => {
                     <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
                     <Route path="/app/create-agent" element={<AppLayout><CreateAgent /></AppLayout>} />
                     <Route path="/app/staking" element={<AppLayout><Staking /></AppLayout>} />
-                    <Route path="/app/validation" element={<AppLayout><Validation /></AppLayout>} />
+                    {/* Validation page removed; redirect to Staking */}
+                    <Route path="/app/validation" element={<Navigate to="/app/staking" replace />} />
                     <Route path="/app/payments" element={<AppLayout><Payments /></AppLayout>} />
                     <Route path="/app/x404" element={<AppLayout><X404Bridge /></AppLayout>} />
                     <Route path="/app/attestations" element={<AppLayout><Attestations /></AppLayout>} />
                     <Route path="/app/consensus" element={<AppLayout><Consensus /></AppLayout>} />
-                    <Route path="/app/analytics" element={<AppLayout><Analytics /></AppLayout>} />
                     <Route path="/app/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
                     <Route path="/app/docs" element={<AppLayout><Docs /></AppLayout>} />
                     <Route path="/app/settings" element={<AppLayout><Settings /></AppLayout>} />

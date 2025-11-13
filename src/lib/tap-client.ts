@@ -1,4 +1,4 @@
-import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction, SendTransactionError } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 // SPL-TAP Program ID
@@ -47,6 +47,13 @@ export class TAPClient {
       [Buffer.from(CONFIG_SEED)],
       this.programId
     );
+  }
+
+  async getConfigAccount(): Promise<{ address: PublicKey; data: Buffer } | null> {
+    const [configPda] = this.findConfigPda();
+    const info = await this.connection.getAccountInfo(configPda);
+    if (!info) return null;
+    return { address: configPda, data: Buffer.from(info.data) };
   }
 
   private async sha256(data: string): Promise<Uint8Array> {
@@ -105,7 +112,8 @@ export class TAPClient {
       const agentIdBytes = new TextEncoder().encode(agentId);
       const attestationTypeBytes = new TextEncoder().encode(attestationType);
       const claimsUriBytes = new TextEncoder().encode(auditUri);
-      const expiresAt = BigInt(Date.now() / 1000 + (365 * 24 * 60 * 60)); // 1 year from now
+  const currentEpochSeconds = Math.floor(Date.now() / 1000);
+  const expiresAt = BigInt(currentEpochSeconds + (365 * 24 * 60 * 60)); // 1 year from now
       const dummySignature = new Uint8Array(64).fill(0); // Dummy signature for now
 
       // Borsh: disc(8) + agent_id(4+len) + attestation_type(4+len) + claims_uri(4+len) + expires_at(8) + signature(64)
@@ -160,6 +168,26 @@ export class TAPClient {
         keys,
         data: Buffer.from(data),
       });
+
+      // Preflight simulation to avoid prompting wallet when program state is invalid
+      try {
+        const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('processed');
+        const simTx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
+        simTx.add(ix);
+        const sim = await this.connection.simulateTransaction(simTx);
+        const logs = (sim as unknown as { value?: { logs?: string[]; err?: unknown } }).value?.logs || [];
+        const err = (sim as unknown as { value?: { err?: unknown } }).value?.err;
+        if (err) {
+          const joined = logs.join('\n');
+          throw new Error('Transaction simulation failed - check program state\n' + joined);
+        }
+      } catch (simErr) {
+        if (simErr instanceof Error && simErr.message.includes('Transaction simulation failed')) {
+          throw simErr;
+        }
+        // If simulate fails due to missing signatures policy, continue to send to capture logs on-chain errors
+        console.warn('Simulation preflight skipped/failed:', simErr);
+      }
 
       console.log('📤 Sending transaction...');
       console.log('Instruction:', {
@@ -333,6 +361,10 @@ export class TAPClient {
       console.log('📝 Registering issuer account...');
       
       const [issuerPda] = this.findIssuerPda(this.wallet.publicKey);
+      const configAccount = await this.getConfigAccount();
+      if (!configAccount) {
+        throw new Error('TAP config not initialized. Run initialize_config for SPL-TAP before registering issuer.');
+      }
       const disc = await this.discriminator("register_issuer");
       
       // Parameters: name: String, contact_info: String
@@ -363,6 +395,7 @@ export class TAPClient {
         programId: this.programId,
         keys: [
           { pubkey: issuerPda, isSigner: false, isWritable: true },
+          { pubkey: configAccount.address, isSigner: false, isWritable: true },
           { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
           { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         ],
@@ -442,17 +475,31 @@ export class TAPClient {
       return sig;
     } catch (error) {
       console.error('Transaction send error:', error);
+      // Enrich with program logs if possible
+      if (error instanceof SendTransactionError) {
+        try {
+          const logs = await error.getLogs(this.connection);
+          const joined = (logs || []).join('\n');
+          // Map common Anchor/Program errors to human messages
+          if (joined.includes('InstructionFallbackNotFound') || joined.includes('custom program error: 0x65')) {
+            throw new Error('Transaction simulation failed: Instruction not found in TAP program. Logs:\n' + joined);
+          }
+          if (joined.includes('insufficient funds')) {
+            throw new Error('Insufficient funds for transaction. Logs:\n' + joined);
+          }
+          throw new Error((error.message || 'SendTransactionError') + '\nLogs:\n' + joined);
+        } catch (_) {
+          // Fall through if logs not available
+        }
+      }
       if (error instanceof Error) {
-        // Parse common Solana errors
         if (error.message.includes('0x1')) {
           throw new Error('Insufficient funds for transaction');
-        } else if (error.message.includes('0x0')) {
-          throw new Error('Custom program error - check program logs');
         } else if (error.message.includes('blockhash')) {
           throw new Error('Transaction expired - please retry');
         }
       }
-      throw error;
+      throw error as Error;
     }
   }
 }

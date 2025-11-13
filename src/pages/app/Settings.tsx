@@ -1,7 +1,24 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Settings as SettingsIcon, User, Bell, Shield, Key, Zap, Database } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Shield, Key, Zap, Database, RefreshCw, Eye, EyeOff, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+
+const generateApiKey = () => {
+  try {
+    if (typeof globalThis !== 'undefined' && globalThis.crypto) {
+      if (typeof globalThis.crypto.randomUUID === 'function') {
+        return `sk_${globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 28)}`;
+      }
+      const buffer = new Uint8Array(16);
+      globalThis.crypto.getRandomValues(buffer);
+      const base = Array.from(buffer, b => b.toString(16).padStart(2, '0')).join('');
+      return `sk_${base.slice(0, 32)}`;
+    }
+  } catch (error) {
+    // fall back to Math.random below
+  }
+  return `sk_${Math.random().toString(36).slice(2, 32)}`;
+};
 
 export default function Settings() {
   const { publicKey } = useWallet();
@@ -13,27 +30,52 @@ export default function Settings() {
     validations: true,
     payments: true,
   });
-  const [apiKey, setApiKey] = useState('sk_test_...' + Math.random().toString(36).slice(2, 12));
+  const [apiKey, setApiKey] = useState(() => generateApiKey());
   const [showApiKey, setShowApiKey] = useState(false);
+  const lastUpdated = useMemo(() => new Date().toLocaleTimeString(), []);
 
   const handleSaveRpc = () => {
     toast.success('RPC endpoint updated');
   };
 
   const handleRegenerateApiKey = () => {
-    setApiKey('sk_live_...' + Math.random().toString(36).slice(2, 20));
-    toast.success('New API key generated');
+  const nextKey = generateApiKey();
+    setApiKey(nextKey);
+    navigator.clipboard.writeText(nextKey).then(() => {
+      toast.success('New API key generated', {
+        description: 'Key copied to clipboard for immediate use.',
+      });
+    }).catch(() => {
+      toast.success('New API key generated');
+    });
   };
 
   return (
     <div className="space-y-8 text-slate-200 max-w-4xl">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <SettingsIcon className="w-8 h-8 text-purple-400" />
-          Settings
-        </h1>
-        <p className="text-slate-400 mt-1">Manage your account, preferences, and API access</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <SettingsIcon className="w-8 h-8 text-purple-400" />
+            Settings
+            <span className="text-xs font-semibold px-2 py-1 rounded-md bg-emerald-600/20 text-emerald-300 border border-emerald-500/20">
+              UPDATED v2.0
+            </span>
+          </h1>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <span>Manage your account, preferences, and API access</span>
+            <span className="flex items-center gap-1 text-xs text-slate-500">
+              <Clock className="w-3 h-3" /> Last updated: {lastUpdated}
+            </span>
+          </p>
+        </div>
+        <button
+          onClick={handleRegenerateApiKey}
+          className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 text-sm border border-purple-500/30"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Generate API Key
+        </button>
       </div>
 
       {/* Profile Section */}
@@ -159,25 +201,28 @@ export default function Settings() {
         <div className="space-y-3">
           <div className="p-4 rounded-lg bg-purple-900/20 border border-purple-500/30">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-purple-300">Development API Key</span>
-              <button 
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="text-xs text-purple-400 hover:text-purple-300"
-              >
-                {showApiKey ? 'Hide' : 'Show'}
-              </button>
+              <span className="text-sm font-medium text-purple-300">Primary API Key</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300"
+                >
+                  {showApiKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  {showApiKey ? 'Hide' : 'Reveal'}
+                </button>
+                <button
+                  onClick={handleRegenerateApiKey}
+                  className="flex items-center gap-1 text-xs text-purple-200 bg-purple-500/20 hover:bg-purple-500/25 rounded px-2 py-1"
+                >
+                  <RefreshCw className="w-3 h-3" /> New Key
+                </button>
+              </div>
             </div>
             <div className="font-mono text-sm text-slate-300 bg-black/20 p-3 rounded border border-white/5">
               {showApiKey ? apiKey : '••••••••••••••••••••'}
             </div>
           </div>
           <div className="flex gap-2">
-            <button 
-              onClick={handleRegenerateApiKey}
-              className="px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-semibold text-sm"
-            >
-              Regenerate Key
-            </button>
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(apiKey);
@@ -186,6 +231,12 @@ export default function Settings() {
               className="px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 border border-white/10 text-sm"
             >
               Copy to Clipboard
+            </button>
+            <button 
+              onClick={handleRegenerateApiKey}
+              className="px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-semibold text-sm"
+            >
+              Generate & Copy
             </button>
           </div>
           <p className="text-xs text-slate-400">

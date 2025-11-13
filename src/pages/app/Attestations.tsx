@@ -22,6 +22,8 @@ export default function Attestations() {
   const [verifyHash, setVerifyHash] = useState('');
   const [verifyResult, setVerifyResult] = useState<ToolAttestation | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const [lastSimError, setLastSimError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   const handleAttestTool = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ export default function Attestations() {
       return;
     }
 
+    // Basic validation
     if (!toolName || !toolHash || !auditUri) {
       toast.error('All fields are required');
       return;
@@ -57,34 +60,49 @@ export default function Attestations() {
       setToolName('');
       setToolHash('');
       setAuditUri('');
+      setLastSimError(null);
     } catch (error) {
       console.error('❌ Attestation error:', error);
-      
-      // Show detailed error message
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      // Check if TAP program not deployed
+
+      // TAP program not deployed: provide demo fallback and exit early
       if (errorMessage.includes('TAP_NOT_DEPLOYED')) {
         toast.warning('TAP Program Not Available', {
           description: 'Tool Attestation Protocol is not deployed on this network. Using demo mode.',
           duration: 8000,
         });
-        
-        // Simulate success in demo mode
         setTimeout(() => {
-          const demoSig = Array.from({ length: 88 }, () => 
+          const demoSig = Array.from({ length: 88 }, () =>
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 62)]
           ).join('');
-          
           toast.success('Demo: Attestation simulated!', {
             description: `Tool "${toolName}" attestation created (demo mode)`,
             duration: 6000,
           });
-          
           setToolName('');
           setToolHash('');
           setAuditUri('');
         }, 1500);
+        return;
+      }
+
+      // Helpful, specific diagnostics
+      if (
+        errorMessage.includes('Instruction not found') ||
+        errorMessage.includes('InstructionFallbackNotFound') ||
+        errorMessage.includes('custom program error: 0x65')
+      ) {
+        toast.error('Attestation program mismatch', {
+          description: 'Your deployed TAP program does not include this instruction. Update deployment or use demo mode.',
+          duration: 10000,
+        });
+      } else if (errorMessage.includes('Transaction simulation failed')) {
+        // Capture logs and offer to auto-register issuer, then retry
+        setLastSimError(errorMessage);
+        toast.error('Simulation failed - check program state', {
+          description: 'You can try registering the issuer account automatically and retry.',
+          duration: 8000,
+        });
       } else if (errorMessage.includes('Insufficient funds')) {
         toast.error('Insufficient Balance', {
           description: 'You need SOL to pay for transaction fees and account initialization.',
@@ -100,14 +118,45 @@ export default function Attestations() {
           description: 'Please try again - the network was too slow.',
           duration: 6000,
         });
-      } else {
-        toast.error('Failed to submit attestation', {
-          description: errorMessage,
-          duration: 6000,
-        });
       }
+
+      // Always show the truncated raw message too
+      toast.error('Failed to submit attestation', {
+        description: errorMessage.length > 240 ? errorMessage.slice(0, 240) + '…' : errorMessage,
+        duration: 10000,
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRegisterAndRetry = async () => {
+    if (!client) return;
+    setRetrying(true);
+    try {
+      await client.registerIssuer();
+      const sig = await client.attestTool(toolName, toolHash, auditUri);
+      toast.success('Issuer registered and attestation submitted!', {
+        description: (
+          <a
+            href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline flex items-center gap-1"
+          >
+            View transaction <ExternalLink className="w-3 h-3" />
+          </a>
+        ),
+      });
+      setToolName('');
+      setToolHash('');
+      setAuditUri('');
+      setLastSimError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error('Retry failed', { description: msg });
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -215,6 +264,19 @@ export default function Attestations() {
               {loading ? 'Submitting...' : 'Submit Attestation'}
             </Button>
           </form>
+
+          {lastSimError && (
+            <div className="mt-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <div className="text-sm text-amber-300 font-semibold mb-2">Transaction simulation failed</div>
+              <pre className="text-xs text-amber-200 whitespace-pre-wrap max-h-40 overflow-auto">{lastSimError}</pre>
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" variant="outline" disabled={retrying} onClick={handleRegisterAndRetry}>
+                  {retrying ? 'Registering & Retrying…' : 'Register Issuer & Retry'}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setLastSimError(null)}>Dismiss</Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

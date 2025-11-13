@@ -19,6 +19,27 @@ export default function Home() {
         <meta name="twitter:title" content="Noema Protocol | SPL-8004" />
         <meta name="twitter:description" content="AI Agent Infrastructure on Solana" />
       </Helmet>
+      
+      {/* Header with Logo */}
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-sm">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
+            <a href="/" className="flex items-center gap-3">
+              <img src="/branding/logo.svg" alt="Noema Protocol" className="w-8 h-8" />
+              <span className="font-bold text-slate-900 text-lg">Noema Protocol</span>
+            </a>
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#overview" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Protocol</a>
+              <a href="#integration" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Integration</a>
+              <a href="/documentation" className="text-sm text-slate-600 hover:text-slate-900 font-medium">Docs</a>
+              <a href={APP_BASE}>
+                <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Launch App</Button>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </header>
+      
       <main className="container mx-auto px-6 py-24">
         <div className="max-w-5xl mx-auto space-y-24">
           {/* HERO */}
@@ -342,7 +363,7 @@ export default function Home() {
                 <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
                 <li><a href={`${APP_BASE}/create-agent`} className="hover:text-white transition">Create Agent</a></li>
-                <li><a href={`${APP_BASE}/validation`} className="hover:text-white transition">Validator Guide</a></li>
+                <li><a href={`${APP_BASE}/staking`} className="hover:text-white transition">Validator Guide</a></li>
               </ul>
             </div>
             <div>

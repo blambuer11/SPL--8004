@@ -266,14 +266,14 @@ export default function AgentDetails() {
               <Sparkles className="w-5 h-5 text-emerald-400" />
               List Agent in Marketplace
             </CardTitle>
-            <CardDescription className="text-slate-200">
+            <CardDescription className="text-slate-100">
               Set rental price and duration for {agent.agentId}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Price (USDC)</label>
+                <label className="text-sm font-semibold text-slate-100">Price (USDC)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -281,20 +281,20 @@ export default function AgentDetails() {
                   value={rentPrice}
                   onChange={(e) => setRentPrice(e.target.value)}
                   placeholder="10.00"
-                  className="w-full px-3 py-2 bg-slate-800/60 border border-slate-600/30 rounded-lg text-white placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-900/60 border border-white/20 rounded-lg text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Duration</label>
+                <label className="text-sm font-semibold text-slate-100">Duration</label>
                 <Select value={rentDuration} onValueChange={setRentDuration}>
-                  <SelectTrigger className="bg-slate-800/60 border-slate-600/30 text-white">
-                    <SelectValue />
+                  <SelectTrigger className="bg-slate-900/60 border-white/20 text-white">
+                    <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-600">
-                    <SelectItem value="hour">Per Hour</SelectItem>
-                    <SelectItem value="day">Per Day</SelectItem>
-                    <SelectItem value="week">Per Week</SelectItem>
-                    <SelectItem value="month">Per Month</SelectItem>
+                  <SelectContent className="bg-slate-900 border-white/15 text-white">
+                    <SelectItem value="hour" className="text-white">Per Hour</SelectItem>
+                    <SelectItem value="day" className="text-white">Per Day</SelectItem>
+                    <SelectItem value="week" className="text-white">Per Week</SelectItem>
+                    <SelectItem value="month" className="text-white">Per Month</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
