@@ -55,8 +55,10 @@ const App = () => {
                   <Navbar />
                 <Suspense fallback={<LoadingScreen /> }>
                   <Routes>
-                    {/* Home root */}
-                    <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+                    {/* Redirect root to dashboard */}
+                    <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
+                    {/* Home page moved to /home */}
+                    <Route path="/home" element={<ErrorBoundary><Home /></ErrorBoundary>} />
                     {/* Documentation standalone */}
                     <Route path="/documentation" element={<ErrorBoundary><Documentation /></ErrorBoundary>} />
                     {/* API page */}
