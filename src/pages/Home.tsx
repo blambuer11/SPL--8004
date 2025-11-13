@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Bot, Layers, Network, Shield, Coins, Code2, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 
 const APP_BASE = import.meta.env.VITE_APP_BASE_URL ?? 'https://app.noemaprotocol.xyz';
 
@@ -44,11 +45,11 @@ export default function Home() {
                     Start Building <ArrowRight className="w-5 h-5" />
                   </Button>
                 </a>
-                <a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" aria-label="Read documentation">
+                <Link to="/documentation" aria-label="Read documentation">
                   <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
                     Read Docs
                   </Button>
-                </a>
+                </Link>
               </div>
               <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 pt-2">
                 <div className="flex items-center gap-2">
@@ -308,9 +309,9 @@ export default function Home() {
               <a href={APP_BASE}>
                 <Button size="lg" className="bg-slate-900 hover:bg-slate-800">Start Building →</Button>
               </a>
-              <a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer">
+              <Link to="/documentation">
                 <Button size="lg" variant="outline" className="border-slate-300 hover:bg-white">Read Docs</Button>
-              </a>
+              </Link>
             </div>
             <p className="text-sm text-slate-500">Devnet only — switch to Mainnet when ready. Registration fee: 0.1 SOL (Devnet)</p>
           </section>
@@ -331,7 +332,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Protocol</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Documentation</a></li>
+                <li><Link to="/documentation" className="hover:text-white transition">Documentation</Link></li>
                 <li><a href={`${APP_BASE}/agents`} className="hover:text-white transition">Agents</a></li>
                 <li><a href={`${APP_BASE}/marketplace`} className="hover:text-white transition">Marketplace</a></li>
                 <li><a href={`${APP_BASE}/analytics`} className="hover:text-white transition">Analytics</a></li>
@@ -340,7 +341,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Developers</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="https://www.noemaprotocol.xyz/documentation" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">API Reference</a></li>
+                <li><Link to="/documentation" className="hover:text-white transition">API Reference</Link></li>
                 <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
                 <li><a href={`${APP_BASE}/create-agent`} className="hover:text-white transition">Create Agent</a></li>
                 <li><a href={`${APP_BASE}/staking`} className="hover:text-white transition">Validator Guide</a></li>

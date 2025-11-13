@@ -17,7 +17,7 @@ export const Navbar = () => {
 
   const navigationLinks = [
     { to: '/api', label: 'API' },
-    { to: 'https://www.noemaprotocol.xyz/documentation', label: 'Docs', external: true },
+    { to: '/documentation', label: 'Docs' },
   ];
 
   return (
@@ -26,9 +26,7 @@ export const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Left area */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
-              ∩
-            </div>
+            <img src="/branding/logo.svg" alt="Noema Protocol" className="w-10 h-10 rounded-xl" />
             <div className="hidden sm:flex flex-col">
               <span className="font-bold text-lg text-slate-900">Noema Protocol™</span>
               <span className="text-xs text-slate-600 font-medium -mt-1">The Noema Stack</span>
@@ -37,32 +35,19 @@ export const Navbar = () => {
 
           {/* Center nav - Desktop */}
           <div className="hidden md:flex items-center gap-1">
-            {navigationLinks.map((link) => {
-              const isExternal = 'external' in link && link.external;
-              return isExternal ? (
-                <a
-                  key={link.to}
-                  href={link.to}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive(link.to)
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive(link.to)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Right area */}
@@ -84,34 +69,20 @@ export const Navbar = () => {
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 mt-8">
-                  {navigationLinks.map((link) => {
-                    const isExternal = 'external' in link && link.external;
-                    return isExternal ? (
-                      <a
-                        key={link.to}
-                        href={link.to}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="px-4 py-3 rounded-lg text-base font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-muted"
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`px-4 py-3 rounded-lg text-base font-medium transition-all ${
-                          isActive(link.to)
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    );
-                  })}
+                  {navigationLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`px-4 py-3 rounded-lg text-base font-medium transition-all ${
+                        isActive(link.to)
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                   <div className="border-t border-slate-200 pt-4 mt-2">
                     <a href={APP_BASE} aria-label="Open app dashboard" className="block">
                       <Button className="w-full bg-slate-900 hover:bg-slate-800">
