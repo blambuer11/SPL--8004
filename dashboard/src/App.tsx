@@ -13,8 +13,8 @@ import Dashboard from './pages/app/Dashboard';
 import Agents from './pages/app/Agents';
 import AgentDetails from './pages/app/AgentDetails';
 import CreateAgent from './pages/app/CreateAgent';
+import StakeRedirect from './pages/StakeRedirect';
 import Staking from './pages/app/Staking';
-import Validation from './pages/app/Validation';
 import Payments from './pages/app/Payments';
 import Attestations from './pages/app/Attestations';
 import Consensus from './pages/app/Consensus';
@@ -49,14 +49,15 @@ const App = () => {
               <BrowserRouter>
               <Suspense fallback={<LoadingScreen /> }>
                 <Routes>
-                  {/* Dashboard routes (no /app prefix; deployed on app.noemaprotocol.xyz) */}
-                  <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
+
+                  {/* Root-level paths (legacy support) */}
                   <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
                   <Route path="/agents" element={<AppLayout><Agents /></AppLayout>} />
                   <Route path="/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
                   <Route path="/create-agent" element={<AppLayout><CreateAgent /></AppLayout>} />
                   <Route path="/staking" element={<AppLayout><Staking /></AppLayout>} />
-                  <Route path="/validation" element={<AppLayout><Validation /></AppLayout>} />
+                  <Route path="/validation" element={<AppLayout><StakeRedirect /></AppLayout>} />
                   <Route path="/payments" element={<AppLayout><Payments /></AppLayout>} />
                   <Route path="/x404" element={<AppLayout><X404Bridge /></AppLayout>} />
                   <Route path="/attestations" element={<AppLayout><Attestations /></AppLayout>} />
@@ -65,7 +66,25 @@ const App = () => {
                   <Route path="/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
                   <Route path="/docs" element={<AppLayout><DocsPage /></AppLayout>} />
                   <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+                  {/* /app namespace for primary navigation */}
+                  <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
+                  <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/app/agents" element={<AppLayout><Agents /></AppLayout>} />
+                  <Route path="/app/agents/:agentId" element={<AppLayout><AgentDetails /></AppLayout>} />
+                  <Route path="/app/create-agent" element={<AppLayout><CreateAgent /></AppLayout>} />
+                  <Route path="/app/staking" element={<AppLayout><Staking /></AppLayout>} />
+                  <Route path="/app/validation" element={<AppLayout><StakeRedirect /></AppLayout>} />
+                  <Route path="/app/payments" element={<AppLayout><Payments /></AppLayout>} />
+                  <Route path="/app/x404" element={<AppLayout><X404Bridge /></AppLayout>} />
+                  <Route path="/app/attestations" element={<AppLayout><Attestations /></AppLayout>} />
+                  <Route path="/app/consensus" element={<AppLayout><Consensus /></AppLayout>} />
+                  <Route path="/app/analytics" element={<AppLayout><AnalyticsPage /></AppLayout>} />
+                  <Route path="/app/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
+                  <Route path="/app/docs" element={<AppLayout><DocsPage /></AppLayout>} />
+                  <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+
+                  <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
                 </Routes>
               </Suspense>
             </BrowserRouter>

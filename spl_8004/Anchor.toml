@@ -2,10 +2,11 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-spl_8004 = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+spl_8004 = "FX7cpN56T49BT4HaMXsJcLgXRpQ54MHbsYmS3qDNzpGm"
 x402_facilitator = "Fma6gBu46bG4SE2rt2QQxUAC9Sc1aFmtELVtwvuJfCQf"
 
 [programs.devnet]
+spl_8004 = "FX7cpN56T49BT4HaMXsJcLgXRpQ54MHbsYmS3qDNzpGm"
 x402_facilitator = "Fma6gBu46bG4SE2rt2QQxUAC9Sc1aFmtELVtwvuJfCQf"
 
 [registry]

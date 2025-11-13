@@ -28,9 +28,9 @@ export class TAPClient {
     this.programId = programId || TAP_PROGRAM_ID;
   }
 
-  findAttestationPda(agentId: string, attestationType: string, issuer: PublicKey): [PublicKey, number] {
+  findAttestationPda(agentId: string, attestationType: string, issuerAccount: PublicKey): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(ATTESTATION_SEED), Buffer.from(agentId), Buffer.from(attestationType), issuer.toBytes()],
+      [Buffer.from(ATTESTATION_SEED), Buffer.from(agentId), Buffer.from(attestationType), issuerAccount.toBytes()],
       this.programId
     );
   }
@@ -64,10 +64,9 @@ export class TAPClient {
     try {
       const agentId = toolName;
       const attestationType = toolHash;
-      const issuerPubkey = this.wallet.publicKey;
-      
-      const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPubkey);
-      const [issuerPda] = this.findIssuerPda(issuerPubkey);
+      const ownerPubkey = this.wallet.publicKey;
+      const [issuerPda] = this.findIssuerPda(ownerPubkey);
+      const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPda);
       
       // Check if issuer account exists, if not we need to initialize it first
       const issuerAccount = await this.connection.getAccountInfo(issuerPda);
@@ -118,7 +117,7 @@ export class TAPClient {
       const keys = [
         { pubkey: attestationPda, isSigner: false, isWritable: true },
         { pubkey: issuerPda, isSigner: false, isWritable: true },
-        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: ownerPubkey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ];
 
@@ -275,7 +274,7 @@ export class TAPClient {
   }
 
   async revokeAttestation(toolHash: string): Promise<string> {
-    throw new Error("revokeAttestation requires agentId, attestationType, and issuerPubkey parameters");
+  throw new Error("revokeAttestation requires agentId, attestationType, and issuer account parameters");
   }
 
   async revokeAttestationWithDetails(agentId: string, attestationType: string, issuer: PublicKey, reason: string): Promise<string> {

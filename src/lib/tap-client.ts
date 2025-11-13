@@ -4,9 +4,42 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 // SPL-TAP Program ID
 export const TAP_PROGRAM_ID = new PublicKey("DTtjXcvxsKHnukZiLtaQ2dHJXC5HtUAwUa9WgsMd3So4");
 
+type TapImportMeta = {
+  env: {
+    VITE_TAP_MIN_STAKE_LAMPORTS?: string;
+    VITE_TAP_ISSUER_NAME?: string;
+    VITE_TAP_ISSUER_CONTACT?: string;
+  };
+};
+
+const TAP_ENV = (import.meta as unknown as TapImportMeta).env;
+
+const TAP_MIN_STAKE_LAMPORTS = (() => {
+  const raw = (TAP_ENV.VITE_TAP_MIN_STAKE_LAMPORTS || "").trim();
+  if (!raw) return 1_000_000_000n; // default: 1 SOL
+  try {
+    const parsed = BigInt(raw);
+    if (parsed < 0n) {
+      console.warn(`[TAPClient] VITE_TAP_MIN_STAKE_LAMPORTS cannot be negative. Using absolute value.`);
+      return -parsed;
+    }
+    return parsed;
+  } catch {
+    console.warn(`[TAPClient] Invalid VITE_TAP_MIN_STAKE_LAMPORTS='${raw}', defaulting to 1 SOL`);
+    return 1_000_000_000n;
+  }
+})();
+
+const TAP_ISSUER_NAME = (TAP_ENV.VITE_TAP_ISSUER_NAME || "Noema Protocol Issuer").trim() || "Noema Protocol Issuer";
+const TAP_ISSUER_CONTACT = (TAP_ENV.VITE_TAP_ISSUER_CONTACT || "https://noemaprotocol.xyz").trim() || "https://noemaprotocol.xyz";
+
 const ATTESTATION_SEED = "attestation";
 const ISSUER_SEED = "issuer";
 const CONFIG_SEED = "config";
+
+const TOOL_NAME_MAX = 32;
+const TOOL_HASH_MAX = 64;
+const AUDIT_URI_MAX = 200;
 
 export interface ToolAttestation {
   toolName: string;
@@ -28,9 +61,9 @@ export class TAPClient {
     this.programId = programId || TAP_PROGRAM_ID;
   }
 
-  findAttestationPda(agentId: string, attestationType: string, issuer: PublicKey): [PublicKey, number] {
+  findAttestationPda(agentId: string, attestationType: string, issuerAccount: PublicKey): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from(ATTESTATION_SEED), Buffer.from(agentId), Buffer.from(attestationType), issuer.toBytes()],
+      [Buffer.from(ATTESTATION_SEED), Buffer.from(agentId), Buffer.from(attestationType), issuerAccount.toBytes()],
       this.programId
     );
   }
@@ -67,13 +100,63 @@ export class TAPClient {
     return h.slice(0, 8);
   }
 
+  private async ensureConfigInitialized(): Promise<string | null> {
+    const current = await this.getConfigAccount();
+    if (current) return null;
+
+    console.log("🛠 Initializing TAP config (auto)...");
+    const [configPda] = this.findConfigPda();
+    const disc = await this.discriminator("initialize_config");
+
+    const data = new Uint8Array(8 + 32 + 8);
+    data.set(disc, 0);
+    data.set(this.wallet.publicKey.toBytes(), 8);
+    new DataView(data.buffer).setBigUint64(40, TAP_MIN_STAKE_LAMPORTS, true);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: configPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+
+    try {
+      const sig = await this.send([ix]);
+      console.log("✅ TAP config initialized", sig);
+      return sig;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.toLowerCase().includes("already in use") || message.includes("AccountAlreadyInitialized")) {
+        console.log("ℹ️  TAP config appears to be initialized by another signer. Continuing.");
+        return null;
+      }
+      throw err;
+    }
+  }
+
   async attestTool(toolName: string, toolHash: string, auditUri: string): Promise<string> {
     try {
       console.log('🔐 Starting attestation...', { toolName, toolHash, auditUri });
       
+      if (toolName.length === 0 || toolHash.length === 0 || auditUri.length === 0) {
+        throw new Error('All fields are required');
+      }
+      if (toolName.length > TOOL_NAME_MAX) {
+        throw new Error(`Tool name must be at most ${TOOL_NAME_MAX} characters (current: ${toolName.length})`);
+      }
+      if (toolHash.length > TOOL_HASH_MAX) {
+        throw new Error(`Tool hash must be at most ${TOOL_HASH_MAX} characters (current: ${toolHash.length})`);
+      }
+      if (auditUri.length > AUDIT_URI_MAX) {
+        throw new Error(`Audit URI must be at most ${AUDIT_URI_MAX} characters (current: ${auditUri.length})`);
+      }
+
       const agentId = toolName;
       const attestationType = toolHash;
-      const issuerPubkey = this.wallet.publicKey;
+      const ownerPubkey = this.wallet.publicKey;
       
       // First check if TAP program is deployed
       console.log('🔍 Checking TAP program deployment...');
@@ -83,10 +166,21 @@ export class TAPClient {
         throw new Error('TAP_NOT_DEPLOYED: Tool Attestation Protocol not available on this network');
       }
       console.log('✅ TAP program deployed');
+
+      console.log('🛠 Ensuring TAP config is initialized...');
+      await this.ensureConfigInitialized();
       
       console.log('📍 Finding PDAs...');
-      const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPubkey);
-      const [issuerPda] = this.findIssuerPda(issuerPubkey);
+      const [issuerPda] = this.findIssuerPda(ownerPubkey);
+      const [attestationPda] = this.findAttestationPda(agentId, attestationType, issuerPda);
+
+      const existingAttestation = await this.connection.getAccountInfo(attestationPda);
+      if (existingAttestation) {
+        console.log('ℹ️  Attestation already exists, skipping creation.');
+        const parsed = this.parseAttestationData(existingAttestation.data);
+        const issuedAt = parsed?.createdAt ? new Date(parsed.createdAt * 1000).toLocaleString() : 'previously';
+        throw new Error(`Attestation already exists for this tool hash (issued ${issuedAt}). Use a new hash or revoke the old attestation first.`);
+      }
       
       console.log('✅ PDAs found:', {
         attestationPda: attestationPda.toBase58(),
@@ -95,14 +189,18 @@ export class TAPClient {
       
       // Check if issuer account exists, if not we need to initialize it first
       console.log('🔍 Checking issuer account...');
-      const issuerAccount = await this.connection.getAccountInfo(issuerPda);
+      let issuerAccount = await this.connection.getAccountInfo(issuerPda);
       console.log('Issuer account exists:', !!issuerAccount);
       
       // If issuer doesn't exist, we need to register first
       if (!issuerAccount) {
         console.log('📝 Registering issuer first...');
-        await this.registerIssuer();
-        console.log('✅ Issuer registered');
+        const registrationSig = await this.registerIssuer();
+        console.log('✅ Issuer registered', registrationSig || '(existing)');
+        issuerAccount = await this.connection.getAccountInfo(issuerPda);
+        if (!issuerAccount) {
+          throw new Error('Issuer account still missing after registration. Please retry.');
+        }
       }
       
       console.log('⚙️ Building instruction...');
@@ -112,8 +210,8 @@ export class TAPClient {
       const agentIdBytes = new TextEncoder().encode(agentId);
       const attestationTypeBytes = new TextEncoder().encode(attestationType);
       const claimsUriBytes = new TextEncoder().encode(auditUri);
-  const currentEpochSeconds = Math.floor(Date.now() / 1000);
-  const expiresAt = BigInt(currentEpochSeconds + (365 * 24 * 60 * 60)); // 1 year from now
+      const currentEpochSeconds = Math.floor(Date.now() / 1000);
+      const expiresAt = BigInt(currentEpochSeconds + (365 * 24 * 60 * 60)); // 1 year from now
       const dummySignature = new Uint8Array(64).fill(0); // Dummy signature for now
 
       // Borsh: disc(8) + agent_id(4+len) + attestation_type(4+len) + claims_uri(4+len) + expires_at(8) + signature(64)
@@ -153,7 +251,7 @@ export class TAPClient {
       const keys = [
         { pubkey: attestationPda, isSigner: false, isWritable: true },
         { pubkey: issuerPda, isSigner: false, isWritable: true },
-        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: ownerPubkey, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ];
 
@@ -175,17 +273,17 @@ export class TAPClient {
         const simTx = new Transaction({ feePayer: this.wallet.publicKey, blockhash, lastValidBlockHeight });
         simTx.add(ix);
         const sim = await this.connection.simulateTransaction(simTx);
-        const logs = (sim as unknown as { value?: { logs?: string[]; err?: unknown } }).value?.logs || [];
-        const err = (sim as unknown as { value?: { err?: unknown } }).value?.err;
+        const simValue = (sim as unknown as { value?: { logs?: string[]; err?: unknown } }).value;
+        const logs = simValue?.logs ?? [];
+        const err = simValue?.err ?? null;
         if (err) {
-          const joined = logs.join('\n');
-          throw new Error('Transaction simulation failed - check program state\n' + joined);
+          const humanReadable = this.describeSimulationFailure(logs, err);
+          throw new Error(humanReadable);
         }
       } catch (simErr) {
-        if (simErr instanceof Error && simErr.message.includes('Transaction simulation failed')) {
+        if (simErr instanceof Error && simErr.message.includes('Simulation failed')) {
           throw simErr;
         }
-        // If simulate fails due to missing signatures policy, continue to send to capture logs on-chain errors
         console.warn('Simulation preflight skipped/failed:', simErr);
       }
 
@@ -214,8 +312,8 @@ export class TAPClient {
           throw new Error('Insufficient funds to initialize issuer account');
         } else if (error.message.includes('blockhash')) {
           throw new Error('Transaction expired - please retry');
-        } else if (error.message.includes('simulation failed')) {
-          throw new Error('Transaction simulation failed - check program state');
+        } else if (error.message.includes('Simulation failed')) {
+          throw error;
         }
       }
       
@@ -356,20 +454,28 @@ export class TAPClient {
     }
   }
 
-  async registerIssuer(): Promise<string> {
+  async registerIssuer(): Promise<string | null> {
     try {
       console.log('📝 Registering issuer account...');
       
       const [issuerPda] = this.findIssuerPda(this.wallet.publicKey);
+      const existing = await this.connection.getAccountInfo(issuerPda);
+      if (existing) {
+        console.log('ℹ️  Issuer already registered. Skipping.');
+        return null;
+      }
+
+      await this.ensureConfigInitialized();
+
       const configAccount = await this.getConfigAccount();
       if (!configAccount) {
-        throw new Error('TAP config not initialized. Run initialize_config for SPL-TAP before registering issuer.');
+        throw new Error('TAP config not initialized. Unable to register issuer.');
       }
       const disc = await this.discriminator("register_issuer");
       
       // Parameters: name: String, contact_info: String
-      const name = "Noema Protocol Issuer";
-      const contactInfo = "https://noemaprotocol.xyz";
+      const name = TAP_ISSUER_NAME;
+      const contactInfo = TAP_ISSUER_CONTACT;
       
       const nameBytes = new TextEncoder().encode(name);
       const contactBytes = new TextEncoder().encode(contactInfo);
@@ -407,12 +513,18 @@ export class TAPClient {
       return signature;
     } catch (error) {
       console.error('❌ Failed to register issuer:', error);
+      const [issuerPda] = this.findIssuerPda(this.wallet.publicKey);
+      const issuerAccount = await this.connection.getAccountInfo(issuerPda);
+      if (issuerAccount) {
+        console.log('ℹ️  Issuer account detected after error, treating as success.');
+        return null;
+      }
       throw error;
     }
   }
 
   async revokeAttestation(toolHash: string): Promise<string> {
-    throw new Error("revokeAttestation requires agentId, attestationType, and issuerPubkey parameters");
+  throw new Error("revokeAttestation requires agentId, attestationType, and issuer account parameters");
   }
 
   async revokeAttestationWithDetails(agentId: string, attestationType: string, issuer: PublicKey, reason: string): Promise<string> {
@@ -442,6 +554,28 @@ export class TAPClient {
     });
 
     return this.send([ix]);
+  }
+
+  private describeSimulationFailure(logs: string[], err: unknown): string {
+    const logSummary = logs.join('\n');
+    if (logSummary.includes('already in use')) {
+      return 'Simulation failed: attestation account already exists. ' + logSummary;
+    }
+    if (logSummary.includes('custom program error')) {
+      const anchorMessage = this.extractAnchorError(logSummary);
+      if (anchorMessage) {
+        return `Simulation failed: ${anchorMessage}`;
+      }
+    }
+    return `Simulation failed. Raw logs:\n${logSummary || JSON.stringify(err)}`;
+  }
+
+  private extractAnchorError(logs: string): string | null {
+    const anchorLine = logs
+      .split('\n')
+      .find((line) => line.includes('AnchorError') || line.includes('Error Code'));
+    if (!anchorLine) return null;
+    return anchorLine.replace(/^Program log: /, '').trim();
   }
 
   private async send(ixs: TransactionInstruction[]): Promise<string> {

@@ -4,24 +4,20 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useStaking } from '@/hooks/useStaking';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Users, PlusCircle, ShieldCheck, CreditCard, Fingerprint, Share2, BarChart2, Store, BookOpen, Settings, TrendingUp, Image } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LayoutDashboard, Users, PlusCircle, ShieldCheck, CreditCard, Fingerprint, Share2, Store, BookOpen, Settings, TrendingUp, Image } from 'lucide-react';
 
 interface AppLayoutProps { children: ReactNode; }
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className='w-4 h-4' /> },
-  { to: '/agents', label: 'Agents', icon: <Users className='w-4 h-4' /> },
-  { to: '/create-agent', label: 'Create Agent', icon: <PlusCircle className='w-4 h-4' /> },
-  { to: '/staking', label: 'Staking', icon: <TrendingUp className='w-4 h-4' /> },
-  { to: '/validation', label: 'Validation', icon: <ShieldCheck className='w-4 h-4' /> },
-  { to: '/payments', label: 'Payments', icon: <CreditCard className='w-4 h-4' /> },
-  { to: '/x404', label: 'X404 NFT Bridge', icon: <Image className='w-4 h-4' /> },
-  { to: '/attestations', label: 'Attestations', icon: <Fingerprint className='w-4 h-4' /> },
-  { to: '/consensus', label: 'Consensus', icon: <Share2 className='w-4 h-4' /> },
-  { to: '/analytics', label: 'Analytics', icon: <BarChart2 className='w-4 h-4' /> },
-  { to: '/marketplace', label: 'Marketplace', icon: <Store className='w-4 h-4' /> },
-  { to: '/docs', label: 'Docs', icon: <BookOpen className='w-4 h-4' /> },
-  { to: '/settings', label: 'Settings', icon: <Settings className='w-4 h-4' /> },
+  { to: '/app/dashboard', label: 'Dashboard', icon: <LayoutDashboard className='w-4 h-4' /> },
+  { to: '/app/agents', label: 'Agents', icon: <Users className='w-4 h-4' /> },
+  { to: '/app/staking', label: 'Staking', icon: <TrendingUp className='w-4 h-4' /> },
+  { to: '/app/payments', label: 'Payments', icon: <CreditCard className='w-4 h-4' /> },
+  { to: '/app/x404', label: 'X404 NFT Bridge', icon: <Image className='w-4 h-4' /> },
+  { to: '/app/attestations', label: 'Attestations', icon: <Fingerprint className='w-4 h-4' /> },
+  { to: '/app/consensus', label: 'Consensus', icon: <Share2 className='w-4 h-4' /> },
+  { to: '/app/marketplace', label: 'Marketplace', icon: <Store className='w-4 h-4' /> },
 ];
 
 export default function AppLayout({ children }: AppLayoutProps) {
@@ -29,6 +25,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const { connected, publicKey, disconnect } = useWallet();
   const { client: stakingClient } = useStaking();
   const [validatorStake, setValidatorStake] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (connected && publicKey && stakingClient) {
@@ -56,7 +53,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <div className="h-screen w-full flex bg-[#0b0e14] text-white">
       {/* Sidebar */}
       <aside className="w-64 border-r border-white/10 p-4 space-y-6 flex flex-col">
-  <Link to="/dashboard" className="flex items-center gap-3 px-2">
+  <Link to="/app/dashboard" className="flex items-center gap-3 px-2">
           <img src="/branding/logo.svg" alt="Noema" className="w-9 h-9 rounded-lg" />
           <div className="flex flex-col">
             <span className="font-semibold leading-tight">Noema</span>
@@ -75,6 +72,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </NavLink>
           ))}
         </nav>
+
+        {/* Bottom icons for Docs and Settings */}
+        <div className="border-t border-white/10 pt-4 space-y-2">
+          <Link 
+            to="/app/docs"
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white"
+            title="Documentation"
+          >
+            <BookOpen className="w-5 h-5" />
+          </Link>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
         {/* Wallet button moved to header */}
       </aside>
 
@@ -104,7 +119,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[180px]">
-                  <DropdownMenuItem onSelect={() => navigate('/dashboard')}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate('/app/dashboard')}>Dashboard</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => disconnect()}>Disconnect</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -127,6 +142,96 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         </footer>
       </main>
+
+      {/* Settings Modal */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="bg-[#0b0e14] border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-white">Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* API Keys Section */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-white">🔑 API Keys</h4>
+              <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-slate-400">Your API Key</span>
+                  <button 
+                    onClick={() => {
+                      const key = 'sk_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                      navigator.clipboard.writeText(key);
+                      alert('New API Key generated and copied: ' + key);
+                    }}
+                    className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white"
+                  >
+                    Generate New Key
+                  </button>
+                </div>
+                <div className="text-xs font-mono text-slate-300 bg-black/30 p-2 rounded">
+                  sk_************************
+                </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  Use this key to authenticate API requests
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-white">Preferences</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="rounded border-white/20 bg-white/10" />
+                    <span className="text-slate-300">Desktop notifications</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="rounded border-white/20 bg-white/10" />
+                    <span className="text-slate-300">Email summaries</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="rounded border-white/20 bg-white/10" />
+                    <span className="text-slate-300">Auto-refresh data</span>
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-semibold text-white">Network</h4>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">RPC Endpoint</label>
+                    <select className="w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-slate-300 text-xs">
+                      <option>Devnet (default)</option>
+                      <option>Mainnet</option>
+                      <option>Custom</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Theme</label>
+                    <select className="w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-slate-300 text-xs">
+                      <option>Dark (default)</option>
+                      <option>Light</option>
+                      <option>Auto</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-white/10">
+              <div className="flex justify-between items-center">
+                <div className="text-xs text-slate-500">
+                  Dashboard v1.2.0 • SPL-8004 Stack
+                </div>
+                <button
+                  onClick={() => setSettingsOpen(false)}
+                  className="px-3 py-1 text-xs bg-white/10 hover:bg-white/20 rounded border border-white/20 text-slate-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

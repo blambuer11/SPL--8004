@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap } from 'lucide-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
 import { usePayment } from '@/hooks/usePayment';
@@ -90,11 +91,11 @@ export default function Dashboard() {
     <div className="space-y-8 text-slate-200">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-1">Welcome back! Here's your agent ecosystem overview</p>
+          <h1 className="text-3xl font-bold text-white">Noema Dashboard</h1>
+          <p className="text-sm text-slate-400 mt-1">Unified view across SPL-8004 identity, consensus, payments, and marketplace</p>
         </div>
         <div className="text-sm text-slate-400">
-          Last updated: {new Date().toLocaleTimeString()}
+          Refreshed {new Date().toLocaleTimeString()}
         </div>
       </div>
 
@@ -120,6 +121,51 @@ export default function Dashboard() {
             </div>
           );
         })}
+      </section>
+
+      {/* Quick Start Guide */}
+      <section className="p-6 rounded-xl bg-gradient-to-r from-blue-900/30 via-purple-900/30 to-pink-900/30 border border-blue-500/30">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span>🚀</span>
+          Quick Start Guide
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link 
+            to="/app/agents" 
+            className="p-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center group"
+          >
+            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">1️⃣</div>
+            <div className="font-semibold text-white mb-1">Create Agent</div>
+            <div className="text-xs text-slate-300">Register your AI agent identity</div>
+          </Link>
+          <Link 
+            to="/app/marketplace" 
+            className="p-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center group"
+          >
+            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">2️⃣</div>
+            <div className="font-semibold text-white mb-1">Assign Task</div>
+            <div className="text-xs text-slate-300">Give your agent work to do</div>
+          </Link>
+          <Link 
+            to="/app/staking" 
+            className="p-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center group"
+          >
+            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">3️⃣</div>
+            <div className="font-semibold text-white mb-1">Stake & Validate</div>
+            <div className="text-xs text-slate-300">Validate and earn rewards</div>
+          </Link>
+          <Link 
+            to="/app/payments" 
+            className="p-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-center group"
+          >
+            <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">4️⃣</div>
+            <div className="font-semibold text-white mb-1">Claim Rewards</div>
+            <div className="text-xs text-slate-300">Get paid for quality work</div>
+          </Link>
+        </div>
+        <div className="mt-4 text-xs text-slate-400 text-center">
+          💡 <strong className="text-slate-300">SPL-8004 Architecture:</strong> Identity anchors reputation, validation builds trust, consensus coordinates agents, and payments settle work instantly.
+        </div>
       </section>
 
       {/* Earnings Overview */}
@@ -149,7 +195,7 @@ export default function Dashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-white">🤖 Your Agents ({yourAgents.length})</h2>
-          <a href="/app/agents" className="text-sm text-blue-400 hover:text-blue-300">View all →</a>
+          <Link to="/app/agents" className="text-sm text-blue-400 hover:text-blue-300">View all →</Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {yourAgents.map(agent => (
@@ -202,7 +248,7 @@ export default function Dashboard() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-white">📊 Recent Activity</h2>
-          <a href="/app/payments" className="text-sm text-blue-400 hover:text-blue-300">View all transactions →</a>
+          <Link to="/app/payments" className="text-sm text-blue-400 hover:text-blue-300">View all transactions →</Link>
         </div>
         <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-3 max-h-96 overflow-y-auto">
           {recentActivity.map((activity, idx) => (
@@ -233,23 +279,71 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* Protocol Extensions */}
+      <section>
+        <h2 className="text-2xl font-semibold text-white mb-4">🔗 Protocol Extensions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <span className="text-2xl">💬</span>
+              </div>
+              <div>
+                <div className="font-semibold text-white">SPL-ACP</div>
+                <div className="text-xs text-slate-400">Agent Communication</div>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white">42</div>
+            <div className="text-xs text-purple-400 mt-1">Agents with declared capabilities</div>
+          </div>
+
+          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                <span className="text-2xl">🛠️</span>
+              </div>
+              <div>
+                <div className="font-semibold text-white">SPL-TAP</div>
+                <div className="text-xs text-slate-400">Tool Attestations</div>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white">18</div>
+            <div className="text-xs text-green-400 mt-1">Verified tool attestations</div>
+          </div>
+
+          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <span className="text-2xl">🤝</span>
+              </div>
+              <div>
+                <div className="font-semibold text-white">SPL-FCP</div>
+                <div className="text-xs text-slate-400">Federated Consensus</div>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white">7</div>
+            <div className="text-xs text-blue-400 mt-1">Active consensus requests</div>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Actions */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="/app/agents" className="p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-blue-500/30 hover:border-blue-400/50 transition text-center">
+        <Link to="/app/agents" className="p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-blue-500/30 hover:border-blue-400/50 transition text-center">
           <div className="text-3xl mb-2">🤖</div>
           <div className="font-semibold text-white">Register New Agent</div>
           <div className="text-xs text-slate-400 mt-1">Add agent to network</div>
-        </a>
-        <a href="/app/marketplace" className="p-6 rounded-xl bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 hover:border-purple-400/50 transition text-center">
+        </Link>
+        <Link to="/app/marketplace" className="p-6 rounded-xl bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-purple-500/30 hover:border-purple-400/50 transition text-center">
           <div className="text-3xl mb-2">🏪</div>
           <div className="font-semibold text-white">Browse Marketplace</div>
           <div className="text-xs text-slate-400 mt-1">Hire AI agents</div>
-        </a>
-        <a href="/app/staking" className="p-6 rounded-xl bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 hover:border-emerald-400/50 transition text-center">
+        </Link>
+        <Link to="/app/staking" className="p-6 rounded-xl bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-500/30 hover:border-emerald-400/50 transition text-center">
           <div className="text-3xl mb-2">💎</div>
           <div className="font-semibold text-white">Stake & Validate</div>
           <div className="text-xs text-slate-400 mt-1">Earn rewards</div>
-        </a>
+        </Link>
       </section>
     </div>
   );

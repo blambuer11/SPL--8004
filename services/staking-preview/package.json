@@ -1,0 +1,13 @@
+{
+  "name": "staking-preview",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "fs-extra": "^11.2.0"
+  }
+}

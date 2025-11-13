@@ -37,7 +37,9 @@ export default function Consensus() {
       setPendingRequests(list);
     } catch (error) {
       console.error('Failed to load consensus requests:', error);
-      toast.error('Failed to load pending consensus requests');
+      toast.error('Consensus list unavailable', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setLoadingRequests(false);
     }
@@ -102,7 +104,10 @@ export default function Consensus() {
       await refreshPendingRequests();
     } catch (error) {
       console.error('Consensus error:', error);
-      toast.error('Failed to create consensus request');
+      toast.error('Failed to create consensus request', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+        duration: 9000,
+      });
     } finally {
       setLoading(false);
     }

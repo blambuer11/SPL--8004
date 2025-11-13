@@ -1,8 +1,7 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-    Blocking waiting for file lock on package cache
-   0.774772917s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: false }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
-   0.774803625s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-6a714468aef4d198/lib-x404_agent_nft`
+   0.330948708s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: false }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
+   0.330971167s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-6a714468aef4d198/lib-x404_agent_nft`
 
 Caused by:
     No such file or directory (os error 2)
@@ -26,8 +25,8 @@ Stack backtrace:
   15: std::rt::lang_start::<()>::{closure#0}
   16: std::rt::lang_start_internal
   17: _main
-   0.852752750s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: true }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
-   0.852770292s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-f04799b7bfcda333/test-lib-x404_agent_nft`
+   0.395223917s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint: fingerprint error for x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft)/Check { test: true }/TargetInner { ..: lib_target("x404_agent_nft", ["cdylib", "lib"], "/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft/src/lib.rs", Edition2021) }
+   0.395238292s  INFO prepare_target{force=false package_id=x404-agent-nft v0.1.0 (/Users/bl10buer/Desktop/sp8004/x404-integration/programs/x404-agent-nft) target="x404_agent_nft"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/bl10buer/Desktop/sp8004/x404-integration/target/debug/.fingerprint/x404-agent-nft-f04799b7bfcda333/test-lib-x404_agent_nft`
 
 Caused by:
     No such file or directory (os error 2)

@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    hmr: true,
+    force: true,
   },
   plugins: [
     react(),
@@ -20,5 +22,13 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ["buffer", "react", "react-dom"],
+    force: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      }
+    }
+  }
 }));

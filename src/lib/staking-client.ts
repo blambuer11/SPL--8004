@@ -35,7 +35,7 @@ const STAKING_PROGRAM_ID_FROM_ENV = (import.meta as unknown as { env: ImportMeta
 export const STAKING_PROGRAM_ID = new PublicKey(
   (STAKING_PROGRAM_ID_FROM_ENV && STAKING_PROGRAM_ID_FROM_ENV.trim().length > 0)
     ? STAKING_PROGRAM_ID_FROM_ENV.trim()
-  : "G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW" // Devnet program
+  : "FX7cpN56T49BT4HaMXsJcLgXRpQ54MHbsYmS3qDNzpGm" // Default to deployed SPL-8004 devnet program id
 );
 const DEMO_MODE = (((import.meta as unknown as { env: ImportMetaEnv }).env.VITE_STAKING_DEMO_MODE) || "").toLowerCase() === "true";
 const PREVIEW_URL = ((import.meta as unknown as { env: ImportMetaEnv }).env.VITE_STAKING_SERVICE_URL || "").trim();
@@ -273,6 +273,8 @@ export class StakingClient {
       return sig;
     }
 
+    await this.initializeConfigIfNeeded();
+
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     console.log(`[StakingClient] stake() - cfg: ${cfg.toBase58()}, validator: ${validatorPda.toBase58()}, user: ${this.wallet.publicKey.toBase58()}`);
@@ -372,6 +374,8 @@ export class StakingClient {
       await this.postPreview("claim", { signature: sig });
       return sig;
     }
+
+    await this.initializeConfigIfNeeded();
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     
@@ -402,6 +406,7 @@ export class StakingClient {
 
   async instantUnstake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
+    await this.initializeConfigIfNeeded();
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     const config = await this.getConfigAccount();

@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-SDK-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-[🚀 Quick Start](#-quick-start) • [� Local Development](#-local-development) • [🔌 API](#-api-endpoints) • [💰 Pricing](#-pricing) • [📚 Docs](https://noemaprotocol.xyz/docs)
+[🚀 Quick Start](#-quick-start) • [⚙️ Local Development](#-local-development) • [🔌 API](#-api-endpoints) • [💰 Pricing](#-pricing) • [📚 Docs](docs/INDEX.md)
 
 </div>
 
@@ -110,6 +110,29 @@ npm install
 npm run dev
 ```
 
+### Docker: X404 & Staking Preview Services
+
+Run local preview backends for X404 NFT bridge and Staking event log without on-chain deployment:
+
+```bash
+# Start services in background
+docker compose up -d x404-preview staking-preview
+
+# Health checks
+curl -s http://localhost:4004/health # x404-preview
+curl -s http://localhost:4010/health # staking-preview
+```
+
+Frontend configuration (set via environment or .env):
+
+- `VITE_X404_SERVICE_URL` → `http://localhost:4004`
+- `VITE_STAKING_SERVICE_URL` → `http://localhost:4010`
+
+Notes:
+- X404 Bridge runs in preview mode until the on-chain program is deployed. Mints are recorded via PDA derivation and mirrored to `x404-preview`.
+- Staking now uses SOL transfers for the Stake action. Unstake/Claim are simulated locally and optionally mirrored to `staking-preview`.
+- Treasury address is taken from `VITE_SPL8004_TREASURY`.
+
 ### Basic Usage
 
 ```typescript
@@ -182,34 +205,7 @@ const qr = await generator.generatePaymentQR({
 <QRCode value={qr.url} size={256} />
 ```
 
-**Full Documentation:** [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md)
-  privateKey: process.env.AGENT_PRIVATE_KEY!,
-  apiKey: process.env.NOEMA_API_KEY!,
-  network: 'mainnet-beta',
-});
-
-// Get agent identity
-const identity = await agent.getIdentity();
-console.log('Reputation:', identity.reputation);
-console.log('Total Payments:', identity.totalPayments);
-
-// Check balances
-const sol = await agent.getBalance();
-const usdc = await agent.getUsdcBalance(USDC_MINT);
-console.log(`Balances: ${sol} SOL, ${usdc} USDC`);
-
-// Get usage stats
-const stats = await agent.getUsageStats();
-console.log(`Tier: ${stats.tier}`);
-console.log(`Requests today: ${stats.requestsToday}`);
-console.log(`Rate limit remaining: ${stats.rateLimitRemaining}`);
-
-// Make autonomous payment
-const payment = await agent.makePayment({
-  targetEndpoint: 'https://api.premium-data.com',
-  priceUsd: 0.01,
-});
-console.log('Payment signature:', payment.signature);
+**Repository Documentation:** [docs/INDEX.md](docs/INDEX.md)
 ```
 
 ### Advanced: Auto-Pay for Protected Endpoints
@@ -742,6 +738,7 @@ curl -H "x-api-key: noema_sk_..." \
 
 ## 📚 Documentation
 
+- **Repository Docs Index:** [docs/INDEX.md](docs/INDEX.md)
 - **SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
 - **API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
 - **Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)

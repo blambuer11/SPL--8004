@@ -4,6 +4,35 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 // SPL-FCP Program ID
 export const FCP_PROGRAM_ID = new PublicKey("A4Ee2KoPz4y9XyEBta9DyXvKPnWy2GvprDzfVF1PnjtR");
 
+type FcpImportMeta = {
+  env: {
+    VITE_FCP_MIN_STAKE_LAMPORTS?: string;
+    VITE_FCP_VALIDATOR_NAME?: string;
+    VITE_FCP_VALIDATOR_CONTACT?: string;
+  };
+};
+
+const FCP_ENV = (import.meta as unknown as FcpImportMeta).env;
+
+const FCP_MIN_STAKE_LAMPORTS = (() => {
+  const raw = (FCP_ENV.VITE_FCP_MIN_STAKE_LAMPORTS || "").trim();
+  if (!raw) return 2_000_000_000n; // default 2 SOL
+  try {
+    const parsed = BigInt(raw);
+    if (parsed < 0n) {
+      console.warn("[FCPClient] VITE_FCP_MIN_STAKE_LAMPORTS cannot be negative. Using absolute value.");
+      return -parsed;
+    }
+    return parsed;
+  } catch {
+    console.warn(`[FCPClient] Invalid VITE_FCP_MIN_STAKE_LAMPORTS='${raw}', defaulting to 2 SOL`);
+    return 2_000_000_000n;
+  }
+})();
+
+const FCP_VALIDATOR_NAME = (FCP_ENV.VITE_FCP_VALIDATOR_NAME || "Noema Protocol Validator").trim() || "Noema Protocol Validator";
+const FCP_VALIDATOR_CONTACT = (FCP_ENV.VITE_FCP_VALIDATOR_CONTACT || "https://noemaprotocol.xyz").trim() || "https://noemaprotocol.xyz";
+
 const CONSENSUS_SEED = "consensus";
 const VALIDATOR_SEED = "validator";
 const CONFIG_SEED = "config";
@@ -23,6 +52,15 @@ export interface ConsensusRequest {
   requester: PublicKey;
   address: PublicKey;
   dataHash: Uint8Array;
+}
+
+export interface FcpConfig {
+  address: PublicKey;
+  authority: PublicKey;
+  minStakeLamports: number;
+  totalValidators: number;
+  totalConsensusRequests: number;
+  bump: number;
 }
 
 export class FCPClient {
@@ -73,6 +111,114 @@ export class FCPClient {
   private async discriminator(name: string): Promise<Uint8Array> {
     const h = await this.sha256(`global:${name}`);
     return h.slice(0, 8);
+  }
+
+  private async ensureConfigInitialized(): Promise<string | null> {
+    const current = await this.getConfigAccount();
+    if (current) return null;
+
+    console.log("[FCPClient] Config missing - initializing on-chain");
+    const [configPda] = this.findConfigPda();
+    const disc = await this.discriminator("initialize_config");
+
+    const data = new Uint8Array(8 + 32 + 8);
+    data.set(disc, 0);
+    data.set(this.wallet.publicKey.toBytes(), 8);
+    new DataView(data.buffer).setBigUint64(40, FCP_MIN_STAKE_LAMPORTS, true);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: configPda, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+
+    try {
+      const sig = await this.send([ix]);
+      console.log("[FCPClient] Config initialized", sig);
+      return sig;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.toLowerCase().includes("already in use") || msg.includes("AccountAlreadyInitialized")) {
+        console.log("[FCPClient] Config already initialized by another signer.");
+        return null;
+      }
+      throw err;
+    }
+  }
+
+  async getConfigAccount(): Promise<FcpConfig | null> {
+    const [configPda] = this.findConfigPda();
+    const accountInfo = await this.connection.getAccountInfo(configPda);
+    if (!accountInfo) return null;
+    if (accountInfo.data.length < 65) {
+      throw new Error(`[FCPClient] Unexpected config account size: ${accountInfo.data.length}`);
+    }
+
+    const dv = new DataView(accountInfo.data.buffer, accountInfo.data.byteOffset, accountInfo.data.byteLength);
+    const authority = new PublicKey(accountInfo.data.slice(8, 40));
+  const minStakeLamports = Number(dv.getBigUint64(40, true));
+  const totalValidators = Number(dv.getBigUint64(48, true));
+  const totalConsensusRequests = Number(dv.getBigUint64(56, true));
+    const bump = accountInfo.data[64];
+
+    return {
+      address: configPda,
+      authority,
+      minStakeLamports,
+      totalValidators,
+      totalConsensusRequests,
+      bump,
+    };
+  }
+
+  private async ensureValidatorRegistered(): Promise<string | null> {
+    const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
+    const existing = await this.connection.getAccountInfo(validatorPda);
+    if (existing) return null;
+
+    await this.ensureConfigInitialized();
+    const config = await this.getConfigAccount();
+    if (!config) throw new Error("FCP config not initialized. Unable to register validator.");
+
+    const disc = await this.discriminator("register_validator");
+    const nameBytes = new TextEncoder().encode(FCP_VALIDATOR_NAME);
+    const metadataBytes = new TextEncoder().encode(FCP_VALIDATOR_CONTACT);
+
+    const data = new Uint8Array(8 + 4 + nameBytes.length + 4 + metadataBytes.length);
+    let offset = 0;
+    data.set(disc, offset); offset += 8;
+    new DataView(data.buffer).setUint32(offset, nameBytes.length, true); offset += 4;
+    data.set(nameBytes, offset); offset += nameBytes.length;
+    new DataView(data.buffer).setUint32(offset, metadataBytes.length, true); offset += 4;
+    data.set(metadataBytes, offset);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: validatorPda, isSigner: false, isWritable: true },
+        { pubkey: config.address, isSigner: false, isWritable: true },
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+
+    try {
+      const sig = await this.send([ix]);
+      console.log("[FCPClient] Validator registered", sig);
+      return sig;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("already in use") || msg.includes("AccountAlreadyInitialized")) {
+        console.log("[FCPClient] Validator already exists. Continuing.");
+        return null;
+      }
+      throw err;
+    }
   }
 
   private parseConsensusAccount(address: PublicKey, data: Uint8Array): ConsensusRequest {
@@ -131,7 +277,14 @@ export class FCPClient {
       filters: [{ dataSize: 521 }],
     });
 
-    const items = accounts.map(({ pubkey, account }) => this.parseConsensusAccount(pubkey, account.data));
+    const items: ConsensusRequest[] = [];
+    for (const { pubkey, account } of accounts) {
+      try {
+        items.push(this.parseConsensusAccount(pubkey, account.data));
+      } catch (err) {
+        console.warn("[FCPClient] Failed to parse consensus account", pubkey.toBase58(), err);
+      }
+    }
 
     const filtered = items.filter((item) => {
       if (options.status && item.status !== options.status) return false;
@@ -149,6 +302,7 @@ export class FCPClient {
     requiredApprovals: number,
     validators: PublicKey[]
   ): Promise<string> {
+  await this.ensureConfigInitialized();
   const actionType = action;
   const requester = this.wallet.publicKey;
     
@@ -229,6 +383,7 @@ export class FCPClient {
 
   async approveConsensusWithDetails(agentId: string, actionType: string, requestId: string, consensusPda: PublicKey): Promise<string> {
     const validatorPubkey = this.wallet.publicKey;
+    await this.ensureValidatorRegistered();
     const [validatorPda] = this.findValidatorPda(validatorPubkey);
     const [votePda] = this.findVotePda(requestId, validatorPubkey);
     const disc = await this.discriminator("cast_vote");
@@ -283,6 +438,7 @@ export class FCPClient {
 
   async rejectConsensusWithDetails(agentId: string, actionType: string, requestId: string, consensusPda: PublicKey): Promise<string> {
     const validatorPubkey = this.wallet.publicKey;
+    await this.ensureValidatorRegistered();
     const [validatorPda] = this.findValidatorPda(validatorPubkey);
     const [votePda] = this.findVotePda(requestId, validatorPubkey);
     const disc = await this.discriminator("cast_vote");

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -30,13 +32,24 @@ interface Agent {
 export default function Agents() {
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getMessagesForAgent } = useMessages();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [claimToast, setClaimToast] = useState<{msg:string;type:'success'|'error'}|null>(null);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [showCommunication, setShowCommunication] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newAgentId, setNewAgentId] = useState('');
+  const [newAgentDescription, setNewAgentDescription] = useState('');
+  const [newAgentMetadataUri, setNewAgentMetadataUri] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  console.log('🔍 useX402 hook:', { instantPayment: !!instantPayment, instantPaymentLoading });
 
   useEffect(() => {
     async function loadAgents() {
@@ -61,6 +74,57 @@ export default function Agents() {
 
     loadAgents();
   }, [client, connected]);
+
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      setCreateModalOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleCreateModalChange = (open: boolean) => {
+    setCreateModalOpen(open);
+    const next = new URLSearchParams(searchParams);
+    if (open) {
+      next.set('create', '1');
+    } else {
+      next.delete('create');
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleCreateAgent = async () => {
+    if (!client || !newAgentId.trim()) {
+      toast.error('Please enter an agent ID');
+      return;
+    }
+    if (!newAgentMetadataUri.trim()) {
+      toast.error('Metadata link is required');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      await client.registerAgent(newAgentId.trim(), newAgentMetadataUri.trim());
+      toast.success('Agent created successfully!', {
+        description: `Agent ID: ${newAgentId}`
+      });
+
+      setNewAgentId('');
+      setNewAgentDescription('');
+      setNewAgentMetadataUri('');
+      handleCreateModalChange(false);
+
+      const userAgents = await client.getAllUserAgents();
+      setAgents(userAgents);
+    } catch (error) {
+      console.error('Failed to create agent:', error);
+      toast.error('Failed to create agent', {
+        description: error instanceof Error ? error.message : 'Unknown error'
+      });
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (!connected) {
     return (
@@ -97,12 +161,75 @@ export default function Agents() {
             <Radio className="h-4 w-4" />
             {showCommunication ? 'Hide' : 'Show'} Network
           </Button>
-          <Link 
-            to="/app/create-agent" 
-            className="px-4 py-2 bg-slate-100 text-black rounded hover:bg-slate-200 transition text-sm font-medium"
-          >
-            + Create Agent
-          </Link>
+          <Dialog open={createModalOpen} onOpenChange={handleCreateModalChange}>
+            <DialogTrigger asChild>
+              <Button className="bg-slate-100 text-black hover:bg-slate-200">
+                + Create Agent
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#0b0e14] border-white/10">
+              <DialogHeader>
+                <DialogTitle className="text-white">Create New Agent</DialogTitle>
+                <DialogDescription className="text-slate-400">
+                  Register a new AI agent identity on SPL-8004
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="agentId" className="text-slate-300">Agent ID</Label>
+                  <Input
+                    id="agentId"
+                    placeholder="my-agent-001"
+                    value={newAgentId}
+                    onChange={(e) => setNewAgentId(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Unique identifier for your agent (letters, numbers, hyphens)
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="metadataUri" className="text-slate-300">Metadata Link</Label>
+                  <Input
+                    id="metadataUri"
+                    placeholder="https://arweave.net/your-agent.json"
+                    value={newAgentMetadataUri}
+                    onChange={(e) => setNewAgentMetadataUri(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Public URI containing agent metadata (IPFS, Arweave, HTTPS)</p>
+                </div>
+                <div>
+                  <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe your agent's capabilities..."
+                    value={newAgentDescription}
+                    onChange={(e) => setNewAgentDescription(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white mt-1"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    onClick={() => handleCreateModalChange(false)}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={creating}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCreateAgent}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    disabled={creating || !connected || !newAgentId.trim() || !newAgentMetadataUri.trim()}
+                  >
+                    {creating ? 'Creating...' : 'Create Agent'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -286,24 +413,63 @@ console.log('Message sent:', message);`
       ) : (
         <div className="grid md:grid-cols-3 gap-4">
           {agents.map(agent => (
-            <Link 
+            <div 
               key={agent.agentId} 
-              to={`/app/agents/${agent.agentId}`} 
-              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              className="p-5 rounded-xl bg-slate-800/80 border-2 border-slate-600/50 hover:border-blue-400/70 transition flex flex-col gap-3 shadow-lg"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="font-medium">{agent.agentId}</div>
-                <div className={`text-xs px-2 py-0.5 rounded ${agent.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+              <div className="flex items-start justify-between">
+                <Link to={`/app/agents/${agent.agentId}`} className="font-semibold text-white hover:text-blue-300 transition">
+                  {agent.agentId}
+                </Link>
+                <div className={`text-xs px-2 py-1 rounded-full font-semibold ${agent.isActive ? 'bg-green-600/40 text-green-100 border border-green-400/50' : 'bg-red-600/40 text-red-100 border border-red-400/50'}`}>
                   {agent.isActive ? 'Active' : 'Inactive'}
                 </div>
               </div>
-              <div className="text-xs text-slate-400 space-y-1">
-                <div>Score: {agent.reputation?.score ?? 5000}</div>
-                <div>Tasks: {agent.reputation?.totalTasks ?? 0}</div>
-                <div className="truncate">URI: {agent.metadataUri || 'None'}</div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-200">
+                <div>Score: <span className="text-white font-bold">{agent.reputation?.score ?? 5000}</span></div>
+                <div>Tasks: <span className="text-white font-bold">{agent.reputation?.totalTasks ?? 0}</span></div>
+                <div className="col-span-2 truncate text-slate-300">URI: {agent.metadataUri || 'None'}</div>
               </div>
-            </Link>
+              <div className="flex gap-2 mt-auto pt-3 border-t-2 border-slate-600/50">
+                <Link
+                  to={`/app/agents/${agent.agentId}`}
+                  className="flex-1 text-center text-xs px-3 py-2 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-100 font-semibold transition border border-blue-400/30"
+                >Details</Link>
+                <button
+                  disabled={instantPaymentLoading && claimingId===agent.agentId}
+                  onClick={async () => {
+                    try {
+                      setClaimingId(agent.agentId);
+                      const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                      const recipientPubkey = new PublicKey(agent.owner);
+                      const res = await instantPayment(recipientPubkey, reward, `Reward for ${agent.agentId}`);
+                      setClaimToast({msg:`✅ Claimed: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
+                      if (client) {
+                        const updated = await client.getAllUserAgents();
+                        setAgents(updated);
+                      }
+                    } catch(e: unknown) {
+                      const error = e as Error;
+                      console.error('❌ Claim error:', error);
+                      setClaimToast({msg:`🚧 Claim feature coming soon - X402 rewards in next update`, type:'error'});
+                    } finally {
+                      setClaimingId(null);
+                    }
+                  }}
+                  className={`flex-1 text-center text-xs px-3 py-2 rounded-lg font-semibold transition border ${instantPaymentLoading && claimingId===agent.agentId ? 'bg-slate-700/50 text-slate-300 cursor-not-allowed border-slate-600/30' : 'bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-100 border-emerald-400/30'}`}
+                >
+                  {instantPaymentLoading && claimingId===agent.agentId ? 'Claiming…' : 'Claim'}
+                </button>
+              </div>
+            </div>
           ))}
+        </div>
+      )}
+
+      {claimToast && (
+        <div className={`fixed bottom-6 left-6 px-4 py-2 rounded-lg text-xs font-medium shadow border ${claimToast.type==='success' ? 'bg-emerald-600/20 border-emerald-500/30 text-emerald-200' : 'bg-red-600/20 border-red-500/30 text-red-200'}`}> 
+          <span>{claimToast.msg}</span>
+          <button onClick={()=>setClaimToast(null)} className="ml-3 opacity-70 hover:opacity-100">✕</button>
         </div>
       )}
     </div>

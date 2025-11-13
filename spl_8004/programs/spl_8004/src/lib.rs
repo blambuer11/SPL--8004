@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW");
+declare_id!("FX7cpN56T49BT4HaMXsJcLgXRpQ54MHbsYmS3qDNzpGm");
 
 #[program]
 pub mod spl_8004 {

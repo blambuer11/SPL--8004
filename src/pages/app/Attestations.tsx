@@ -37,6 +37,18 @@ export default function Attestations() {
       toast.error('All fields are required');
       return;
     }
+    if (toolName.length > 32) {
+      toast.error('Tool name must be 32 characters or less');
+      return;
+    }
+    if (toolHash.length > 64) {
+      toast.error('Tool hash must be 64 characters or less');
+      return;
+    }
+    if (auditUri.length > 200) {
+      toast.error('Audit URI must be 200 characters or less');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -96,11 +108,16 @@ export default function Attestations() {
           description: 'Your deployed TAP program does not include this instruction. Update deployment or use demo mode.',
           duration: 10000,
         });
+      } else if (errorMessage.includes('already exists for this tool hash')) {
+        toast.info('Existing attestation detected', {
+          description: errorMessage,
+          duration: 8000,
+        });
       } else if (errorMessage.includes('Transaction simulation failed')) {
         // Capture logs and offer to auto-register issuer, then retry
         setLastSimError(errorMessage);
         toast.error('Simulation failed - check program state', {
-          description: 'You can try registering the issuer account automatically and retry.',
+          description: 'We already tried to repair the config and issuer automatically. Review the logs below and retry if needed.',
           duration: 8000,
         });
       } else if (errorMessage.includes('Insufficient funds')) {
@@ -268,10 +285,11 @@ export default function Attestations() {
           {lastSimError && (
             <div className="mt-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
               <div className="text-sm text-amber-300 font-semibold mb-2">Transaction simulation failed</div>
+              <p className="text-xs text-amber-200 mb-2">Automatic recovery (config & issuer) already attempted. If the issue persists, inspect the logs and retry.</p>
               <pre className="text-xs text-amber-200 whitespace-pre-wrap max-h-40 overflow-auto">{lastSimError}</pre>
               <div className="mt-3 flex gap-2">
                 <Button size="sm" variant="outline" disabled={retrying} onClick={handleRegisterAndRetry}>
-                  {retrying ? 'Registering & Retrying…' : 'Register Issuer & Retry'}
+                  {retrying ? 'Retrying…' : 'Retry Submission'}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setLastSimError(null)}>Dismiss</Button>
               </div>

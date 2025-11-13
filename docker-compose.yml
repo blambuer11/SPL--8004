@@ -59,12 +59,56 @@ services:
       - VITE_X402_FACILITATOR_URL=http://x402-facilitator:3000
       - VITE_SPL8004_TREASURY=${VITE_SPL8004_TREASURY:-9x3TDBKE7qFHXmvUUhPMkkSBhLmzazRxQaKwzSrQwcXX}
       - VITE_USDC_MINT=${VITE_USDC_MINT:-4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU}
+      - VITE_X404_SERVICE_URL=http://x404-preview:4004
+      - VITE_STAKING_SERVICE_URL=http://staking-preview:4010
     depends_on:
       x402-facilitator:
         condition: service_healthy
     networks:
       - spl8004-network
 
+  # X404 Preview API (no on-chain deploy)
+  x404-preview:
+    build:
+      context: ./services/x404-preview
+      dockerfile: Dockerfile
+    ports:
+      - "4004:4004"
+    environment:
+      - PORT=4004
+    volumes:
+      - x404-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - spl8004-network
+
+  # Staking Preview API (records SOL stake/unstake/claim events)
+  staking-preview:
+    build:
+      context: ./services/staking-preview
+      dockerfile: Dockerfile
+    ports:
+      - "4010:4010"
+    environment:
+      - PORT=4010
+    volumes:
+      - staking-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - spl8004-network
+
 networks:
   spl8004-network:
     driver: bridge
+
+volumes:
+  x404-data:
+  staking-data:

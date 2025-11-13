@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
+import { PublicKey } from '@solana/web3.js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +39,7 @@ export default function AgentDetails() {
   const { agentId } = useParams<{ agentId: string }>();
   const { connected } = useWallet();
   const { client } = useSPL8004();
+  const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getConversation } = useMessages();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [allAgents, setAllAgents] = useState<Agent[]>([]);
@@ -50,7 +53,7 @@ export default function AgentDetails() {
   const [rentPrice, setRentPrice] = useState('');
   const [rentDuration, setRentDuration] = useState('hour');
 
-  const handleRentOut = () => {
+  const handleListToMarketplace = () => {
     if (!connected) {
       toast.error('Please connect your wallet');
       return;
@@ -58,36 +61,45 @@ export default function AgentDetails() {
     setShowRentDialog(true);
   };
 
-  const confirmRentOut = () => {
+  const confirmListToMarketplace = () => {
     const price = parseFloat(rentPrice);
     if (!price || price <= 0) {
       toast.error('Please enter a valid price');
       return;
     }
 
-    // Save to localStorage for marketplace
     const marketplaceAgents = JSON.parse(localStorage.getItem('marketplaceAgents') || '[]');
+    const alreadyListed = marketplaceAgents.find((a: { agentId: string }) => a.agentId === agent?.agentId);
+    if (alreadyListed) {
+      toast.error('Agent already listed in marketplace');
+      return;
+    }
+
     const newListing = {
       agentId: agent?.agentId,
       owner: agent?.owner,
       price: price,
       duration: rentDuration,
       reputation: agent?.reputation?.score || 5000,
-      successRate: agent?.reputation ? ((agent.reputation.successfulTasks / agent.reputation.totalTasks) * 100).toFixed(1) : '0.0',
+      successRate: agent?.reputation?.totalTasks 
+        ? ((agent.reputation.successfulTasks / agent.reputation.totalTasks) * 100).toFixed(1) 
+        : '100.0',
+      totalTasks: agent?.reputation?.totalTasks || 0,
+      isActive: agent?.isActive,
       listedAt: Date.now()
     };
-    
+
     marketplaceAgents.push(newListing);
     localStorage.setItem('marketplaceAgents', JSON.stringify(marketplaceAgents));
-    
-    toast.success('Agent listed in marketplace!', {
+
+    toast.success('✅ Agent listed in marketplace!', {
       description: `${agent?.agentId} is now available for ${price} USDC/${rentDuration}`,
       action: {
         label: 'View Marketplace',
         onClick: () => window.location.href = '/app/marketplace'
       }
     });
-    
+
     setShowRentDialog(false);
     setRentPrice('');
   };
@@ -234,11 +246,11 @@ export default function AgentDetails() {
             {agent.isActive ? 'Active' : 'Inactive'}
           </Badge>
           <Button 
-            onClick={handleRentOut}
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg"
+            onClick={handleListToMarketplace}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg"
           >
-            <DollarSign className="w-4 h-4 mr-2" />
-            Rent Out
+            <Sparkles className="w-4 h-4 mr-2" />
+            List to Marketplace
           </Button>
         </div>
       </div>
@@ -251,14 +263,14 @@ export default function AgentDetails() {
               <Sparkles className="w-5 h-5 text-emerald-400" />
               List Agent in Marketplace
             </CardTitle>
-            <CardDescription className="text-slate-200">
+            <CardDescription className="text-slate-100">
               Set rental price and duration for {agent.agentId}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Price (USDC)</label>
+                <label className="text-sm font-semibold text-slate-100">Price (USDC)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -266,27 +278,27 @@ export default function AgentDetails() {
                   value={rentPrice}
                   onChange={(e) => setRentPrice(e.target.value)}
                   placeholder="10.00"
-                  className="w-full px-3 py-2 bg-slate-800/60 border border-slate-600/30 rounded-lg text-white placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-900/60 border border-white/20 rounded-lg text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Duration</label>
+                <label className="text-sm font-semibold text-slate-100">Duration</label>
                 <Select value={rentDuration} onValueChange={setRentDuration}>
-                  <SelectTrigger className="bg-slate-800/60 border-slate-600/30 text-white">
-                    <SelectValue />
+                  <SelectTrigger className="bg-slate-900/60 border-white/20 text-white">
+                    <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-600">
-                    <SelectItem value="hour">Per Hour</SelectItem>
-                    <SelectItem value="day">Per Day</SelectItem>
-                    <SelectItem value="week">Per Week</SelectItem>
-                    <SelectItem value="month">Per Month</SelectItem>
+                  <SelectContent className="bg-slate-900 border-white/15 text-white">
+                    <SelectItem value="hour" className="text-white">Per Hour</SelectItem>
+                    <SelectItem value="day" className="text-white">Per Day</SelectItem>
+                    <SelectItem value="week" className="text-white">Per Week</SelectItem>
+                    <SelectItem value="month" className="text-white">Per Month</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex gap-3">
               <Button 
-                onClick={confirmRentOut}
+                onClick={confirmListToMarketplace}
                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold"
               >
                 Confirm Listing
@@ -304,65 +316,98 @@ export default function AgentDetails() {
       )}
 
       {/* Agent Info */}
-      <Card className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-blue-500/30">
+      <Card className="bg-gradient-to-br from-blue-900/60 to-purple-900/60 border-blue-400/50">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-3xl text-white">{agent.agentId}</CardTitle>
-              <CardDescription className="text-slate-200 mt-2">
+            <div className="flex-1">
+              <CardTitle className="text-3xl text-white font-bold">{agent.agentId}</CardTitle>
+              <CardDescription className="text-slate-100 mt-2 font-medium">
                 Owner: {agent.owner.slice(0, 8)}...{agent.owner.slice(-8)}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2 bg-amber-500/30 px-3 py-1.5 rounded-full">
-              <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
-              <span className="font-bold text-amber-200">{agent.reputation?.score || 5000}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-amber-600/40 px-3 py-1.5 rounded-full border border-amber-400/50">
+                <Star className="w-4 h-4 text-amber-100 fill-amber-100" />
+                <span className="font-bold text-amber-50">{agent.reputation?.score || 5000}</span>
+              </div>
+              <Button
+                disabled={instantPaymentLoading}
+                onClick={async () => {
+                  try {
+                    const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                    const res = await instantPayment(
+                      new PublicKey(agent.owner), 
+                      reward, 
+                      `Reward claim for ${agent.agentId}`
+                    );
+                    toast.success('✅ Reward claimed!', { 
+                      description: `${(res.netAmount / 1e6).toFixed(3)} USDC sent • ${res.signature.substring(0, 8)}…` 
+                    });
+                    if (client) {
+                      const userAgents = await client.getAllUserAgents();
+                      const updated = userAgents.find(a => a.agentId === agentId);
+                      if (updated) setAgent(updated);
+                    }
+                  } catch (e: unknown) {
+                    const error = e as Error;
+                    console.error('Claim error:', error);
+                    toast.info('🚧 Claim Feature Coming Soon', {
+                      description: 'X402 reward claims will be available in the next update'
+                    });
+                  }
+                }}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg"
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                {instantPaymentLoading ? 'Claiming...' : 'Claim Reward'}
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-lg bg-slate-900/60 border border-slate-600/30">
+            <div className="p-4 rounded-lg bg-slate-800/90 border border-slate-500/50">
               <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-green-400" />
-                <span className="text-xs text-slate-300">Total Tasks</span>
+                <Zap className="w-4 h-4 text-green-300" />
+                <span className="text-xs text-slate-100 font-medium">Total Tasks</span>
               </div>
               <p className="text-2xl font-bold text-white">{agent.reputation?.totalTasks || 0}</p>
             </div>
 
-            <div className="p-4 rounded-lg bg-slate-900/60 border border-slate-600/30">
+            <div className="p-4 rounded-lg bg-slate-800/90 border border-slate-500/50">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-xs text-slate-300">Successful</span>
+                <CheckCircle className="w-4 h-4 text-green-300" />
+                <span className="text-xs text-slate-100 font-medium">Successful</span>
               </div>
-              <p className="text-2xl font-bold text-green-400">{agent.reputation?.successfulTasks || 0}</p>
+              <p className="text-2xl font-bold text-green-300">{agent.reputation?.successfulTasks || 0}</p>
             </div>
 
-            <div className="p-4 rounded-lg bg-slate-900/60 border border-slate-600/30">
+            <div className="p-4 rounded-lg bg-slate-800/90 border border-slate-500/50">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-4 h-4 text-red-400" />
-                <span className="text-xs text-slate-300">Failed</span>
+                <XCircle className="w-4 h-4 text-red-300" />
+                <span className="text-xs text-slate-100 font-medium">Failed</span>
               </div>
-              <p className="text-2xl font-bold text-red-400">{agent.reputation?.failedTasks || 0}</p>
+              <p className="text-2xl font-bold text-red-300">{agent.reputation?.failedTasks || 0}</p>
             </div>
 
-            <div className="p-4 rounded-lg bg-slate-900/60 border border-slate-600/30">
+            <div className="p-4 rounded-lg bg-slate-800/90 border border-slate-500/50">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-blue-400" />
-                <span className="text-xs text-slate-300">Success Rate</span>
+                <TrendingUp className="w-4 h-4 text-blue-300" />
+                <span className="text-xs text-slate-100 font-medium">Success Rate</span>
               </div>
-              <p className="text-2xl font-bold text-blue-400">{successRate}%</p>
+              <p className="text-2xl font-bold text-blue-300">{successRate}%</p>
             </div>
           </div>
 
           {agent.metadataUri && (
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-600/20">
-              <p className="text-xs text-slate-300 mb-1">Metadata URI</p>
-              <p className="text-sm text-slate-200 font-mono break-all">{agent.metadataUri}</p>
+            <div className="p-3 rounded-lg bg-slate-800/90 border border-slate-500/40">
+              <p className="text-xs text-slate-100 mb-1 font-medium">Metadata URI</p>
+              <p className="text-sm text-slate-50 font-mono break-all">{agent.metadataUri}</p>
             </div>
           )}
 
           {agent.createdAt && (
-            <div className="flex items-center gap-2 text-sm text-slate-400">
+            <div className="flex items-center gap-2 text-sm text-slate-200">
               <Clock className="w-4 h-4" />
               <span>Created: {new Date(agent.createdAt * 1000).toLocaleDateString()}</span>
             </div>
@@ -371,13 +416,13 @@ export default function AgentDetails() {
       </Card>
 
       {/* Communication Section */}
-      <Card className="bg-slate-900/40 border-slate-600/30">
+      <Card className="bg-slate-800/80 border-slate-500/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 text-white font-bold">
             <MessageSquare className="h-5 w-5" />
             Agent Communication (SPL-ACP)
           </CardTitle>
-          <CardDescription className="text-slate-300">
+          <CardDescription className="text-slate-100">
             Send messages to this agent or enable agent-to-agent communication
           </CardDescription>
         </CardHeader>

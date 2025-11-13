@@ -1085,7 +1085,7 @@ export default function Index() {
 
             {/* CTA */}
             <div className="mt-8 flex items-center justify-center gap-4">
-              <a href="/api/automation/README.md" target="_blank" rel="noopener noreferrer">
+              <a href="/api/automation/OVERVIEW.md" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="border-slate-300">
                   📚 Dokümantasyon
                 </Button>
