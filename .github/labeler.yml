@@ -1,0 +1,42 @@
+# Auto-labeler configuration
+
+frontend:
+  - src/**/*.tsx
+  - src/**/*.ts
+  - src/**/*.css
+  - '*.config.ts'
+  - '*.config.js'
+
+backend:
+  - api/**/*
+  - server/**/*
+
+smart-contracts:
+  - programs/**/*
+  - '**/*.rs'
+  - Anchor.toml
+  - Cargo.toml
+
+tests:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - tests/**/*
+
+documentation:
+  - '**/*.md'
+  - docs/**/*
+  - .github/**/*
+
+dependencies:
+  - package.json
+  - package-lock.json
+  - Cargo.lock
+
+ci-cd:
+  - .github/workflows/**/*
+  - .github/actions/**/*
+
+security:
+  - '**/security.md'
+  - SECURITY.md

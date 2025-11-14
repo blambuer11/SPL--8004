@@ -1,0 +1,6 @@
+# GitHub Sponsors configuration
+
+github: # GitHub username for sponsorship
+custom: # Custom sponsorship URLs
+  - https://noemaprotocol.xyz/support
+  - https://solana.com # Solana ecosystem support

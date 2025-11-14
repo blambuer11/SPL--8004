@@ -1,0 +1,108 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0933;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0D0D0D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a1f1f;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Logo Gradient -->
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9945FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14F195;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bgGradient)"/>
+  
+  <!-- Neural Network Pattern (Background) -->
+  <g opacity="0.1">
+    <!-- Grid Lines -->
+    <line x1="0" y1="160" x2="1280" y2="160" stroke="#9945FF" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1280" y2="320" stroke="#14F195" stroke-width="1"/>
+    <line x1="0" y1="480" x2="1280" y2="480" stroke="#9945FF" stroke-width="1"/>
+    
+    <!-- Network Nodes -->
+    <circle cx="200" cy="160" r="4" fill="#9945FF"/>
+    <circle cx="400" cy="160" r="4" fill="#14F195"/>
+    <circle cx="600" cy="160" r="4" fill="#9945FF"/>
+    <circle cx="800" cy="160" r="4" fill="#14F195"/>
+    <circle cx="1000" cy="160" r="4" fill="#9945FF"/>
+    
+    <circle cx="300" cy="320" r="4" fill="#14F195"/>
+    <circle cx="500" cy="320" r="4" fill="#9945FF"/>
+    <circle cx="700" cy="320" r="4" fill="#14F195"/>
+    <circle cx="900" cy="320" r="4" fill="#9945FF"/>
+    
+    <circle cx="200" cy="480" r="4" fill="#14F195"/>
+    <circle cx="400" cy="480" r="4" fill="#9945FF"/>
+    <circle cx="600" cy="480" r="4" fill="#14F195"/>
+    <circle cx="800" cy="480" r="4" fill="#9945FF"/>
+    <circle cx="1000" cy="480" r="4" fill="#14F195"/>
+  </g>
+  
+  <!-- Logo (Left Side) -->
+  <g transform="translate(120, 320)">
+    <!-- Noema "N" -->
+    <path d="M -40,-60 L -40,60 L -20,60 L -20,-20 L 20,60 L 40,60 L 40,-60 L 20,-60 L 20,20 L -20,-60 Z" 
+          fill="url(#logoGradient)" 
+          stroke="none"/>
+    
+    <!-- Circuit Nodes Around Logo -->
+    <circle cx="-30" cy="-40" r="3" fill="#14F195"/>
+    <circle cx="-30" cy="0" r="3" fill="#14F195"/>
+    <circle cx="-30" cy="40" r="3" fill="#14F195"/>
+    <circle cx="30" cy="-40" r="3" fill="#9945FF"/>
+    <circle cx="30" cy="0" r="3" fill="#9945FF"/>
+    <circle cx="30" cy="40" r="3" fill="#9945FF"/>
+  </g>
+  
+  <!-- Main Title -->
+  <text x="220" y="300" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="bold" fill="#FFFFFF">
+    Noema Protocol
+  </text>
+  
+  <!-- Tagline -->
+  <text x="220" y="360" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="normal" fill="#B0B0B0">
+    Trust Infrastructure for AI Agents on Solana
+  </text>
+  
+  <!-- Feature Pills -->
+  <g transform="translate(220, 400)">
+    <!-- On-chain Validation -->
+    <rect x="0" y="0" width="200" height="40" rx="20" fill="#9945FF" opacity="0.2"/>
+    <text x="20" y="26" font-family="Inter, Arial, sans-serif" font-size="16" fill="#9945FF">
+      ⚡ On-chain Validation
+    </text>
+    
+    <!-- Reputation System -->
+    <rect x="220" y="0" width="180" height="40" rx="20" fill="#14F195" opacity="0.2"/>
+    <text x="240" y="26" font-family="Inter, Arial, sans-serif" font-size="16" fill="#14F195">
+      🏆 Reputation System
+    </text>
+    
+    <!-- Verifiable AI -->
+    <rect x="420" y="0" width="150" height="40" rx="20" fill="#00D4FF" opacity="0.2"/>
+    <text x="440" y="26" font-family="Inter, Arial, sans-serif" font-size="16" fill="#00D4FF">
+      🤖 Verifiable AI
+    </text>
+  </g>
+  
+  <!-- Solana Badge (Bottom Right) -->
+  <g transform="translate(1100, 560)">
+    <rect x="0" y="0" width="140" height="50" rx="25" fill="#000000" opacity="0.5"/>
+    <text x="20" y="32" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="bold" fill="#14F195">
+      Built on
+    </text>
+    <circle cx="110" cy="25" r="15" fill="#14F195"/>
+    <text x="102" y="32" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="bold" fill="#000000">
+      S
+    </text>
+  </g>
+  
+  <!-- Glow Effects -->
+  <circle cx="120" cy="320" r="100" fill="#9945FF" opacity="0.05"/>
+  <circle cx="640" cy="320" r="150" fill="#14F195" opacity="0.03"/>
+</svg>
