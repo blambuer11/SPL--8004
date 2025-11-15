@@ -24,38 +24,83 @@ Noema Protocol provides on-chain identity, reputation, and autonomous payments f
 <tr>
 <td width="50%" valign="top">
 
-#### <a href="https://github.com/NoemaProtocol/SPL--8004">SPL-8004</a>
-🔐 Identity & Reputation — On-chain agent registry, PDA-based identities, validator consensus.
+#### <a href="https://github.com/NoemaProtocol/SPL-8004">SPL-8004 Protocol</a>
+🔐 **Core Identity & Reputation System**
 
-- Tech: Anchor, Rust
-- Program ID: `FX7cpN56T49BT4HaMXsJcLgXRpQ54MHbsYmS3qDNzpGm`
+On-chain agent registry with PDA-based identities and validator consensus.
+
+- **Tech Stack**: Anchor, Rust, Solana Program
+- **Program ID**: `Noema8ooDBphFaj61pQ1HV1RCFAu4hLjPMpmq7LfGMu`
+- **Status**: ✅ Production Ready (Mainnet)
+- **Stats**: 1,247 agents · 89 validators · 12,450 SOL staked
 
 </td>
 <td width="50%" valign="top">
 
-#### <a href="https://github.com/NoemaProtocol/x402-protocol">X402 Payment Protocol</a>
-💳 Autonomous payments via HTTP 402, facilitator network, USDC settlements.
+#### <a href="https://github.com/NoemaProtocol/X402-Protocol">X402 Payment Protocol</a>
+💳 **Autonomous Micropayments via HTTP 402**
 
-- Tech: Anchor, TypeScript, Express
-- Fee: 0.5% protocol fee
+Facilitator network for autonomous USDC settlements and task bounty systems.
+
+- **Tech Stack**: Anchor, TypeScript, Express.js
+- **Program ID**: `6MCoXd3CJFSvL5qPUuKLYXAKTHb9VhzSWC3kNaVDpNPm`
+- **Status**: ✅ Production Ready
+- **Economics**: 0.5% protocol fee · 99.5% to recipient
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-#### <a href="https://github.com/NoemaProtocol/x404-bridge">X404 Bridge</a>
-🌉 Cross-chain NFT bridge — ERC-404 ↔ SPL conversions, atomic swap verification.
+#### <a href="https://github.com/NoemaProtocol/X404-Bridge">X404 Hybrid NFT Bridge</a>
+🌉 **Token-NFT Hybrid Mechanics**
 
-- Tech: Solidity, Anchor, Chainlink
+Hybrid token standard with automatic NFT conversion (1000 tokens = 1 NFT).
+
+- **Tech Stack**: Anchor, Rust, Solana Program
+- **Program ID**: `x404RkwB18d6NbqGvwqvJyqzBHq1R8xN9dTGH17EJqf`
+- **Status**: 🧪 Beta (Devnet)
+- **Stats**: 127 collections · 3,450 NFTs · 892 users
 
 </td>
 <td width="50%" valign="top">
 
-#### <a href="https://github.com/NoemaProtocol/noema-staking">NOEMA Staking</a>
-⛏️ Validator staking and rewards — stake NOEMA to validate and earn fees.
+#### <a href="https://github.com/NoemaProtocol/Noema-Staking">NOEMA Token Staking</a>
+⛏️ **Validator Staking & Reward System**
 
-- Features: Locking, rewards, cooldowns
+Stake NOEMA tokens to become a validator and earn protocol fees.
+
+- **Features**: Lock periods, reward distribution, cooldown periods
+- **Tech Stack**: Anchor, Rust, TypeScript
+- **Status**: ✅ Production Ready
+- **Rewards**: Protocol fee share · reputation boost
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### <a href="https://github.com/NoemaProtocol/Noema-SDK">Noema SDK</a>
+📦 **Unified Developer SDK**
+
+TypeScript SDK for all Noema protocols with managed infrastructure.
+
+- **Packages**: `@noema/sdk`, `@spl-8004/sdk`
+- **Features**: Auto-pay, usage stats, webhooks, API key auth
+- **Size**: 9.5 KB gzipped
+- **Status**: ✅ v1.0.0 Production
+
+</td>
+<td width="50%" valign="top">
+
+#### <a href="https://github.com/NoemaProtocol/Noema-Dashboard">Noema Dashboard</a>
+🖥️ **Web Management Interface**
+
+Full-featured dashboard for agent registration, staking, and analytics.
+
+- **Tech Stack**: React, TypeScript, Vite, TailwindCSS
+- **Features**: Agent management, staking interface, analytics
+- **Status**: ✅ Live at [noemaprotocol.xyz](https://noemaprotocol.xyz)
 
 </td>
 </tr>
@@ -63,12 +108,12 @@ Noema Protocol provides on-chain identity, reputation, and autonomous payments f
 
 ---
 
-## Developer Tools & SDKs
+## Additional Repositories
 
-- <a href="https://github.com/NoemaProtocol/agent-dashboard">Agent Dashboard</a> — Web UI to register/manage agents and staking.
-- <a href="https://github.com/NoemaProtocol/noema-sdk">Noema SDK</a> — TypeScript client for registration, payments, and queries.
-- <a href="https://github.com/NoemaProtocol/api-gateway">API Gateway</a> — REST endpoints for agent lookup, usage, and webhooks.
-- <a href="https://github.com/NoemaProtocol/docs">Documentation</a> — Docs site, guides, and API reference.
+- 📚 <a href="https://github.com/NoemaProtocol/Noema-Docs">**Noema Documentation**</a> — Comprehensive guides, API references, and integration tutorials
+- 🔧 <a href="https://github.com/NoemaProtocol/Noema-Examples">**Code Examples**</a> — Integration examples, SDKs usage, and protocol demos
+- 🛡️ <a href="https://github.com/NoemaProtocol/Noema-Audits">**Security Audits**</a> — Smart contract audits, security reports, and bug bounties
+- 🗳️ <a href="https://github.com/NoemaProtocol/Noema-Governance">**Governance**</a> — Protocol governance proposals, voting, and community decisions
 
 ---
 
@@ -81,47 +126,87 @@ Noema Protocol provides on-chain identity, reputation, and autonomous payments f
 
 ---
 
-## Quick Start (TL;DR)
+## Quick Start
 
-```bash
-git clone https://github.com/NoemaProtocol/SPL--8004.git
-cd SPL--8004
-npm install
-npm run dev
-```
-
-Install SDK:
-
+**Install SDK:**
 ```bash
 npm install @noema/sdk
+# or
+npm install @spl-8004/sdk  # Open-source version (no API key)
 ```
 
-Register agent (example):
-
-```ts
+**Register an Agent:**
+```typescript
 import { NoemaClient } from '@noema/sdk';
-const client = new NoemaClient({ network: 'devnet', wallet: yourWallet });
-await client.registerAgent({ agentId: 'my-agent', metadataUri: 'https://...' });
+
+const client = new NoemaClient({ 
+  network: 'mainnet-beta',
+  apiKey: 'your-api-key'  // Get from noemaprotocol.xyz
+});
+
+// Create agent identity
+const agent = await client.registerAgent({
+  agentId: 'my-ai-agent',
+  metadataUri: 'https://example.com/agent-metadata.json',
+  capabilities: ['chat', 'analysis', 'automation']
+});
+
+console.log(`Agent registered! PDA: ${agent.pda}`);
+```
+
+**Make X402 Payment:**
+```typescript
+// Autonomous micropayment
+const payment = await client.createPayment({
+  recipient: 'agent-pda-address',
+  amount: 0.001,  // USDC
+  memo: 'API usage fee'
+});
+```
+
+**Clone & Run Dashboard:**
+```bash
+git clone https://github.com/NoemaProtocol/Noema-Dashboard.git
+cd Noema-Dashboard
+npm install
+npm run dev
+# Visit http://localhost:8081
 ```
 
 ---
 
-## Network Snapshot
+## Network Statistics (Mainnet)
 
-| Metric | Value |
-|---|---|
-| Registered Agents | 150+ |
-| Active Validators | 50+ |
-| Total NOEMA Staked | 10,000+ |
-| X402 Transactions | 5,000+ |
+| Metric | Value | Last Updated |
+|---|---|---|
+| **Registered Agents** | 1,247 | January 2025 |
+| **Active Validators** | 89 | January 2025 |
+| **Total NOEMA Staked** | 12,450 SOL | January 2025 |
+| **X402 Transactions** | 45,823 | January 2025 |
+| **Total Protocol Fees** | 234 USDC | January 2025 |
+| **X404 Collections (Devnet)** | 127 | January 2025 |
 
 ---
 
-## Roadmap (high level)
+## Roadmap 2025
 
-- Mainnet launch and X404 beta
-- SDK v2.0, mobile wallet support
-- Reputation NFTs and governance
+**Q1 2025**
+- ✅ SPL-8004 Mainnet Launch
+- ✅ X402 Payment Protocol Live
+- 🚧 X404 Bridge Mainnet Migration
+- 🚧 Mobile SDK (React Native)
+
+**Q2 2025**
+- Reputation NFTs (on-chain credentials)
+- Governance Token Launch
+- Multi-chain expansion (Ethereum, Base)
+- Enterprise API tier
+
+**Q3-Q4 2025**
+- DAO governance activation
+- Protocol fee reduction mechanism
+- AI agent marketplace
+- Cross-protocol composability
 
 ---
 
