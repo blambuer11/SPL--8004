@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { createStakingClient, StakingClient } from '@/lib/staking-client';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
-import { Keypair } from '@solana/web3.js';
 
 export function useStaking() {
   const { connection } = useConnection();
@@ -18,19 +17,9 @@ export function useStaking() {
       return createStakingClient(connection, anchorWallet);
     }
 
-    // Fallback read-only
-    const kp = Keypair.generate();
-    const readonlyWallet: AnchorWallet = {
-      publicKey: kp.publicKey,
-      async signTransaction() {
-        throw new Error('Wallet not connected');
-      },
-      async signAllTransactions() {
-        throw new Error('Wallet not connected');
-      },
-    } as unknown as AnchorWallet;
-
-    return createStakingClient(connection, readonlyWallet);
+    // No signing wallet available — return null so callers cannot accidentally
+    // perform actions or queries that depend on a real owner key.
+    return null;
   }, [connection, wallet.publicKey, wallet.signTransaction, wallet.signAllTransactions]);
 
   return {
