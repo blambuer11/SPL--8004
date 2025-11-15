@@ -1,0 +1,12 @@
+[package]
+name = "noema-staking"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "noema_staking"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+anchor-lang = { workspace = true, features = ["init-if-needed"] }
+anchor-spl = { workspace = true }

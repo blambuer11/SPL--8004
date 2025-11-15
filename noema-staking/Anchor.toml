@@ -1,0 +1,12 @@
+[programs.devnet]
+noema_staking = "iMjAbTmAddZTzEtDcSgbDPJRRdc4eT6mGC9SnK3Gzy8"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "anchor test"

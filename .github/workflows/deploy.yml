@@ -40,3 +40,36 @@ jobs:
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         vercel-args: '--prod'
+
+  deploy-dashboard:
+    runs-on: ubuntu-latest
+    name: Deploy Dashboard to Vercel
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dashboard dependencies
+      working-directory: dashboard
+      run: npm install
+
+    - name: Build dashboard
+      working-directory: dashboard
+      run: npm run build
+
+    - name: Deploy dashboard to Vercel (Production)
+      if: github.ref == 'refs/heads/main'
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_DASHBOARD_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: dashboard
+

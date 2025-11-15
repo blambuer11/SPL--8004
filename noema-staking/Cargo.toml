@@ -1,0 +1,12 @@
+[workspace]
+members = [
+  "programs/noema-staking"
+]
+resolver = "2"
+
+[workspace.dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+
+[profile.release]
+overflow-checks = true

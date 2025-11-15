@@ -1,0 +1,19 @@
+[package]
+name = "noema_link"
+version = "0.1.0"
+description = "Anchor program to link NOEMA and SPL-8004 validator accounts"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "noema_link"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.28.0"
