@@ -17,7 +17,7 @@
 - Dashboard unstake UI ve validator hesap okuma
 
 **Güncellemeler**:
-- `src/pages/Dashboard.tsx`: Tam staking/unstake akışı + gerçek stake miktarı gösterimi
+- `src/pages/Dashboard.tsx`: Full staking/unstake flow + real stake amount display
 - `src/components/Footer.tsx`: Dinamik Program ID (env'den)
 - Lint hataları düzeltildi (any kullanımı kaldırıldı)
 
@@ -49,7 +49,7 @@ Rust/Anchor build çatışması çözülene kadar beklemede:
    anchor deploy --provider.cluster devnet
    ```
 3. **Program ID güncelle**:
-   - Deploy sonrası gerçek ID'yi `declare_id!()` ve `Anchor.toml`'a yaz
+   - After deployment, write real ID to `declare_id!()` and `Anchor.toml`
    - `.env` içindeki `VITE_STAKING_PROGRAM_ID` güncelle
 
 ### Frontend İyileştirmeleri

@@ -1,49 +1,49 @@
 # Autonomous Agent Payment Automation
 
-Otonom ajanlar arası ödeme sistemleri için script'ler.
+Scripts for autonomous inter-agent payment systems.
 
-## 📋 İçerik
+## 📋 Contents
 
-### 1. `auto-pay.mjs` - Periyodik Ödemeler
-Ajanlar arası otomatik USDC transferleri için script.
+### 1. `auto-pay.mjs` - Periodic Payments
+Script for automatic USDC transfers between agents.
 
-**Özellikler:**
-- Yapılandırılabilir interval (saniye)
-- Güvenlik limiti (MAX_TX)
+**Features:**
+- Configurable interval (seconds)
+- Safety limit (MAX_TX)
 - SPL Token transfer
-- Explorer link'leri
+- Explorer links
 
-**Kullanım:**
+**Usage:**
 ```bash
-# Ortam değişkenlerini ayarla
+# Set environment variables
 export PAYER_KEYPAIR_PATH="./my-solana-keypair.json"
 export RECIPIENT_PUBKEY="8x7k..."
 export AMOUNT_USDC="0.01"
 export INTERVAL_SEC="30"
 export MAX_TX="10"
 
-# Script'i çalıştır
+# Run script
 npm run auto-pay
 ```
 
-### 2. `delivery-handshake.mjs` - Kimlik Doğrulama + Ödeme
-Drone-robot teslimat senaryosu için challenge-response protokolü.
+### 2. `delivery-handshake.mjs` - Identity Verification + Payment
+Challenge-response protocol for drone-robot delivery scenario.
 
-**Senaryo:**
-1. Kargo drone eve gelir
-2. Ev robotu kapıyı açar
-3. İki robot birbirini tanımlar (SPL-8004 kimlik sistemi)
-4. Ödeme anında doğrulanır
-5. İşlem tamamlanır
+**Scenario:**
+1. Cargo drone arrives at home
+2. Home robot opens door
+3. Two robots identify each other (SPL-8004 identity system)
+4. Payment verified instantly
+5. Transaction completed
 
-**Özellikler:**
-- ✅ **On-chain kimlik çözümleme** (SPL-8004 PDA lookup)
-- ✅ **Real-time ödeme izleme** (blockchain transaction parsing)
-- Ed25519 signature doğrulama (tweetnacl)
+**Features:**
+- ✅ **On-chain identity resolution** (SPL-8004 PDA lookup)
+- ✅ **Real-time payment monitoring** (blockchain transaction parsing)
+- Ed25519 signature verification (tweetnacl)
 - Memo-based handshake data
-- Challenge-response protokolü
+- Challenge-response protocol
 
-**Mimari:**
+**Architecture:**
 ```
 ┌─────────────┐                    ┌─────────────┐
 │   DRONE     │                    │    HOME     │
@@ -67,7 +67,7 @@ Drone-robot teslimat senaryosu için challenge-response protokolü.
        │                 🚪               │
 ```
 
-**Mod 1: Drone (Payer)**
+**Mode 1: Drone (Payer)**
 ```bash
 export MODE="drone"
 export AGENT_ID="agent-home-001"
@@ -77,7 +77,7 @@ export DELIVERY_FEE_USDC="0.05"
 npm run delivery-handshake:drone
 ```
 
-**Mod 2: Home Robot (Receiver)**
+**Mode 2: Home Robot (Receiver)**
 ```bash
 export MODE="home"
 export AGENT_ID="agent-drone-001"
@@ -87,16 +87,16 @@ export DELIVERY_FEE_USDC="0.05"
 npm run delivery-handshake:home
 ```
 
-### 3. `spl8004-resolver.mjs` - Kimlik Çözücü
-SPL-8004 program'dan agentId→owner çözümlemesi.
+### 3. `spl8004-resolver.mjs` - Identity Resolver
+AgentId→owner resolution from SPL-8004 program.
 
-**Fonksiyonlar:**
-- `findIdentityPda(agentId)` - PDA hesaplama
-- `parseIdentityAccount(data)` - Account data deserialize
+**Functions:**
+- `findIdentityPda(agentId)` - PDA calculation
+- `parseIdentityAccount(data)` - Account data deserialization
 - `resolveAgentId(agentId, connection)` - On-chain lookup
-- `resolveAgentIdsBatch(agentIds, connection)` - Toplu sorgu
+- `resolveAgentIdsBatch(agentIds, connection)` - Batch query
 
-**Örnek:**
+**Example:**
 ```javascript
 import { Connection } from '@solana/web3.js';
 import { resolveAgentId } from './spl8004-resolver.mjs';
@@ -106,26 +106,26 @@ const owner = await resolveAgentId('agent-drone-001', connection);
 console.log('Owner:', owner.toBase58());
 ```
 
-## 🔧 Kurulum
+## 🔧 Setup
 
-1. Bağımlılıkları yükle:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Ortam değişkenlerini yapılandır:
+2. Configure environment variables:
 ```bash
 cp api/automation/.env.automation.example api/automation/.env.automation
-# .env.automation dosyasını düzenle
+# Edit .env.automation file
 ```
 
-3. Wallet keypair'i hazırla:
+3. Prepare wallet keypair:
 ```bash
 solana-keygen new --outfile ./my-solana-keypair.json
-# Devnet SOL ve USDC al
+# Get Devnet SOL and USDC
 ```
 
-## 🧪 Test
+## 🧪 Testing
 
 ### On-chain Identity Lookup Test
 ```bash
@@ -141,25 +141,25 @@ import('./api/automation/spl8004-resolver.mjs').then(async m => {
 
 ### Payment Watch Test
 ```bash
-# Terminal 1: Home robot bekliyor
+# Terminal 1: Home robot waiting
 MODE=home AGENT_ID=agent-drone-001 npm run delivery-handshake:home
 
-# Terminal 2: Drone ödeme gönderiyor
+# Terminal 2: Drone sending payment
 MODE=drone AGENT_ID=agent-home-001 npm run delivery-handshake:drone
 ```
 
 ## 📊 Monitoring
 
-Script'ler console'a detaylı log çıktısı verir:
-- ✅ Başarılı işlemler
-- ⚠️ Uyarılar (fallback kullanımı)
-- ❌ Hatalar
-- 🔗 Explorer link'leri
+Scripts output detailed console logs:
+- ✅ Successful operations
+- ⚠️ Warnings (fallback usage)
+- ❌ Errors
+- 🔗 Explorer links
 
-## 🔒 Güvenlik
+## 🔒 Security
 
-**Mevcut:**
-- Ed25519 signature doğrulama
+**Current:**
+- Ed25519 signature verification
 - Timestamp freshness check
 - On-chain identity verification
 - Amount validation
@@ -172,13 +172,13 @@ Script'ler console'a detaylı log çıktısı verir:
 
 ## 🚀 Production Deployment
 
-1. RPC endpoint'i değiştir (Helius/QuickNode)
-2. WebSocket kullan (polling yerine)
-3. Redis ekle (nonce tracking için)
-4. PM2 ile servis olarak çalıştır
-5. Monitoring ekle (Datadog/Grafana)
+1. Change RPC endpoint (Helius/QuickNode)
+2. Use WebSocket (instead of polling)
+3. Add Redis (for nonce tracking)
+4. Run as service with PM2
+5. Add monitoring (Datadog/Grafana)
 
-## 📚 Referanslar
+## 📚 References
 
 - [SPL-8004 Standard](../../SPL-8004_STANDARD.md)
 - [X402 Facilitator](../../spl-8004-program/x402-facilitator/)

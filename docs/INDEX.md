@@ -36,7 +36,7 @@ This folder consolidates project documentation by domain so the repository root 
 ## Operations
 - [Deployment Guide](operations/DEPLOYMENT.md)
 - [DevOps Playbook](operations/OPS.md)
-- [Gerçek Ödeme Akışı](operations/GERÇEK-ÖDEME-AKIŞI.md)
+- [Real Payment Flow](operations/REAL-PAYMENT-FLOW.md)
 - [Hackathon Pitch Notes](operations/HACKATHON_PITCH.md)
 - [Hackathon Checklist](operations/HACKATHON_OVERVIEW.md)
 - [Mainnet Deployment Guide](operations/MAINNET_DEPLOYMENT_GUIDE.md)
@@ -50,9 +50,9 @@ This folder consolidates project documentation by domain so the repository root 
 
 ## Archive
 Legacy copies retained for reference only.
-- [APP X402 Test Kılavuzu (Backup)](archive/APP-X402-TEST-KILAVUZU.md.backup)
-- [Gerçek Ödeme Akışı (Backup)](archive/GERÇEK-ÖDEME-AKIŞI.md.backup)
-- [Mainnet Geçiş (Backup)](archive/MAINNET-GEÇİŞ.md.backup)
+- [APP X402 Test Guide (Backup)](archive/APP-X402-TEST-GUIDE.md.backup)
+- [Real Payment Flow (Backup)](archive/REAL-PAYMENT-FLOW.md.backup)
+- [Mainnet Migration (Backup)](archive/MAINNET-MIGRATION.md.backup)
 - [Platform Overview (Backup)](archive/PLATFORM_OVERVIEW_BACKUP.md)
 - [Platform Overview (Archive)](archive/PLATFORM_OVERVIEW_ARCHIVE.md)
 - [Platform Overview (Legacy)](archive/PLATFORM_OVERVIEW_LEGACY.md)
