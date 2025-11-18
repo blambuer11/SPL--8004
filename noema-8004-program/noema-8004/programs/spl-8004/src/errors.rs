@@ -52,4 +52,38 @@ pub enum SPL8004Error {
 
     #[msg("Invalid score delta: must be between -500 and +500")]
     InvalidScoreDelta,
+
+    // Task Management Errors
+    #[msg("Task ID is too long (max 32 chars)")]
+    TaskIdTooLong,
+
+    #[msg("Title is too long (max 64 chars)")]
+    TitleTooLong,
+
+    #[msg("Description is too long (max 256 chars)")]
+    DescriptionTooLong,
+
+    #[msg("Category is too long (max 32 chars)")]
+    CategoryTooLong,
+
+    #[msg("Budget must be greater than 0")]
+    InvalidBudget,
+
+    #[msg("Task is not open for bidding")]
+    TaskNotOpen,
+
+    #[msg("Bid amount must be > 0 and <= task budget")]
+    InvalidBidAmount,
+
+    #[msg("Message is too long (max 128 chars)")]
+    MessageTooLong,
+
+    #[msg("Only task publisher can accept bids")]
+    NotTaskPublisher,
+
+    #[msg("Bid does not match task")]
+    BidTaskMismatch,
+
+    #[msg("Bid is not pending")]
+    BidNotPending,
 }

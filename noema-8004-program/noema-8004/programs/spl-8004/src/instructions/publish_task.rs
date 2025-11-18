@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
+use crate::errors::SPL8004Error;
 
 #[derive(Accounts)]
 #[instruction(task_id: String)]
@@ -39,32 +40,32 @@ pub fn handler(
 
     require!(
         ctx.accounts.identity.is_active,
-        ErrorCode::AgentNotActive
+        SPL8004Error::AgentNotActive
     );
 
     require!(
         task_id.len() <= 32,
-        ErrorCode::TaskIdTooLong
+        SPL8004Error::TaskIdTooLong
     );
 
     require!(
         title.len() <= 64,
-        ErrorCode::TitleTooLong
+        SPL8004Error::TitleTooLong
     );
 
     require!(
         description.len() <= 256,
-        ErrorCode::DescriptionTooLong
+        SPL8004Error::DescriptionTooLong
     );
 
     require!(
         category.len() <= 32,
-        ErrorCode::CategoryTooLong
+        SPL8004Error::CategoryTooLong
     );
 
     require!(
         budget > 0,
-        ErrorCode::InvalidBudget
+        SPL8004Error::InvalidBudget
     );
 
     task.task_id = task_id;
@@ -78,26 +79,10 @@ pub fn handler(
     task.created_at = clock.unix_timestamp;
     task.deadline = deadline;
     task.completed_at = None;
-    task.bump = ctx.bumps.task_registry;
+    task.bump = *ctx.bumps.get("task_registry").unwrap();
 
     msg!("Task published: {} by {}", task.task_id, task.publisher);
     msg!("Budget: {} lamports", task.budget);
 
     Ok(())
-}
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Agent is not active")]
-    AgentNotActive,
-    #[msg("Task ID is too long (max 32 chars)")]
-    TaskIdTooLong,
-    #[msg("Title is too long (max 64 chars)")]
-    TitleTooLong,
-    #[msg("Description is too long (max 256 chars)")]
-    DescriptionTooLong,
-    #[msg("Category is too long (max 32 chars)")]
-    CategoryTooLong,
-    #[msg("Budget must be greater than 0")]
-    InvalidBudget,
 }

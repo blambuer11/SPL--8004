@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
+use crate::errors::SPL8004Error;
 
 #[derive(Accounts)]
 #[instruction(bid_seed: String)]
@@ -18,14 +19,14 @@ pub struct SubmitBid<'info> {
 
     #[account(
         mut,
-        constraint = task.status == TaskStatus::Open @ ErrorCode::TaskNotOpen
+        constraint = task.status == TaskStatus::Open @ SPL8004Error::TaskNotOpen
     )]
     pub task: Account<'info, TaskRegistry>,
 
     #[account(
         seeds = [b"identity", bidder.key().as_ref()],
         bump = bidder_identity.bump,
-        constraint = bidder_identity.is_active @ ErrorCode::AgentNotActive
+        constraint = bidder_identity.is_active @ SPL8004Error::AgentNotActive
     )]
     pub bidder_identity: Account<'info, IdentityRegistry>,
 
@@ -44,12 +45,12 @@ pub fn handler(
 
     require!(
         amount > 0 && amount <= ctx.accounts.task.budget,
-        ErrorCode::InvalidBidAmount
+        SPL8004Error::InvalidBidAmount
     );
 
     require!(
         message.len() <= 128,
-        ErrorCode::MessageTooLong
+        SPL8004Error::MessageTooLong
     );
 
     bid.task = ctx.accounts.task.key();
@@ -59,7 +60,7 @@ pub fn handler(
     bid.message = message;
     bid.created_at = clock.unix_timestamp;
     bid.status = BidStatus::Pending;
-    bid.bump = ctx.bumps.bid;
+    bid.bump = *ctx.bumps.get("bid").unwrap();
 
     msg!("Bid submitted for task: {} by agent: {}", 
         ctx.accounts.task.task_id, 
@@ -68,16 +69,4 @@ pub fn handler(
     msg!("Bid amount: {} lamports", amount);
 
     Ok(())
-}
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Task is not open for bidding")]
-    TaskNotOpen,
-    #[msg("Agent is not active")]
-    AgentNotActive,
-    #[msg("Bid amount must be > 0 and <= task budget")]
-    InvalidBidAmount,
-    #[msg("Message is too long (max 128 chars)")]
-    MessageTooLong,
 }
