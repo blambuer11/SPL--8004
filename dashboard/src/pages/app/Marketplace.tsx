@@ -591,20 +591,36 @@ export default function Marketplace() {
                       status: 'open'
                     };
 
-                    // Store task on-chain (could use NOEMA-8004 or IPFS + on-chain reference)
-                    // For now, we'll use local storage and log to console
-                    // In production, this would be stored in NOEMA-8004 program or decentralized storage
                     const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    console.log('📋 Task Published to NOEMA-8004:', { taskId, ...taskMetadata });
+                    
+                    // Publish task on-chain using NOEMA-8004 client
+                    const signature = await spl8004Client.publishTask(
+                      taskId,
+                      taskTitle,
+                      taskDescription,
+                      Math.floor(budget * 1_000_000_000), // Convert to lamports
+                      taskCategory,
+                      undefined // No deadline for now
+                    );
+
+                    console.log('📋 Task Published to NOEMA-8004:', { 
+                      taskId, 
+                      signature,
+                      ...taskMetadata 
+                    });
 
                     toast.dismiss(loadingToast);
                     toast.success('✅ Task published on NOEMA-8004!', {
                       description: `Budget: ${budget} USDC - Agents can now bid on your task`,
+                      action: {
+                        label: 'View on Explorer',
+                        onClick: () => window.open(
+                          `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+                          '_blank'
+                        ),
+                      },
                       duration: 5000
                     });
-
-                    // TODO: Implement actual on-chain task storage
-                    // await spl8004Client.publishTask(taskMetadata);
                     
                     setPublishTaskModalOpen(false);
                     setTaskTitle('');

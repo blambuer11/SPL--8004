@@ -8,6 +8,9 @@ pub mod claim_rewards;
 pub mod stake_validator;
 pub mod unstake_validator;
 pub mod assign_reputation;
+pub mod publish_task;
+pub mod submit_bid;
+pub mod accept_bid;
 
 pub use initialize_config::*;
 pub use register_agent::*;
@@ -19,3 +22,6 @@ pub use claim_rewards::*;
 pub use stake_validator::*;
 pub use unstake_validator::*;
 pub use assign_reputation::*;
+pub use publish_task::*;
+pub use submit_bid::*;
+pub use accept_bid::*;

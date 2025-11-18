@@ -113,3 +113,56 @@ pub struct Validator {
 impl Validator {
     pub const LEN: usize = 8 + 32 + 8 + 1 + 8 + 8 + 1;
 }
+
+#[account]
+pub struct TaskRegistry {
+    pub task_id: String,
+    pub publisher: Pubkey,
+    pub title: String,
+    pub description: String,
+    pub budget: u64,
+    pub category: String,
+    pub status: TaskStatus,
+    pub assigned_agent: Option<Pubkey>,
+    pub created_at: i64,
+    pub deadline: Option<i64>,
+    pub completed_at: Option<i64>,
+    pub bump: u8,
+}
+
+impl TaskRegistry {
+    pub const LEN: usize = 8 + (4 + 32) + 32 + (4 + 64) + (4 + 256) + 8 + (4 + 32) + 1 + (1 + 32) + 8 + (1 + 8) + (1 + 8) + 1;
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum TaskStatus {
+    Open,
+    Assigned,
+    InProgress,
+    UnderReview,
+    Completed,
+    Cancelled,
+}
+
+#[account]
+pub struct TaskBid {
+    pub task: Pubkey,
+    pub bidder: Pubkey,
+    pub amount: u64,
+    pub estimated_duration: i64,
+    pub message: String,
+    pub created_at: i64,
+    pub status: BidStatus,
+    pub bump: u8,
+}
+
+impl TaskBid {
+    pub const LEN: usize = 8 + 32 + 32 + 8 + 8 + (4 + 128) + 8 + 1 + 1;
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum BidStatus {
+    Pending,
+    Accepted,
+    Rejected,
+}

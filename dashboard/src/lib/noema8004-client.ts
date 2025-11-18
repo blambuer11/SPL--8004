@@ -21,6 +21,8 @@ const REPUTATION_SEED = "reputation";
 const VALIDATION_SEED = "validation";
 const REWARD_POOL_SEED = "reward_pool";
 const VALIDATOR_SEED = "validator";
+const TASK_SEED = "task";
+const BID_SEED = "bid";
 
 export class SPL8004Client {
   private connection: Connection;
@@ -799,6 +801,193 @@ export class SPL8004Client {
       }
     }
     throw lastErr ?? new Error("Staking instruction failed for all known variants.");
+  }
+
+  // Task Management Methods
+
+  findTaskPda(taskId: string): [PublicKey, number] {
+    const enc = new TextEncoder();
+    return PublicKey.findProgramAddressSync(
+      [enc.encode(TASK_SEED), enc.encode(taskId)],
+      this.programId
+    );
+  }
+
+  findBidPda(taskPubkey: PublicKey, bidder: PublicKey): [PublicKey, number] {
+    const enc = new TextEncoder();
+    return PublicKey.findProgramAddressSync(
+      [enc.encode(BID_SEED), taskPubkey.toBytes(), bidder.toBytes()],
+      this.programId
+    );
+  }
+
+  async publishTask(
+    taskId: string,
+    title: string,
+    description: string,
+    budget: number,
+    category: string,
+    deadline?: number
+  ): Promise<string> {
+    const [taskPda] = this.findTaskPda(taskId);
+    const [identityPda] = PublicKey.findProgramAddressSync(
+      [new TextEncoder().encode(IDENTITY_SEED), this.wallet.publicKey.toBytes()],
+      this.programId
+    );
+
+    const disc = await this.discriminator("publish_task");
+    
+    // Serialize arguments: task_id, title, description, budget, category, deadline (Option<i64>)
+    const enc = new TextEncoder();
+    const taskIdBytes = enc.encode(taskId);
+    const titleBytes = enc.encode(title);
+    const descBytes = enc.encode(description);
+    const categoryBytes = enc.encode(category);
+
+    const budgetBytes = new ArrayBuffer(8);
+    new DataView(budgetBytes).setBigUint64(0, BigInt(budget), true);
+
+    const hasDeadline = deadline !== undefined;
+    const deadlineBytes = new ArrayBuffer(hasDeadline ? 9 : 1);
+    const deadlineView = new DataView(deadlineBytes);
+    if (hasDeadline) {
+      deadlineView.setUint8(0, 1); // Some
+      deadlineView.setBigInt64(1, BigInt(deadline!), true);
+    } else {
+      deadlineView.setUint8(0, 0); // None
+    }
+
+    // Borsh serialization: String = u32 length + bytes
+    const serializeString = (str: Uint8Array) => {
+      const len = new ArrayBuffer(4);
+      new DataView(len).setUint32(0, str.length, true);
+      return new Uint8Array([...new Uint8Array(len), ...str]);
+    };
+
+    const data = new Uint8Array([
+      ...disc,
+      ...serializeString(taskIdBytes),
+      ...serializeString(titleBytes),
+      ...serializeString(descBytes),
+      ...new Uint8Array(budgetBytes),
+      ...serializeString(categoryBytes),
+      ...new Uint8Array(deadlineBytes),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: taskPda, isSigner: false, isWritable: true },
+        { pubkey: identityPda, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+
+    return this.send([ix]);
+  }
+
+  async submitBid(
+    taskId: string,
+    amount: number,
+    estimatedDuration: number,
+    message: string
+  ): Promise<string> {
+    const [taskPda] = this.findTaskPda(taskId);
+    const [bidPda] = this.findBidPda(taskPda, this.wallet.publicKey);
+    const [identityPda] = PublicKey.findProgramAddressSync(
+      [new TextEncoder().encode(IDENTITY_SEED), this.wallet.publicKey.toBytes()],
+      this.programId
+    );
+
+    const disc = await this.discriminator("submit_bid");
+    
+    const enc = new TextEncoder();
+    const bidSeed = `${taskId}_${this.wallet.publicKey.toBase58()}`;
+    const bidSeedBytes = enc.encode(bidSeed);
+    const messageBytes = enc.encode(message);
+
+    const amountBytes = new ArrayBuffer(8);
+    new DataView(amountBytes).setBigUint64(0, BigInt(amount), true);
+
+    const durationBytes = new ArrayBuffer(8);
+    new DataView(durationBytes).setBigInt64(0, BigInt(estimatedDuration), true);
+
+    const serializeString = (str: Uint8Array) => {
+      const len = new ArrayBuffer(4);
+      new DataView(len).setUint32(0, str.length, true);
+      return new Uint8Array([...new Uint8Array(len), ...str]);
+    };
+
+    const data = new Uint8Array([
+      ...disc,
+      ...serializeString(bidSeedBytes),
+      ...new Uint8Array(amountBytes),
+      ...new Uint8Array(durationBytes),
+      ...serializeString(messageBytes),
+    ]);
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: bidPda, isSigner: false, isWritable: true },
+        { pubkey: taskPda, isSigner: false, isWritable: true },
+        { pubkey: identityPda, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(data),
+    });
+
+    return this.send([ix]);
+  }
+
+  async acceptBid(
+    taskId: string,
+    bidderPubkey: PublicKey
+  ): Promise<string> {
+    const [taskPda] = this.findTaskPda(taskId);
+    const [bidPda] = this.findBidPda(taskPda, bidderPubkey);
+    const [agentIdentityPda] = PublicKey.findProgramAddressSync(
+      [new TextEncoder().encode(IDENTITY_SEED), bidderPubkey.toBytes()],
+      this.programId
+    );
+
+    const disc = await this.discriminator("accept_bid");
+
+    const ix = new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: this.wallet.publicKey, isSigner: true, isWritable: true },
+        { pubkey: taskPda, isSigner: false, isWritable: true },
+        { pubkey: bidPda, isSigner: false, isWritable: true },
+        { pubkey: agentIdentityPda, isSigner: false, isWritable: false },
+      ],
+      data: Buffer.from(disc),
+    });
+
+    return this.send([ix]);
+  }
+
+  async getTask(taskId: string): Promise<any> {
+    const [taskPda] = this.findTaskPda(taskId);
+    const accountInfo = await this.connection.getAccountInfo(taskPda);
+    
+    if (!accountInfo) {
+      return null;
+    }
+
+    // Basic deserialization (you may want to add proper TypeScript types)
+    const data = accountInfo.data;
+    // Skip discriminator (8 bytes) and parse the rest based on TaskRegistry structure
+    // For now, return raw data - implement proper deserialization as needed
+    
+    return {
+      pubkey: taskPda,
+      data: accountInfo.data,
+      // TODO: Add proper deserialization
+    };
   }
 }
 

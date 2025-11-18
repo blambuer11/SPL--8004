@@ -86,4 +86,32 @@ pub mod spl_8004 {
     ) -> Result<()> {
         instructions::assign_reputation::handler(ctx, score_delta, reason)
     }
+
+    pub fn publish_task(
+        ctx: Context<PublishTask>,
+        task_id: String,
+        title: String,
+        description: String,
+        budget: u64,
+        category: String,
+        deadline: Option<i64>,
+    ) -> Result<()> {
+        instructions::publish_task::handler(ctx, task_id, title, description, budget, category, deadline)
+    }
+
+    pub fn submit_bid(
+        ctx: Context<SubmitBid>,
+        bid_seed: String,
+        amount: u64,
+        estimated_duration: i64,
+        message: String,
+    ) -> Result<()> {
+        instructions::submit_bid::handler(ctx, bid_seed, amount, estimated_duration, message)
+    }
+
+    pub fn accept_bid(
+        ctx: Context<AcceptBid>,
+    ) -> Result<()> {
+        instructions::accept_bid::handler(ctx)
+    }
 }
