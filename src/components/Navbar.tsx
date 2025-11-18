@@ -18,6 +18,7 @@ export const Navbar = () => {
   const navigationLinks = [
     { to: '/api', label: 'API' },
     { to: '/documentation', label: 'Docs' },
+    { to: '/app', label: 'Dashboard' },
   ];
 
   return (
@@ -53,9 +54,9 @@ export const Navbar = () => {
           {/* Right area */}
           <div className="flex items-center gap-3">
             {/* Desktop - Start Building Button */}
-            <a href={APP_BASE} aria-label="Open app dashboard" className="hidden md:block">
+            <Link to="/app" aria-label="Open app dashboard" className="hidden md:block">
               <Button className="bg-slate-900 hover:bg-slate-800">Start Building</Button>
-            </a>
+            </Link>
 
             {/* Mobile - Hamburger Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -84,11 +85,11 @@ export const Navbar = () => {
                     </Link>
                   ))}
                   <div className="border-t border-slate-200 pt-4 mt-2">
-                    <a href={APP_BASE} aria-label="Open app dashboard" className="block">
+                    <Link to="/app" aria-label="Open app dashboard" className="block">
                       <Button className="w-full bg-slate-900 hover:bg-slate-800">
                         Start Building
                       </Button>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </SheetContent>

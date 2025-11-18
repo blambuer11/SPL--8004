@@ -421,17 +421,6 @@ Update CHANGELOG.md following [Keep a Changelog](https://keepachangelog.com/) fo
 
 ---
 
-## 🏆 Recognition
-
-Contributors who make significant contributions will be:
-
-- 🌟 Added to CONTRIBUTORS.md
-- 🎖️ Acknowledged in release notes
-- 💎 Eligible for NOEMA token rewards (future)
-- 🎁 Invited to exclusive contributor events
-
----
-
 ## 💬 Community
 
 ### Communication Channels

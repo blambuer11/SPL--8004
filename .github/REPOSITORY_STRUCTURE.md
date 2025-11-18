@@ -2,11 +2,11 @@
 
 ## 🎯 Overview
 
-Noema Protocol organizasyonu, her protokolü **bağımsız bir repository** olarak yönetiyor. Bu yapı:
+Noema Protocol organization manages each protocol as **independent repositories**. This structure provides:
 
 ✅ Daha iyi organizasyon  
-✅ Bağımsız versiyonlama  
-✅ Kolay contributor yönetimi  
+✅ Independent versioning  
+✅ Easy contributor management  
 ✅ Protokol-specific issue tracking  
 ✅ Temiz dependency management  
 

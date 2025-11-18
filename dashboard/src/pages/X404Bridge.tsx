@@ -101,7 +101,7 @@ export default function X404Bridge() {
               <div>PDA (legacy): <code className="break-all">{legacyIdentityPda.toBase58()}</code></div>
               <div>Program (current): {SPL8004_PROGRAM_ID.toBase58()}</div>
               <div>Program (legacy): {legacyProgramId}</div>
-              <div className="pt-1">Kayıt yaptıysan tx onayını Explorer'da doğrula veya yeniden dene.</div>
+              <div className="pt-1">If you registered, verify the tx confirmation in Explorer or try again.</div>
               <div>
                 <a href="/app/create-agent" className="underline font-semibold">Create Agent</a> sayfasından tekrar kayıt yap.
               </div>

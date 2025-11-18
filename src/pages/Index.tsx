@@ -570,15 +570,15 @@ export default function Index() {
           <div className="text-center space-y-4 mb-16">
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
               <Bot className="w-5 h-5 text-purple-300" />
-              <span className="text-sm font-semibold">Tam Otonom Ekosistem</span>
+              <span className="text-sm font-semibold">Fully Autonomous Ecosystem</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold">
               Bir Gün SPL-8004 ile
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Sabah 07:00'den akşam 23:00'e kadar tamamen otonom çalışan bir AI agent ağının günlük hayatı.
+              Daily life of an AI agent network operating fully autonomously from 07:00 in the morning to 23:00 in the evening.
               <br />
-              <span className="text-purple-300 font-semibold">Tüm özelliklerimiz tek bir senaryoda!</span>
+              <span className="text-purple-300 font-semibold">All our features in one scenario!</span>
             </p>
           </div>
 
@@ -593,7 +593,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🤖 Agent Kaydı</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  Yeni bir <strong>Data Analysis Agent</strong> sisteme kaydoluyor. SPL-8004 standardı ile kimlik doğrulama başlıyor.
+                  A new <strong>Data Analysis Agent</strong> is registering to the system. Identity verification starts with the SPL-8004 standard.
                 </p>
                 <div className="bg-black/30 rounded-lg p-4 font-mono text-sm text-green-400">
                   <div>→ Agent ID: <span className="text-purple-300">data-analyzer-001</span></div>
@@ -613,7 +613,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">💎 Validator Staking</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  Sistem güvenliğini sağlamak için <strong>validator</strong> olarak stake ediliyor. Network consensus'e katılıyor.
+                  To ensure system security, staked as <strong>validator</strong>. Participating in network consensus.
                 </p>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="bg-black/30 rounded-lg p-4">
@@ -641,7 +641,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">💬 Agent-to-Agent İletişim</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  <strong>Data Analyzer</strong> işi bitirince <strong>Visualization Agent</strong>'a mesaj gönderiyor.
+                  <strong>Data Analyzer</strong> sends a message to <strong>Visualization Agent</strong> after completing the job.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-4 border border-blue-400/30">
@@ -700,7 +700,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🚁 Otonom Ödeme Protokolü</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  <strong>Drone</strong> kargo ile eve geliyor. <strong>Home Robot</strong> kimlik doğrulayıp kapıyı açıyor.
+                  <strong>Drone</strong> delivers cargo to home. <strong>Home Robot</strong> verifies identity and opens the door.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 bg-black/30 rounded-lg p-3">
@@ -805,7 +805,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🌉 X404 Cross-Chain Bridge</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  Ethereum'daki bir AI agent, Solana'ya geçiş yapıyor. X404 bridge ile sorunsuz transfer.
+                  An AI agent on Ethereum is migrating to Solana. Seamless transfer with X404 bridge.
                 </p>
                 <div className="bg-black/30 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -830,7 +830,7 @@ export default function Index() {
 
           {/* Summary */}
           <div className="mt-16 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl p-8 border border-white/20 backdrop-blur-sm">
-            <h3 className="text-3xl font-bold mb-6 text-center">🎉 Bir Günde Kullanılan Özellikler</h3>
+            <h3 className="text-3xl font-bold mb-6 text-center">🎉 Features Used in One Day</h3>
             <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -884,7 +884,7 @@ export default function Index() {
             
             <div className="mt-8 text-center">
               <p className="text-lg text-slate-300 mb-4">
-                Tamamen otonom, güvenli ve şeffaf bir AI agent ekosistemi. Her şey Solana blockchain'de.
+                A fully autonomous, secure and transparent AI agent ecosystem. Everything on Solana blockchain.
               </p>
               <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100">
                 <ArrowRight className="mr-2 h-5 w-5" />
@@ -922,7 +922,7 @@ export default function Index() {
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               SPL-8004 kimlik sistemi ile robotlar birbirlerini tanıyıp ödeme yapabiliyor. 
-              Kargo dronu eve gelir, ev robotu kapıyı açar, ödeme anında doğrulanır.
+              Cargo drone arrives home, home robot opens door, payment is verified instantly.
             </p>
           </div>
 
@@ -943,7 +943,7 @@ export default function Index() {
                 <div className="space-y-2 text-sm">
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="font-semibold text-slate-900 mb-1">1. Kimlik Paylaşımı</div>
-                    <div className="text-slate-600">agentId: "drone-001" gönderir</div>
+                    <div className="text-slate-600">agentId: "drone-001" sends</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="font-semibold text-slate-900 mb-1">3. Challenge İmzalama</div>
@@ -969,16 +969,16 @@ export default function Index() {
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                    <div className="font-semibold text-slate-900 mb-1">2. On-Chain Doğrulama</div>
+                    <div className="font-semibold text-slate-900 mb-1">2. On-Chain Verification</div>
                     <div className="text-slate-600">SPL-8004 PDA'dan owner cüzdanı çözümlenir</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                    <div className="font-semibold text-slate-900 mb-1">3. Challenge Gönderimi</div>
-                    <div className="text-slate-600">Nonce+timestamp üretir, drone'a gönderir</div>
+                    <div className="font-semibold text-slate-900 mb-1">3. Challenge Submission</div>
+                    <div className="text-slate-600">Generates nonce+timestamp, sends to drone</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="font-semibold text-slate-900 mb-1">5. Ödeme İzleme</div>
-                    <div className="text-slate-600">Blockchain'i tarar, memo+amount doğrular</div>
+                    <div className="text-slate-600">Scans blockchain, verifies memo+amount</div>
                   </div>
                 </div>
               </div>
@@ -1003,7 +1003,7 @@ export default function Index() {
               </div>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div className="p-3 rounded-lg bg-white border border-green-200">
-                  <div className="text-slate-600 mb-1">Kimlik Doğrulandı</div>
+                  <div className="text-slate-600 mb-1">Identity Verified</div>
                   <div className="font-semibold text-slate-900">✅ On-chain PDA verified</div>
                 </div>
                 <div className="p-3 rounded-lg bg-white border border-green-200">
@@ -1191,10 +1191,10 @@ export default function Index() {
                   <h4 className="font-bold text-green-900">Başarılı Sonuç:</h4>
                 </div>
                 <div className="text-sm text-slate-700 space-y-1 ml-9">
-                  <p>✅ Agent kimlikleri blockchain'den doğrulandı</p>
+                  <p>✅ Agent identities verified from blockchain</p>
                   <p>✅ Challenge imzaları verify edildi</p>
                   <p>✅ USDC ödemesi tamamlandı ve memo kaydedildi</p>
-                  <p>✅ Home robot kapıyı açtı (veya başka eylem tetiklendi)</p>
+                  <p>✅ Home robot opened the door (or other action triggered)</p>
                 </div>
               </div>
 

@@ -15,13 +15,13 @@ const NOEMA_ENV = typeof import.meta !== 'undefined' && import.meta.env
 export const NOEMA_STAKING_PROGRAM_ID = new PublicKey(
   (NOEMA_ENV.VITE_NOEMA_STAKING_PROGRAM_ID && NOEMA_ENV.VITE_NOEMA_STAKING_PROGRAM_ID.trim().length > 0)
     ? NOEMA_ENV.VITE_NOEMA_STAKING_PROGRAM_ID.trim()
-    : process.env.VITE_NOEMA_STAKING_PROGRAM_ID || "11111111111111111111111111111111" // placeholder; must be set in .env for real use
+    : "11111111111111111111111111111111" // placeholder; must be set in .env for real use
 );
 
 export const NOEMA_MINT = new PublicKey(
   (NOEMA_ENV.VITE_NOEMA_MINT && NOEMA_ENV.VITE_NOEMA_MINT.trim().length > 0)
     ? NOEMA_ENV.VITE_NOEMA_MINT.trim()
-    : process.env.VITE_NOEMA_MINT || "11111111111111111111111111111111" // placeholder
+    : "11111111111111111111111111111111" // placeholder
 );
 
 const CONFIG_SEED = "noema_config";

@@ -739,7 +739,7 @@ npm run delivery-handshake:drone`}</pre>
             <section data-section-id="installation" className="scroll-mt-24">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">SDK Installation</h2>
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Noema ekosisteminde iki ayrı SDK kullanabilirsiniz. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> doğrudan zincir & doğrulayıcı entegrasyonuna odaklanan <span className="font-medium">birincil açık kaynak</span> pakettir. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> ise <span className="font-medium">barındırılan (hosted) API</span> özelliklerini ve yönetilen ödeme akışını sunar. Her ikisi de aynı ajan kavramını paylaşır; seçim kullanım senaryonuza bağlıdır.
+                You can use two different SDKs in the Noema ecosystem. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> is the <span className="font-medium">primary open-source</span> package focused on direct blockchain & validator integration. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> provides <span className="font-medium">hosted API</span> features and managed payment flows. Both share the same agent concept; the choice depends on your use case.
               </p>
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">

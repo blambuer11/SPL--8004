@@ -205,24 +205,27 @@ export function useX402(options?: UseX402Options) {
       } catch (err: unknown) {
         const error = err as { message?: string; logs?: string[]; name?: string; code?: string; data?: unknown };
         console.error('❌ instant_payment failed:', {
-          message: error.message,
-          logs: error.logs,
-          name: error.name,
-          code: error.code,
-          data: error.data
+          message: error?.message,
+          logs: error?.logs,
+          name: (error as any)?.name,
+          code: (error as any)?.code,
+          data: (error as any)?.data
         });
 
         let userMsg = 'Payment failed';
-        if (error.message?.includes('insufficient')) {
+        if (error?.message?.toLowerCase().includes('insufficient')) {
           userMsg = 'Insufficient funds';
-        } else if (error.message?.includes('signature')) {
+        } else if (error?.message?.toLowerCase().includes('signature')) {
           userMsg = 'Transaction rejected';
-        } else if (error.logs && error.logs.length > 0) {
+        } else if (error?.logs && error.logs.length > 0) {
           const lastLog = error.logs[error.logs.length - 1];
           if (lastLog.includes('Error')) {
             userMsg = lastLog.substring(0, 100);
           }
         }
+
+        setInstantPaymentLoading(false);
+        throw new Error(userMsg);
       }
     },
     [connection, wallet, INSTANT_PAYMENT_DISCRIMINATOR]

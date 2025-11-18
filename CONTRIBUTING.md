@@ -32,7 +32,7 @@ npm run dev
 
 ```bash
 git checkout -b feature/amazing-feature
-# veya
+# or
 git checkout -b fix/bug-description
 ```
 

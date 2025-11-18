@@ -467,7 +467,7 @@ expect(payment.success).toBe(true);
 
 Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
-### Quick Start for Contributors
+### Quick Start
 
 ```bash
 git clone https://github.com/NoemaProtocol/X402-Protocol

@@ -40,11 +40,11 @@ export default function Home() {
                 On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (SPL-8004).
               </p>
               <div className="flex items-center gap-4">
-                <a href={APP_BASE} aria-label="Open application">
+                <Link to="/app" aria-label="Open application">
                   <Button size="lg" className="bg-slate-900 hover:bg-slate-800 flex items-center gap-2">
                     Start Building <ArrowRight className="w-5 h-5" />
                   </Button>
-                </a>
+                </Link>
                 <Link to="/documentation" aria-label="Read documentation">
                   <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50">
                     Read Docs

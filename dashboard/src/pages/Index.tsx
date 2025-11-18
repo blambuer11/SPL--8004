@@ -536,7 +536,7 @@ export default function Index() {
               <a href="#autonomous-payment" className="animate-pulse">
                 <Button size="lg" variant="default" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg">
                   <Bot className="mr-2 h-5 w-5" />
-                  🚀 Otonom Ödeme Protokolü
+                  🚀 Autonomous Payment Protocol
                 </Button>
               </a>
             </div>
@@ -570,7 +570,7 @@ export default function Index() {
           <div className="text-center space-y-4 mb-16">
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
               <Bot className="w-5 h-5 text-purple-300" />
-              <span className="text-sm font-semibold">Tam Otonom Ekosistem</span>
+              <span className="text-sm font-semibold">Fully Autonomous Ecosystem</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold">
               Bir Gün SPL-8004 ile
@@ -578,7 +578,7 @@ export default function Index() {
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Sabah 07:00'den akşam 23:00'e kadar tamamen otonom çalışan bir AI agent ağının günlük hayatı.
               <br />
-              <span className="text-purple-300 font-semibold">Tüm özelliklerimiz tek bir senaryoda!</span>
+              <span className="text-purple-300 font-semibold">All our features in one scenario!</span>
             </p>
           </div>
 
@@ -593,7 +593,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🤖 Agent Kaydı</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  Yeni bir <strong>Data Analysis Agent</strong> sisteme kaydoluyor. SPL-8004 standardı ile kimlik doğrulama başlıyor.
+                  A new <strong>Data Analysis Agent</strong> is registering to the system. Identity verification starts with the SPL-8004 standard.
                 </p>
                 <div className="bg-black/30 rounded-lg p-4 font-mono text-sm text-green-400">
                   <div>→ Agent ID: <span className="text-purple-300">data-analyzer-001</span></div>
@@ -669,7 +669,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🏪 Marketplace'ten Agent Kiralama</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  Yeni bir kullanıcı <strong>code-review agent</strong> kiralamak istiyor. USDC ile ödeme yapıyor.
+                  A new user wants to rent a <strong>code-review agent</strong>. Making payment with USDC.
                 </p>
                 <div className="bg-black/30 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -697,10 +697,10 @@ export default function Index() {
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
                 <div className="flex items-center gap-4 mb-4">
                   <span className="text-2xl font-bold text-emerald-300">16:00</span>
-                  <h3 className="text-2xl font-bold">🚁 Otonom Ödeme Protokolü</h3>
+                  <h3 className="text-2xl font-bold">🚁 Autonomous Payment Protocol</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  <strong>Drone</strong> kargo ile eve geliyor. <strong>Home Robot</strong> kimlik doğrulayıp kapıyı açıyor.
+                  <strong>Drone</strong> delivers cargo to home. <strong>Home Robot</strong> verifies identity and opens the door.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 bg-black/30 rounded-lg p-3">
@@ -884,7 +884,7 @@ export default function Index() {
             
             <div className="mt-8 text-center">
               <p className="text-lg text-slate-300 mb-4">
-                Tamamen otonom, güvenli ve şeffaf bir AI agent ekosistemi. Her şey Solana blockchain'de.
+                A fully autonomous, secure and transparent AI agent ecosystem. Everything on Solana blockchain.
               </p>
               <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100">
                 <ArrowRight className="mr-2 h-5 w-5" />
@@ -915,14 +915,14 @@ export default function Index() {
           <div className="text-center space-y-4 mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-900 border border-purple-200">
               <Bot className="w-4 h-4" />
-              <span className="text-sm font-semibold">Otonom Ödeme Protokolü</span>
+              <span className="text-sm font-semibold">Autonomous Payment Protocol</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
-              Ajanlar Arası Anında Ödeme
+              Instant Inter-Agent Payment
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              SPL-8004 kimlik sistemi ile robotlar birbirlerini tanıyıp ödeme yapabiliyor. 
-              Kargo dronu eve gelir, ev robotu kapıyı açar, ödeme anında doğrulanır.
+              With SPL-8004 identity system, robots can identify each other and make payments. 
+              Cargo drone arrives home, home robot opens door, payment is verified instantly.
             </p>
           </div>
 
@@ -1194,7 +1194,7 @@ export default function Index() {
                   <p>✅ Agent kimlikleri blockchain'den doğrulandı</p>
                   <p>✅ Challenge imzaları verify edildi</p>
                   <p>✅ USDC ödemesi tamamlandı ve memo kaydedildi</p>
-                  <p>✅ Home robot kapıyı açtı (veya başka eylem tetiklendi)</p>
+                  <p>✅ Home robot opened the door (or other action triggered)</p>
                 </div>
               </div>
 

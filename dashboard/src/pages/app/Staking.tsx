@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+ { useCallback, useEffect, useMemo, useState } from 'react';
+import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { Rocket, TrendingUp, ShieldCheck, DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCcw, Award, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStaking } from '@/hooks/useStaking';
@@ -12,11 +12,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getAssociatedTokenAddressSync, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import { NOEMA_MINT } from '@/lib/noema/noema-staking-client';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 
 export default function Staking() {
   const { client: stakingClient, connected, publicKey } = useStaking();
   const { client: noemaClient, connected: noemaConnected } = useNoemaStaking();
+  const { connection } = useConnection();
+  const wallet = useWallet();
   const [config, setConfig] = useState<StakingConfig | null>(null);
   const [validator, setValidator] = useState<ValidatorAccount | null>(null);
   const [noemaConfig, setNoemaConfig] = useState<NoemaConfigAccount | null>(null);
@@ -30,22 +34,16 @@ export default function Staking() {
   const [staking, setStaking] = useState(false);
   const [unStaking, setUnStaking] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [noemaStakingBusy, setNoemaStakingBusy] = useState(false);
+  const [noemaUnstakingBusy, setNoemaUnstakingBusy] = useState(false);
+  const [noemaClaimingBusy, setNoemaClaimingBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const minStakeLamports = useMemo(() => {
-    const configured = config?.validatorMinStake;
-    if (!configured || Number.isNaN(configured)) {
-      return PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE;
-    }
-
-    // Guard against misconfigured on-chain values that surface unrealistic minimums.
-    const MAX_REASONABLE_MIN_STAKE = 10 * LAMPORTS_PER_SOL; // cap at 10 SOL to keep UI actionable
-    if (configured < PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE || configured > MAX_REASONABLE_MIN_STAKE) {
-      return PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE;
-    }
-
-    return configured;
-  }, [config?.validatorMinStake]);
+  const minStakeLamports: number = (() => {
+    const x = config?.validatorMinStake;
+    if (!x || Number.isNaN(Number(x))) return PROGRAM_CONSTANTS.VALIDATOR_MIN_STAKE;
+    return x;
+  })();
 
   const minStakeSol = minStakeLamports / LAMPORTS_PER_SOL;
 
@@ -205,6 +203,65 @@ export default function Staking() {
     }
   };
 
+  const handleNoemaStake = async () => {
+    if (!noemaClient || !publicKey) { toast.error('Cüzdanı bağlayın (NOEMA stake)'); return; }
+    const parsed = parseFloat(noemaStakeAmount); if (!parsed || parsed <= 0) { toast.error('Geçerli NOEMA miktarı girin'); return; }
+    setNoemaStakingBusy(true); const loadingId = toast.loading('NOEMA stake onayı bekleniyor…');
+    try {
+      const raw = BigInt(Math.floor(parsed * 1e9)); const sig = await noemaClient.stake(raw);
+      toast.dismiss(loadingId); toast.success('NOEMA stake gönderildi', { description: <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="underline">İşlemi görüntüle</a> });
+      setNoemaStakeAmount(''); await refreshData();
+    } catch (e) { toast.dismiss(loadingId); toast.error(e instanceof Error ? e.message : 'NOEMA stake başarısız'); } finally { setNoemaStakingBusy(false); }
+  };
+
+  const handleNoemaUnstake = async () => {
+    if (!noemaClient || !publicKey) { toast.error('Cüzdanı bağlayın (NOEMA unstake)'); return; }
+    const parsed = parseFloat(noemaUnstakeAmount); if (!parsed || parsed <= 0) { toast.error('Geçerli NOEMA miktarı girin'); return; }
+    if (noemaValidator && parsed > Number(noemaValidator.stakedAmount)/1e9) { toast.error('Miktar stake bakiyesini aşıyor'); return; }
+    setNoemaUnstakingBusy(true); const loadingId = toast.loading('NOEMA unstake onayı bekleniyor…');
+    try {
+      const raw = BigInt(Math.floor(parsed * 1e9)); const sig = await noemaClient.unstake(raw);
+      toast.dismiss(loadingId); toast.success('NOEMA unstake gönderildi', { description: <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="underline">İşlemi görüntüle</a> });
+      setNoemaUnstakeAmount(''); await refreshData();
+    } catch (e) { toast.dismiss(loadingId); toast.error(e instanceof Error ? e.message : 'NOEMA unstake başarısız'); } finally { setNoemaUnstakingBusy(false); }
+  };
+
+  const handleNoemaInstantUnstake = async () => {
+    if (!noemaClient || !publicKey) { toast.error('Cüzdanı bağlayın (NOEMA instant)'); return; }
+    if (!noemaConfig) { toast.error('NOEMA config bulunamadı'); return; }
+    const parsed = parseFloat(noemaUnstakeAmount); if (!parsed || parsed <= 0) { toast.error('Geçerli NOEMA miktarı girin'); return; }
+    if (noemaValidator && parsed > Number(noemaValidator.stakedAmount)/1e9) { toast.error('Miktar stake bakiyesini aşıyor'); return; }
+    setNoemaUnstakingBusy(true); const loadingId = toast.loading('NOEMA instant unstake onayı bekleniyor…');
+    try {
+      const raw = BigInt(Math.floor(parsed * 1e9));
+      const treasuryAta = getAssociatedTokenAddressSync(NOEMA_MINT, noemaConfig.treasury, false);
+      const ataInfo = await connection.getAccountInfo(treasuryAta);
+      if (!ataInfo) {
+        if (!wallet.publicKey || !wallet.signTransaction) throw new Error('Wallet hazır değil');
+        const createIx = createAssociatedTokenAccountInstruction(wallet.publicKey, treasuryAta, noemaConfig.treasury, NOEMA_MINT);
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+        const tx = new Transaction({ feePayer: wallet.publicKey, blockhash, lastValidBlockHeight }).add(createIx);
+        const signed = await wallet.signTransaction(tx);
+        const sigCreate = await connection.sendRawTransaction(signed.serialize(), { maxRetries: 3, preflightCommitment: 'confirmed' });
+        await connection.confirmTransaction({ signature: sigCreate, blockhash, lastValidBlockHeight }, 'confirmed');
+      }
+      const sig = await noemaClient.instantUnstake(raw, treasuryAta);
+      toast.dismiss(loadingId); toast.success('NOEMA instant unstake gönderildi', { description: <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="underline">İşlemi görüntüle</a> });
+      setNoemaUnstakeAmount(''); await refreshData();
+    } catch (e) { toast.dismiss(loadingId); toast.error(e instanceof Error ? e.message : 'NOEMA instant unstake başarısız'); } finally { setNoemaUnstakingBusy(false); }
+  };
+
+  const handleNoemaClaim = async () => {
+    if (!noemaClient || !publicKey) { toast.error('Cüzdanı bağlayın (NOEMA claim)'); return; }
+    if (!noemaPendingRewards || noemaPendingRewards <= 0n) { toast.info('NOEMA ödül bulunamadı'); return; }
+    setNoemaClaimingBusy(true); const loadingId = toast.loading('NOEMA claim onayı bekleniyor…');
+    try {
+      const sig = await noemaClient.claimRewards();
+      toast.dismiss(loadingId); toast.success('NOEMA ödülleri çekildi', { description: <a href={getExplorerTxUrl(sig)} target="_blank" rel="noopener noreferrer" className="underline">İşlemi görüntüle</a> });
+      await refreshData();
+    } catch (e) { toast.dismiss(loadingId); toast.error(e instanceof Error ? e.message : 'NOEMA claim başarısız'); } finally { setNoemaClaimingBusy(false); }
+  };
+
   if (!connected && !noemaConnected) {
     return (
       <div className="space-y-6">
@@ -227,14 +284,14 @@ export default function Staking() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <Rocket className="w-6 h-6 text-purple-400" /> Validator Staking
           </h1>
           <p className="text-slate-400 mt-1">
-            Stake SOL or NOEMA to activate your validator and earn reputation scores.
+            SOL ve NOEMA stake ederek validatörünüzü aktive edin, ödül ve itibar puanı kazanın.
           </p>
         </div>
         <Button
@@ -248,20 +305,8 @@ export default function Staking() {
           {refreshing ? 'Refreshing…' : 'Refresh'}
         </Button>
       </div>
-
-      <Tabs defaultValue="sol" className="w-full">
-        <TabsList className="bg-white/5 border border-white/10">
-          <TabsTrigger value="sol" className="data-[state=active]:bg-white/10">
-            <DollarSign className="w-4 h-4 mr-2" />
-            SOL Staking
-          </TabsTrigger>
-          <TabsTrigger value="noema" className="data-[state=active]:bg-white/10">
-            <Award className="w-4 h-4 mr-2" />
-            NOEMA Staking + Reputation
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="sol" className="space-y-4 mt-6">{/* SOL Staking Tab */}
+      {/* SOL STAKING SECTION */}
+      <div className="space-y-6">
         <Card className="bg-white/5 border-white/10">
           <CardHeader>
             <CardTitle className="text-slate-300 text-sm flex items-center gap-2">
@@ -401,21 +446,49 @@ export default function Staking() {
         <Card className="bg-white/5 border-white/10">
           <CardHeader>
             <CardTitle className="text-white text-base">Network Parameters</CardTitle>
+            <CardDescription className="text-xs text-slate-500">On-chain staking configuration</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-3 text-xs text-slate-300">
+            <div>
+              <span className="text-slate-500">Authority:</span>{' '}
+              <span className="font-mono break-all">{config.authority.toBase58()}</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Treasury:</span>{' '}
+              <span className="font-mono break-all">{config.treasury.toBase58()}</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Min Stake:</span>{' '}
+              <span>{formatSOL(config.validatorMinStake)} SOL</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Base APY:</span>{' '}
+              <span>{(config.baseApyBps/100).toFixed(2)}%</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Instant Fee:</span>{' '}
+              <span>{(config.instantUnstakeFeeBps/100).toFixed(2)}%</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Validation Fee:</span>{' '}
+              <span>{formatSOL(config.validationFee)} SOL</span>
+            </div>
           </CardContent>
         </Card>
       )}
-        </TabsContent>
-
-        <TabsContent value="noema" className="space-y-4 mt-6">
-          {/* NOEMA Staking + Reputation Tab */}
-          {!noemaConnected ? (
+      {/* NOEMA STAKING SECTION */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
+          <Award className="w-5 h-5 text-purple-300" /> NOEMA Staking + Reputation
+        </h2>
+        {!noemaConnected ? (
             <Alert className="bg-amber-500/10 border-amber-500/20">
               <AlertDescription className="text-amber-300 text-sm">
                 Connect your wallet to stake NOEMA tokens and build reputation.
               </AlertDescription>
             </Alert>
-          ) : (
-            <>
+        ) : (
+          <>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card className="bg-white/5 border-white/10">
                   <CardHeader>
@@ -497,17 +570,15 @@ export default function Staking() {
                 </CardContent>
               </Card>
 
-              <Alert className="bg-blue-500/10 border-blue-500/20">
+            <Alert className="bg-blue-500/10 border-blue-500/20">
                 <AlertDescription className="text-blue-200 text-sm">
                   <strong>Note:</strong> NOEMA staking program requires NOEMA token mint and program deployment. Ensure you have NOEMA tokens in your wallet to stake.
                 </AlertDescription>
               </Alert>
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-```

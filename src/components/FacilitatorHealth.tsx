@@ -160,7 +160,7 @@ export function FacilitatorHealth({ className = '' }: { className?: string }) {
           </ScrollArea>
           {healthData?.mockMode && (
             <div className="text-xs mt-2 p-2 rounded bg-amber-50 border border-amber-300 text-amber-800">
-              Mock Mode ENABLED — USDC işlemleri simüle ediliyor. Gerçek ödeme için facilitator <code>MOCK_MODE=false</code> yapıp yeniden başlatın.
+              Mock Mode ENABLED — USDC transactions are simulated. For real payments, set <code>MOCK_MODE=false</code> in facilitator and restart.
             </div>
           )}
         </div>

@@ -121,10 +121,6 @@ Create teams with appropriate permissions:
 - Can create repositories
 - Billing access
 
-**Contributors** (Write)
-- Push to non-protected branches
-- Create pull requests
-- Close issues
 
 **Community** (Read)
 - Read repository contents

@@ -5,12 +5,18 @@ import App from "./App.tsx";
 import "./index.css";
 // Minimal Buffer polyfill for browser
 import { Buffer } from "buffer";
+
+// Polyfills for Solana libs
 declare global {
 	interface Window {
 		Buffer?: typeof Buffer;
+		global?: typeof globalThis;
+		process?: { env: Record<string, string | undefined> };
 	}
 }
 if (!window.Buffer) window.Buffer = Buffer;
+if (!window.global) window.global = globalThis;
+if (!window.process) window.process = { env: {} } as any;
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -19,6 +25,8 @@ if (!rootElement) {
 } else {
   console.log("✅ Root element found, attempting render...");
   try {
+    // Force dark theme for consistent dashboard styling
+    document.documentElement.classList.add('dark');
     createRoot(rootElement).render(<App />);
     console.log("✅ App rendered successfully");
   } catch (error) {

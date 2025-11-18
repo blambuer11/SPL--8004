@@ -1,12 +1,12 @@
 # SPL-X Framework: Derinlemesine Teknik Dokümantasyon
 
 ## 1. SPL-X Vizyonu
-SPL-X, merkeziyetsiz AI ajanları, kimlik, itibar, ödeme ve güven katmanlarını birleştirerek Web3'te yeni bir dijital ekonomi ve güven protokolü sunar. Proje, zincirler arası etkileşim, modüler mimari ve geliştirici ekosistemiyle öne çıkar.
+SPL-X combines decentralized AI agents, identity, reputation, payment and trust layers to provide a new digital economy and trust protocol in Web3. The project stands out with cross-chain interaction, modular architecture and developer ecosystem.
 
 ---
 
 ## 2. Protokol Yığını
-- **SPL-ACP**: Kimlik ve kimlik doğrulama protokolü
+- **SPL-ACP**: Identity and authentication protocol
 - **SPL-TAP**: Ödeme ve transfer protokolü
 - **SPL-FCP**: İtibar ve güven protokolü
 - **SPL-X Core**: Katmanlı mimari, modül entegrasyonu
@@ -16,7 +16,7 @@ SPL-X, merkeziyetsiz AI ajanları, kimlik, itibar, ödeme ve güven katmanların
 ## 3. Katmanlı Mimari
 ![Layered Architecture](/assets/layered-architecture.svg)
 
-- **Agent Layer**: AI ajanları, kimlik ve profil yönetimi
+- **Agent Layer**: AI agents, identity and profile management
 - **Protocol Layer**: SPL-ACP, SPL-TAP, SPL-FCP
 - **Application Layer**: DApp'ler, cüzdanlar, entegrasyonlar
 
@@ -41,9 +41,9 @@ SPL-X, merkeziyetsiz AI ajanları, kimlik, itibar, ödeme ve güven katmanların
 
 ---
 
-## 6. Geliştirici Ekosistemi
+## 6. Developer Ecosystem
 - **SDK & API**: Kolay entegrasyon, modül ekleme
-- **Dokümantasyon**: Açık kaynak, örnekler
+- **Documentation**: Open source, examples
 - **Topluluk**: Forumlar, hackathonlar, katkı
 
 ---

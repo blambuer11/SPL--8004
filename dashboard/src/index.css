@@ -8,50 +8,70 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 222 47% 11%; /* Slate-900 */
-
+    /* Light theme (still supported, default switched to .dark in main.tsx) */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-
-    --primary: 222 47% 11%; /* Near-black for strong accents */
+    --primary: 222 47% 11%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 215 16% 47%; /* Slate-500 */
+    --secondary: 215 16% 47%;
     --secondary-foreground: 0 0% 100%;
-
-    --muted: 215 16% 47%; /* Slate-500 */
-    --muted-foreground: 215 16% 27%; /* Slate-600 for headings/subtle */
-
-    --accent: 215 20% 65%; /* Subtle neutral accent */
+    --muted: 215 16% 47%;
+    --muted-foreground: 215 16% 27%;
+    --accent: 215 20% 65%;
     --accent-foreground: 222 47% 11%;
-
     --success: 142 72% 30%;
     --success-foreground: 0 0% 100%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 214 32% 91%; /* Slate-200 */
-    --input: 210 40% 96%; /* Slate-50 */
+    --border: 214 32% 91%;
+    --input: 210 40% 96%;
     --ring: 222 47% 11%;
-
     --radius: 0.75rem;
-
     --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%), hsl(215 16% 47%));
     --gradient-hero: none;
     --gradient-card: linear-gradient(180deg, rgba(2,6,23,0.02) 0%, rgba(2,6,23,0.01) 100%);
     --gradient-mesh: none;
-    
     --shadow-glow: 0 8px 24px rgba(2,6,23,0.06);
     --shadow-glow-lg: 0 16px 48px rgba(2,6,23,0.08);
     --shadow-card: 0 4px 16px rgba(2,6,23,0.06);
     --shadow-button: 0 6px 18px rgba(2,6,23,0.08);
-
     --animation-smooth: all 0.2s ease;
+  }
+
+  .dark {
+    /* Dark theme tuned for high contrast and professional look */
+    --background: 222 47% 7%;     /* slate-900-ish */
+    --foreground: 210 40% 98%;    /* near-white */
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 258 90% 66%;       /* modern violet/indigo */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;     /* slate-800 */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 218 23% 18%;         /* neutral muted */
+    --muted-foreground: 215 20% 65%;
+    --accent: 221 83% 53%;        /* Tailwind blue-600 */
+    --accent-foreground: 210 40% 98%;
+    --success: 142 72% 35%;       /* green */
+    --success-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 258 90% 66%;
+    --gradient-primary: linear-gradient(135deg, hsl(258 90% 24%), hsl(221 83% 21%));
+    --gradient-hero: radial-gradient(800px circle at 0% 0%, rgba(99,102,241,0.25), transparent 40%), radial-gradient(800px circle at 100% 100%, rgba(59,130,246,0.2), transparent 40%);
+    --gradient-card: linear-gradient(180deg, rgba(148,163,184,0.08) 0%, rgba(148,163,184,0.03) 100%);
+    --shadow-glow: 0 10px 30px rgba(59,130,246,0.15);
+    --shadow-glow-lg: 0 20px 60px rgba(99,102,241,0.18);
+    --shadow-card: 0 4px 20px rgba(0,0,0,0.35);
+    --shadow-button: 0 8px 22px rgba(99,102,241,0.22);
   }
 }
 
@@ -72,11 +92,27 @@ All colors MUST be HSL.
     background: none;
   }
 
-  .ai-badge {
-    background: hsl(var(--input));
-    box-shadow: none;
-  }
+  .ai-badge { background: hsl(var(--input)); box-shadow: none; }
 
+  /* Generic surface helpers for readability */
+  .surface {
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
+  }
+  .soft-text { color: hsl(var(--muted-foreground)); }
+  .hero-grad { background-image: var(--gradient-hero); }
+
+
+  /* Hard overrides to eliminate stray white backgrounds in dark mode */
+  .dark .bg-white { background-color: hsl(var(--card)) !important; }
+  .dark [class*="bg-white/"] { background-color: hsl(var(--card)) !important; }
+  .dark .text-gray-900, .dark .text-slate-900 { color: hsl(var(--foreground)) !important; }
+  .dark .border-gray-200, .dark .border-slate-200 { border-color: hsl(var(--border)) !important; }
+  .dark .bg-gray-50 { background-color: hsl(var(--card)) !important; }
+  .dark .text-gray-700, .dark .text-slate-700 { color: hsl(var(--muted-foreground)) !important; }
+  .dark .bg-white\/90, .dark .bg-white\/80, .dark .supports-\[backdrop-filter\]\:bg-white\/70 { background-color: hsl(var(--background)) !important; }
   @keyframes float {
     0%, 100% {
       transform: translateY(0px);

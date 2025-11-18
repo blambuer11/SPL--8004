@@ -13,7 +13,7 @@ export default function DocsSPLXFramework() {
   return (
     <div className="container mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-6">SPL-X Framework — Teknik Mimari & Akış</h1>
-      <Suspense fallback={<div>Yükleniyor...</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
         <MarkdownViewer content={content} />
       </Suspense>
     </div>

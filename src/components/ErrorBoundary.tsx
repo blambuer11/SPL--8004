@@ -22,7 +22,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="container mx-auto px-4 py-8">
           <div className="border border-destructive/40 bg-destructive/10 text-destructive px-4 py-3 rounded-md">
-            Bir hata oluştu: {this.state.error?.message}
+            <h2 className="font-bold mb-2">Application Error</h2>
+            <p>Error: {this.state.error?.message}</p>
+            <details className="mt-2">
+              <summary className="cursor-pointer">Stack trace</summary>
+              <pre className="text-xs mt-2 overflow-auto">{this.state.error?.stack}</pre>
+            </details>
           </div>
         </div>
       );

@@ -439,14 +439,16 @@ console.log('Message sent:', message);`
                 <button
                   disabled={instantPaymentLoading && claimingId===agent.agentId}
                   onClick={async () => {
+                    setClaimingId(agent.agentId);
+                    const reward = ((agent.reputation?.score ?? 5000) * 0.001);
+                    const dismiss = toast.loading('Ödeme hazırlanıyor…');
                     try {
-                      setClaimingId(agent.agentId);
-                      const reward = ((agent.reputation?.score ?? 5000) * 0.001);
-                      
-                      // Try to send reward to agent OWNER
                       const recipientPubkey = new PublicKey(agent.owner);
                       const res = await instantPayment(recipientPubkey, reward, `Reward for ${agent.agentId}`);
-                      setClaimToast({msg:`✅ Claimed: ${(res.netAmount/1e6).toFixed(3)} USDC • ${res.signature.substring(0,8)}…`, type:'success'});
+                      toast.dismiss(dismiss);
+                      toast.success('Ödeme gönderildi ve onaylandı', {
+                        description: `USDC: ${(res.netAmount/1e6).toFixed(3)} • ${res.signature.substring(0,8)}…`
+                      });
                       
                       // Refresh agent data after claim
                       if (client) {
@@ -454,10 +456,10 @@ console.log('Message sent:', message);`
                         setAgents(updated);
                       }
                     } catch(e: unknown) {
+                      toast.dismiss(dismiss);
                       const error = e as Error;
                       console.error('❌ Claim error:', error);
-                      // Show coming soon instead of error
-                      setClaimToast({msg:`🚧 Claim feature coming soon - X402 rewards in next update`, type:'error'});
+                      toast.error('Ödeme başarısız', { description: error.message });
                     } finally {
                       setClaimingId(null);
                     }

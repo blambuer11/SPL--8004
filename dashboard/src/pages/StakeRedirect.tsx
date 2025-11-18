@@ -13,7 +13,7 @@ export default function StakeRedirect() {
       <div className="space-y-3 max-w-md">
         <h1 className="text-xl font-semibold">Yönlendiriliyor...</h1>
         <p className="text-muted-foreground text-sm">
-          Validator staking sekmesine aktarılıyorsunuz.
+          You are being redirected to the Validator staking tab.
         </p>
       </div>
     </div>

@@ -739,7 +739,7 @@ npm run delivery-handshake:drone`}</pre>
             <section data-section-id="installation" className="scroll-mt-24">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">SDK Installation</h2>
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Noema ekosisteminde iki ayrı SDK kullanabilirsiniz. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> doğrudan zincir & doğrulayıcı entegrasyonuna odaklanan <span className="font-medium">birincil açık kaynak</span> pakettir. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> ise <span className="font-medium">barındırılan (hosted) API</span> özelliklerini ve yönetilen ödeme akışını sunar. Her ikisi de aynı ajan kavramını paylaşır; seçim kullanım senaryonuza bağlıdır.
+                You can use two different SDKs in the Noema ecosystem. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> is the <span className="font-medium">primary open-source</span> package focused on direct blockchain & validator integration. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> provides <span className="font-medium">hosted API</span> features and managed payment flows. Both share the same agent concept; the choice depends on your use case.
               </p>
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -750,12 +750,12 @@ npm run delivery-handshake:drone`}</pre>
                   </div>
                   <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
                     <pre>{`npm install @spl-8004/sdk
-# veya
+# or
 yarn add @spl-8004/sdk
-# veya
+# or
 pnpm add @spl-8004/sdk`}</pre>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">API key <strong>gerekmez</strong>; doğrulayıcı URL ve ağ ayarları ile çalışır.</p>
+                  <p className="text-xs text-slate-500 mt-2">API key <strong>not required</strong>; works with validator URL and network settings.</p>
                 </Card>
 
                 <Card className="p-4 border-slate-200">
@@ -765,41 +765,41 @@ pnpm add @spl-8004/sdk`}</pre>
                   </div>
                   <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
                     <pre>{`npm install @noema/sdk
-# veya
+# or
 yarn add @noema/sdk
-# veya
+# or
 pnpm add @noema/sdk`}</pre>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">API key <strong>zorunlu</strong>; otomatik ödeme & kullanım istatistikleri cloud üzerinden sağlanır.</p>
+                  <p className="text-xs text-slate-500 mt-2">API key <strong>required</strong>; automated payments & usage statistics provided via cloud.</p>
                 </Card>
               </div>
 
               <Card className="p-4 border-slate-200">
-                <h3 className="font-semibold text-slate-900 mb-3">Ortak Bağımlılıklar</h3>
+                <h3 className="font-semibold text-slate-900 mb-3">Common Dependencies</h3>
                 <div className="prose prose-slate prose-sm max-w-none">
                   <table>
                     <thead>
                       <tr>
-                        <th>Paket</th>
-                        <th>Versiyon</th>
-                        <th>Açıklama</th>
+                        <th>Package</th>
+                        <th>Version</th>
+                        <th>Description</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td><code>@solana/web3.js</code></td>
                         <td>^1.98.4</td>
-                        <td>Solana RPC & hesap işlemleri</td>
+                        <td>Solana RPC & account operations</td>
                       </tr>
                       <tr>
                         <td><code>@solana/spl-token</code></td>
                         <td>^0.4.14</td>
-                        <td>USDC / SPL token transferleri</td>
+                        <td>USDC / SPL token transfers</td>
                       </tr>
                       <tr>
                         <td><code>tweetnacl</code></td>
                         <td>^1.0.3</td>
-                        <td>Ed25519 imza doğrulama</td>
+                        <td>Ed25519 signature verification</td>
                       </tr>
                       <tr>
                         <td><code>bs58</code></td>
