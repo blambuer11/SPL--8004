@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Image, ExternalLink, ArrowRightLeft, Coins, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
+import { SPL8004_PROGRAM_ID } from '@/lib/noema8004-client';
 
 // X404 Program ID (deployed contract)
 const X404_PROGRAM_ID = new PublicKey('ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9');
@@ -93,7 +93,7 @@ export default function X404Bridge() {
       });
 
       if (!chosenAccount) {
-        toast.error('Agent not found on SPL-8004', {
+        toast.error('Agent not found on NOEMA-8004', {
           description: (
             <div className="space-y-3 text-xs">
               <div className="text-red-300 font-semibold">Agent ID "{agentId}" bulunamadı.</div>
@@ -120,7 +120,7 @@ export default function X404Bridge() {
       }
 
       // Agent found - proceed with tokenization
-      toast.info('Agent verified on SPL-8004!', {
+      toast.info('Agent verified on NOEMA-8004!', {
         description: 'Creating NFT with dynamic reputation pricing',
       });
 
@@ -291,7 +291,7 @@ export default function X404Bridge() {
             Tokenize Your Agent
           </CardTitle>
           <CardDescription>
-            Convert your SPL-8004 agent identity into a tradeable X404 NFT with dynamic reputation-based pricing
+            Convert your NOEMA-8004 agent identity into a tradeable X404 NFT with dynamic reputation-based pricing
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -306,7 +306,7 @@ export default function X404Bridge() {
             />
             <div className="flex items-start gap-2">
               <p className="text-xs text-slate-500 flex-1">
-                Must be a registered agent on SPL-8004 program
+                Must be a registered agent on NOEMA-8004 program
               </p>
               {!agentId && (
                 <div className="text-xs space-x-1">
@@ -373,7 +373,7 @@ export default function X404Bridge() {
               <div className="space-y-2">
                 <div className="font-semibold">Don't have an agent yet?</div>
                 <div className="text-xs text-blue-200">
-                  You need to register your agent on SPL-8004 before tokenizing it as an NFT.
+                  You need to register your agent on NOEMA-8004 before tokenizing it as an NFT.
                   Go to the <a href="/app/create-agent" className="underline font-bold hover:text-blue-100">Create Agent</a> page
                   to register your agent identity first.
                 </div>

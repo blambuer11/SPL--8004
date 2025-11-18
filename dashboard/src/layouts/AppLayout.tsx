@@ -57,7 +57,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <img src="/branding/logo.svg" alt="Noema" className="w-9 h-9 rounded-lg" />
           <div className="flex flex-col">
             <span className="font-semibold leading-tight">Noema</span>
-            <span className="text-[10px] text-slate-400 -mt-0.5">SPL-8004 Stack</span>
+            <span className="text-[10px] text-slate-400 -mt-0.5">NOEMA-8004 Stack</span>
           </div>
         </Link>
         <nav className="space-y-1 flex-1 overflow-y-auto">
@@ -134,11 +134,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <footer className="h-14 border-t border-white/10 px-6 flex items-center justify-between bg-[#0b0e14]">
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <img src="/branding/logo.svg" alt="Noema" className="w-5 h-5" />
-            <span>Noema Protocol — SPL-8004 Suite</span>
+            <span>Noema Protocol — NOEMA-8004 Suite</span>
           </div>
           <div className="text-xs text-slate-500 flex items-center gap-4">
             <a href="https://noemaprotocol.xyz/documentation" className="hover:text-slate-300">Docs</a>
-            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>
+            <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>
           </div>
         </footer>
       </main>
@@ -219,7 +219,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div className="pt-4 border-t border-white/10">
               <div className="flex justify-between items-center">
                 <div className="text-xs text-slate-500">
-                  Dashboard v1.2.0 • SPL-8004 Stack
+                  Dashboard v1.2.0 • NOEMA-8004 Stack
                 </div>
                 <button
                   onClick={() => setSettingsOpen(false)}

@@ -352,7 +352,7 @@ export default function Documentation() {
 │  │  api/automation/                                       │ │
 │  │    ├─ auto-pay.mjs (periodic payments)                │ │
 │  │    ├─ delivery-handshake.mjs (agent verification)     │ │
-│  │    └─ spl8004-resolver.mjs (identity lookup)          │ │
+│  │    └─ noema8004-resolver.mjs (identity lookup)          │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘`}
                   </pre>
@@ -1787,7 +1787,7 @@ if (status.status === "approved") {
                   <h3 className="font-semibold text-slate-900 mb-3">Integration with SPL-8004 Validation</h3>
                   <p className="text-sm text-slate-600 mb-3">Combine FCP with SPL-8004 for high-stakes validations:</p>
                   <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`import { SPL8004Client } from '@/lib/spl8004-client';
+                    <pre>{`import { SPL8004Client } from '@/lib/noema8004-client';
 import { FCPClient } from '@/lib/fcp-client';
 
 const spl8004 = new SPL8004Client(connection, wallet);

@@ -31,9 +31,9 @@ export default function Developer() {
                 <li>
                   <b>Use Protocol Functions:</b>
                   <pre className="bg-gray-100 rounded p-2 mt-1 overflow-x-auto">
-{`import { useSPL8004 } from '../hooks/useSPL8004';
+{`import { useNOEMA8004 } from '../hooks/useNOEMA8004';
 
-const { registerAgent } = useSPL8004();
+const { registerAgent } = useNOEMA8004();
 await registerAgent({
   name: "GPT-Agent-001",
   metadataUri: "ipfs://QmExample..."
@@ -67,8 +67,8 @@ console.log(agent);`}
             <CardContent>
               <ul className="list-disc ml-6 space-y-2">
                 <li><a className="text-blue-600 underline hover:text-blue-800" href="https://agent-aura-sovereign.vercel.app/docs" target="_blank" rel="noopener noreferrer">Protocol Documentation</a></li>
-                <li><a className="text-blue-600 underline hover:text-blue-800" href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
-                <li><a className="text-blue-600 underline hover:text-blue-800" href="https://explorer.solana.com/address/G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW?cluster=devnet" target="_blank" rel="noopener noreferrer">SPL-8004 Explorer</a></li>
+                <li><a className="text-blue-600 underline hover:text-blue-800" href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
+                <li><a className="text-blue-600 underline hover:text-blue-800" href="https://explorer.solana.com/address/G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW?cluster=devnet" target="_blank" rel="noopener noreferrer">NOEMA-8004 Explorer</a></li>
               </ul>
             </CardContent>
           </Card>
@@ -120,7 +120,7 @@ console.log(agent);`}
               <CardContent>
                 <ul className="space-y-2 mb-6">
                   <li>✅ 1,000 API calls/month</li>
-                  <li>✅ SPL-8004 only</li>
+                  <li>✅ NOEMA-8004 only</li>
                   <li>✅ Community support</li>
                   <li>✅ Devnet access</li>
                 </ul>

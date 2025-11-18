@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Github, FileText, Cpu } from 'lucide-react';
-import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
+import { SPL8004_PROGRAM_ID } from '@/lib/noema8004-client';
 
 export function ProgramInfo() {
   const programId = SPL8004_PROGRAM_ID.toString();

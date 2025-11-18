@@ -1116,7 +1116,7 @@ async function payForService() {
                     language="typescript"
                     code={`import { Connection } from '@solana/web3.js';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
-import { createSPL8004Client } from '@/lib/spl8004-client';
+import { createSPL8004Client } from '@/lib/noema8004-client';
 
 const connection = new Connection('https://api.devnet.solana.com');
 const client = createSPL8004Client(connection, wallet as AnchorWallet);`}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap } from 'lucide-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { usePayment } from '@/hooks/usePayment';
 
 interface AgentData {
@@ -14,7 +14,7 @@ interface AgentData {
 }
 
 export default function Dashboard() {
-  const { client: spl8004Client } = useSPL8004();
+  const { client: spl8004Client } = useNOEMA8004();
   const { client: paymentClient } = usePayment();
   const [realAgentCount, setRealAgentCount] = useState(0);
   const [yourAgents, setYourAgents] = useState<AgentData[]>([]);
@@ -92,7 +92,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Noema Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-1">Unified view across SPL-8004 identity, consensus, payments, and marketplace</p>
+          <p className="text-sm text-slate-400 mt-1">Unified view across NOEMA-8004 identity, consensus, payments, and marketplace</p>
         </div>
         <div className="text-sm text-slate-400">
           Refreshed {new Date().toLocaleTimeString()}
@@ -164,7 +164,7 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className="mt-4 text-xs text-slate-400 text-center">
-          💡 <strong className="text-slate-300">SPL-8004 Architecture:</strong> Identity anchors reputation, validation builds trust, consensus coordinates agents, and payments settle work instantly.
+          💡 <strong className="text-slate-300">NOEMA-8004 Architecture:</strong> Identity anchors reputation, validation builds trust, consensus coordinates agents, and payments settle work instantly.
         </div>
       </section>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ interface Agent {
 
 export default function Agents() {
   const { connected } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getMessagesForAgent } = useMessages();
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -171,7 +171,7 @@ export default function Agents() {
               <DialogHeader>
                 <DialogTitle className="text-white">Create New Agent</DialogTitle>
                 <DialogDescription className="text-slate-400">
-                  Register a new AI agent identity on SPL-8004
+                  Register a new AI agent identity on NOEMA-8004
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">

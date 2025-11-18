@@ -1,0 +1,18 @@
+[package]
+name = "x402-facilitator"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "x402_facilitator"
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = []
+no-entrypoint = []
+idl-build = []
+cpi = []
+
+[dependencies]
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true }

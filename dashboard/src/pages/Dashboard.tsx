@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useSearchParams, useLocation } from 'react-router-dom';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { useStaking } from '@/hooks/useStaking';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 export default function Dashboard() {
   const { connected, publicKey } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const { client: stakingClient } = useStaking();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -321,7 +321,7 @@ export default function Dashboard() {
                 <Plus className="h-5 w-5" />
                 Register New Agent
               </CardTitle>
-              <CardDescription>Register a new AI agent on Noema ID™ (SPL-8004)</CardDescription>
+              <CardDescription>Register a new AI agent on Noema ID™ (NOEMA-8004)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -550,7 +550,7 @@ export default function Dashboard() {
                         <div>
                           <h4 className="font-semibold text-foreground mb-1">How to earn rewards:</h4>
                           <ul className="list-disc ml-5 space-y-1">
-                            <li>Register an agent on SPL-8004</li>
+                            <li>Register an agent on NOEMA-8004</li>
                             <li>Complete successful validations via <code className="bg-muted px-1 py-0.5 rounded">submit_validation</code></li>
                             <li>Validators call <code className="bg-muted px-1 py-0.5 rounded">update_reputation</code> to deposit rewards into your pool</li>
                           </ul>

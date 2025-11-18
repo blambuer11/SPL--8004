@@ -31,7 +31,7 @@ const nav: NavItem[] = [
     title: 'Protocol Stack',
     icon: Network,
     children: [
-      { id: 'spl-8004', title: 'SPL-8004 (Identity) - In Dev' },
+      { id: 'noema-8004', title: 'NOEMA-8004 (Identity) - In Dev' },
       { id: 'spl-acp', title: 'SPL-ACP (Comms) - ✅ LIVE' },
       { id: 'spl-tap', title: 'SPL-TAP (Tools) - ✅ LIVE' },
       { id: 'spl-fcp', title: 'SPL-FCP (Functions) - ✅ LIVE' },
@@ -61,7 +61,7 @@ const nav: NavItem[] = [
   },
   {
     id: 'protocol',
-    title: 'SPL-8004 Details',
+    title: 'NOEMA-8004 Details',
     icon: Database,
     children: [
       { id: 'accounts', title: 'Accounts' },
@@ -142,7 +142,7 @@ export default function Docs() {
               <Card className="border border-border bg-card p-6 shadow-sm">
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-foreground mb-1">Documentation</h2>
-                  <p className="text-xs text-muted-foreground">SPL-8004 Protocol</p>
+                  <p className="text-xs text-muted-foreground">NOEMA-8004 Protocol</p>
                 </div>
                 <Separator className="mb-4" />
                 <div className="relative mb-3">
@@ -272,7 +272,7 @@ export default function Docs() {
                     <div>
                       <h4 className="font-semibold text-sm mb-2 text-slate-900">🏗️ Protocol Stack</h4>
                       <ul className="text-sm text-slate-700 space-y-1">
-                        <li>• <strong>SPL-8004:</strong> Identity & reputation</li>
+                        <li>• <strong>NOEMA-8004:</strong> Identity & reputation</li>
                         <li>• <strong>SPL-ACP:</strong> Communication (Q1 2026)</li>
                         <li>• <strong>SPL-TAP:</strong> Tool abstraction (Q2 2026)</li>
                         <li>• <strong>SPL-FCP:</strong> Function calls (Q3 2026)</li>
@@ -283,7 +283,7 @@ export default function Docs() {
                     <div>
                       <h4 className="font-semibold text-sm mb-2 text-slate-900">💼 Built on Solana</h4>
                       <ul className="text-sm text-slate-700 space-y-1">
-                        <li>• <strong>SPL-8004:</strong> On-chain identity standard</li>
+                        <li>• <strong>NOEMA-8004:</strong> On-chain identity standard</li>
                         <li>• <strong>X402:</strong> HTTP payment protocol</li>
                         <li>• <strong>400ms finality:</strong> Solana speed</li>
                         <li>• <strong>Gasless:</strong> No SOL needed</li>
@@ -308,7 +308,7 @@ export default function Docs() {
                       </ul>
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4 border-2 border-slate-900">
-                      <h4 className="font-semibold text-sm mb-2 text-slate-900">✅ Solana (SPL-8004)</h4>
+                      <h4 className="font-semibold text-sm mb-2 text-slate-900">✅ Solana (NOEMA-8004)</h4>
                       <ul className="text-xs text-slate-700 space-y-1">
                         <li>• 65,000+ transactions/second</li>
                         <li>• $0.00025 per transaction</li>
@@ -328,7 +328,7 @@ export default function Docs() {
                 <h2 className="text-3xl font-bold mb-6">Problem We Solve</h2>
                 <div className="grid gap-6">
                   <Card className="border border-border bg-card p-6">
-                    <h3 className="text-lg font-semibold mb-3">❌ Without SPL-8004</h3>
+                    <h3 className="text-lg font-semibold mb-3">❌ Without NOEMA-8004</h3>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li>• No standardized AI agent identification</li>
                       <li>• Lack of trustless validation</li>
@@ -337,7 +337,7 @@ export default function Docs() {
                   </Card>
 
                   <Card className="border border-border bg-card p-6">
-                    <h3 className="text-lg font-semibold mb-3">✓ With SPL-8004</h3>
+                    <h3 className="text-lg font-semibold mb-3">✓ With NOEMA-8004</h3>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li>• Standardized on-chain identity registry</li>
                       <li>• Trustless validation with cryptographic proofs</li>
@@ -404,7 +404,7 @@ export default function Docs() {
                       <ul className="space-y-2 text-sm text-gray-700">
                         <li className="flex items-start gap-2">
                           <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                          <span><strong>Register Agents:</strong> Creates on-chain identity (SPL-8004 token) for your AI agent</span>
+                          <span><strong>Register Agents:</strong> Creates on-chain identity (NOEMA-8004 token) for your AI agent</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
@@ -597,7 +597,7 @@ export default function Docs() {
                       <h4 className="font-bold text-sm mb-3 text-slate-900">🏗️ Protocol Stack</h4>
                       <div className="grid md:grid-cols-4 gap-3 text-xs">
                         <div className="bg-white rounded p-3 border-2 border-slate-900">
-                          <strong className="text-slate-900">SPL-8004</strong>
+                          <strong className="text-slate-900">NOEMA-8004</strong>
                           <p className="text-slate-600 mt-1">Identity • Live</p>
                         </div>
                         <div className="bg-white rounded p-3 border border-slate-300">
@@ -623,15 +623,15 @@ export default function Docs() {
                   </div>
                 </Card>
 
-                {/* SPL-8004 */}
-                <Card id="spl-8004" className="border border-slate-200 bg-white p-8 shadow-sm mb-8 scroll-mt-24">
+                {/* NOEMA-8004 */}
+                <Card id="noema-8004" className="border border-slate-200 bg-white p-8 shadow-sm mb-8 scroll-mt-24">
                   <div className="flex items-center gap-3 mb-4">
                     <Badge className="bg-slate-900 text-white">Live on Devnet</Badge>
-                    <h3 className="text-2xl font-bold text-slate-900">SPL-8004 (Identity)</h3>
+                    <h3 className="text-2xl font-bold text-slate-900">NOEMA-8004 (Identity)</h3>
                   </div>
                   
                   <p className="text-slate-700 mb-6">
-                    <strong>Identity & Reputation System:</strong> On-chain identity registry and dynamic reputation scoring built on SPL-8004 protocol.
+                    <strong>Identity & Reputation System:</strong> On-chain identity registry and dynamic reputation scoring built on NOEMA-8004 protocol.
                   </p>
 
                   <div className="grid md:grid-cols-2 gap-6">
@@ -647,7 +647,7 @@ export default function Docs() {
                     <div>
                       <h4 className="font-semibold text-lg mb-3 text-slate-900">📦 Technical Details</h4>
                       <ul className="space-y-2 text-sm text-slate-700">
-                        <li>• <strong>Protocol:</strong> SPL-8004 (Solana)</li>
+                        <li>• <strong>Protocol:</strong> NOEMA-8004 (Solana)</li>
                         <li>• <strong>Network:</strong> Devnet (Live)</li>
                         <li>• <strong>Status:</strong> ✅ Production Ready</li>
                         <li>• <strong>Mainnet:</strong> Q1 2026</li>
@@ -656,7 +656,7 @@ export default function Docs() {
                   </div>
 
                   <CodeExample
-                    title="Register an Agent with SPL-8004"
+                    title="Register an Agent with NOEMA-8004"
                     language="typescript"
                     code={`import { createSPL8004Client } from '@noema/sdk';
 
@@ -708,7 +708,7 @@ await client.registerAgent('trading-bot-001', 'https://arweave.net/metadata.json
                     <div>
                       <h4 className="font-semibold text-lg mb-3">🔗 Integration</h4>
                       <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>Builds on:</strong> SPL-8004 (requires agent identity)</li>
+                        <li>• <strong>Builds on:</strong> NOEMA-8004 (requires agent identity)</li>
                         <li>• <strong>Format:</strong> JSON-LD capabilities schema</li>
                         <li>• <strong>Storage:</strong> On-chain references to IPFS</li>
                       </ul>
@@ -780,7 +780,7 @@ await client.registerAgent('trading-bot-001', 'https://arweave.net/metadata.json
                     <div>
                       <h4 className="font-semibold text-lg mb-3">🔗 Integration</h4>
                       <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>Builds on:</strong> SPL-8004 + SPL-ACP</li>
+                        <li>• <strong>Builds on:</strong> NOEMA-8004 + SPL-ACP</li>
                         <li>• <strong>Signature:</strong> Ed25519 cryptographic signatures</li>
                         <li>• <strong>Revocation:</strong> Attestations can expire or be revoked</li>
                       </ul>
@@ -850,7 +850,7 @@ await client.registerAgent('trading-bot-001', 'https://arweave.net/metadata.json
                     <div>
                       <h4 className="font-semibold text-lg mb-3">🔗 Integration</h4>
                       <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>Builds on:</strong> SPL-8004 + SPL-TAP</li>
+                        <li>• <strong>Builds on:</strong> NOEMA-8004 + SPL-TAP</li>
                         <li>• <strong>Consensus:</strong> Byzantine Fault Tolerant (BFT)</li>
                         <li>• <strong>Finality:</strong> Irreversible once threshold reached</li>
                       </ul>
@@ -1041,7 +1041,7 @@ async function sendUSDC(sender, recipient, amount) {
                       <CodeExample
                         title="Terminal"
                         language="bash"
-                        code={`cd spl-8004-program/x402-facilitator
+                        code={`cd noema-8004-program/x402-facilitator
 npm install
 npm start
 
@@ -1116,7 +1116,7 @@ async function payForService() {
                     language="typescript"
                     code={`import { Connection } from '@solana/web3.js';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
-import { createSPL8004Client } from '@/lib/spl8004-client';
+import { createSPL8004Client } from '@/lib/noema8004-client';
 
 const connection = new Connection('https://api.devnet.solana.com');
 const client = createSPL8004Client(connection, wallet as AnchorWallet);`}
@@ -1280,7 +1280,7 @@ function Example() {
                   Protocol
                 </Badge>
                 <h2 className="text-3xl font-bold mb-6">Protocol Details</h2>
-                <p className="text-muted-foreground mb-6">Deep dive into accounts, instructions, and PDA derivations of SPL-8004.</p>
+                <p className="text-muted-foreground mb-6">Deep dive into accounts, instructions, and PDA derivations of NOEMA-8004.</p>
                 <div className="grid gap-8">
                   <Card id="accounts" className="border border-border bg-card p-6 shadow-sm scroll-mt-24">
                     <h3 className="text-xl font-semibold mb-3">Accounts</h3>
@@ -1353,7 +1353,7 @@ function Example() {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-green-700">
                           <CheckCircle2 className="h-4 w-4" />
-                          <span>SPL-8004 program deployed</span>
+                          <span>NOEMA-8004 program deployed</span>
                         </div>
                         <div className="flex items-center gap-2 text-green-700">
                           <CheckCircle2 className="h-4 w-4" />
@@ -1433,12 +1433,12 @@ function Example() {
                     </div>
                     <Badge className="bg-blue-500 text-white mb-3">🚀 Phase 3: Mainnet Launch</Badge>
                     <h3 className="text-2xl font-bold mb-2 text-blue-900">Production Ready (Q1 - Q2 2026)</h3>
-                    <p className="text-gray-700 mb-4">Mainnet migration + SPL-8004 deployment</p>
+                    <p className="text-gray-700 mb-4">Mainnet migration + NOEMA-8004 deployment</p>
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-gray-700">
                           <div className="h-4 w-4 rounded-full border-2 border-blue-500"></div>
-                          <span>SPL-8004 identity protocol</span>
+                          <span>NOEMA-8004 identity protocol</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
                           <div className="h-4 w-4 rounded-full border-2 border-blue-500"></div>
@@ -1552,7 +1552,7 @@ function Example() {
                   <div className="grid md:grid-cols-4 gap-4 text-center text-sm">
                     <div>
                       <div className="text-2xl font-bold text-green-600 mb-1">Q1 2025</div>
-                      <div className="text-xs text-gray-600">SPL-8004 Live</div>
+                      <div className="text-xs text-gray-600">NOEMA-8004 Live</div>
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-blue-600 mb-1">Q1 2026</div>
@@ -1700,15 +1700,15 @@ function Example() {
                 
                 <div className="space-y-4">
                   <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white p-6">
-                    <h3 className="text-lg font-bold mb-2 text-purple-900">What's the difference between SPL-8004 and X402?</h3>
+                    <h3 className="text-lg font-bold mb-2 text-purple-900">What's the difference between NOEMA-8004 and X402?</h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      <strong>SPL-8004</strong> is the <u>on-chain Solana program</u> that stores agent identity and reputation permanently. 
+                      <strong>NOEMA-8004</strong> is the <u>on-chain Solana program</u> that stores agent identity and reputation permanently. 
                       Think of it as the "database" on the blockchain.
                       <br /><br />
                       <strong>X402</strong> is the <u>off-chain payment protocol</u> (like Lightning Network) for instant USDC micropayments 
                       between agents. It's the "payment rails" — fast, cheap, autonomous.
                       <br /><br />
-                      <em>Analogy:</em> SPL-8004 = your bank account. X402 = Apple Pay / Venmo.
+                      <em>Analogy:</em> NOEMA-8004 = your bank account. X402 = Apple Pay / Venmo.
                     </p>
                   </Card>
 
@@ -1779,7 +1779,7 @@ solana airdrop 2 <your-wallet-address> --url devnet"
                   </Card>
 
                   <Card className="border-2 border-gray-200 bg-white p-6">
-                    <h3 className="text-lg font-bold mb-2 text-gray-900">Which network is SPL-8004 deployed on?</h3>
+                    <h3 className="text-lg font-bold mb-2 text-gray-900">Which network is NOEMA-8004 deployed on?</h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
                       <strong>Devnet:</strong> <code className="bg-gray-100 px-2 py-1 rounded text-xs">G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW</code>
                       <br /><br />

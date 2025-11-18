@@ -46,7 +46,7 @@ export default function Payments() {
 
       <Card className="border-border/50 bg-blue-50">
         <CardContent className="py-4 text-sm text-blue-900">
-          <strong>ℹ️ Note:</strong> X402 payment infrastructure is currently in beta testing. The core Noema Protocol (SPL-8004, SPL-ACP, SPL-TAP, SPL-FCP) is fully functional and deployed on Solana Devnet. Payment features will be available soon with Kora RPC integration.
+          <strong>ℹ️ Note:</strong> X402 payment infrastructure is currently in beta testing. The core Noema Protocol (NOEMA-8004, SPL-ACP, SPL-TAP, SPL-FCP) is fully functional and deployed on Solana Devnet. Payment features will be available soon with Kora RPC integration.
         </CardContent>
       </Card>
 

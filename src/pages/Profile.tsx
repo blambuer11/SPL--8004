@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 export default function Profile() {
   const { connected, publicKey } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [agents, setAgents] = useState<{ agentId: string; reputation: { score: number } }[]>([]);
   const [claimable, setClaimable] = useState<Record<string, number>>({});
   const totalScore = useMemo(() => agents.reduce((s, a) => s + a.reputation.score, 0), [agents]);

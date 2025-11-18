@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { usePayment } from '@/hooks/usePayment';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { Search, Star, Zap, Code, Briefcase, ExternalLink, DollarSign, Wallet } from 'lucide-react';
 
 interface Agent {
@@ -30,7 +30,7 @@ interface Agent {
 export default function Marketplace() {
   const { connected, publicKey } = useWallet();
   const { client: paymentClient } = usePayment();
-  const { client: spl8004Client } = useSPL8004();
+  const { client: spl8004Client } = useNOEMA8004();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCapability, setFilterCapability] = useState<string | null>(null);

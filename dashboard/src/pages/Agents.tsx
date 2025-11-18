@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ComponentProps } from 'react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { Input } from '@/components/ui/input';
 import { AgentCard } from '@/components/AgentCard';
 import { Search } from 'lucide-react';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Agents() {
-  const { client, connected, publicKey } = useSPL8004();
+  const { client, connected, publicKey } = useNOEMA8004();
   const [searchQuery, setSearchQuery] = useState('');
   type Agent = ComponentProps<typeof AgentCard> & { updatedAt?: number };
   type NetworkAgent = {

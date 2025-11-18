@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import { createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 /**
- * X402 Payment Client for SPL-8004
+ * X402 Payment Client for NOEMA-8004
  * 
  * Wraps API calls with automatic USDC micropayments using HTTP 402 protocol
  */
@@ -200,7 +200,7 @@ export class X402Client {
     const memoIx = new TransactionInstruction({
       keys: [],
       programId: new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'),
-      data: Buffer.from(`SPL-8004 Payment: ${endpoint}`, 'utf-8'),
+      data: Buffer.from(`NOEMA-8004 Payment: ${endpoint}`, 'utf-8'),
     });
 
     // Build transaction
@@ -244,7 +244,7 @@ export class X402Client {
 }
 
 /**
- * Create X402 client with default SPL-8004 config
+ * Create X402 client with default NOEMA-8004 config
  */
 export function createX402Client(
   connection: Connection,

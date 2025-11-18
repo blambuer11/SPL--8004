@@ -1,4 +1,4 @@
-// SPL-8004 Program Constants
+// NOEMA-8004 Program Constants
 export const PROGRAM_CONSTANTS = {
   // Fees (in lamports)
   REGISTRATION_FEE: 5_000_000, // 0.005 SOL

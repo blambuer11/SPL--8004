@@ -36,7 +36,7 @@ export default function Index() {
             </h1>
             
             <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-              SPL-8004: The complete infrastructure for autonomous AI agents.
+              NOEMA-8004: The complete infrastructure for autonomous AI agents.
               <br className="hidden md:block" />
               <span className="text-emerald-300 font-semibold">Identity • Payments • Reputation • All on Solana.</span>
             </p>

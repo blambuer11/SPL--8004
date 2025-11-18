@@ -18,7 +18,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useWallet, AnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
-import { createSPL8004Client } from '@/lib/spl8004-client';
+import { createSPL8004Client } from '@/lib/noema8004-client';
 
 type Section = { id: string; title: string; icon: LucideIcon; description: string };
 

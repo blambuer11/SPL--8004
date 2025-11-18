@@ -7,12 +7,12 @@ import { useEffect, useState } from 'react';
 import { GradientBorder } from '@/components/GradientBorder';
 import { GlowingText } from '@/components/GlowingText';
 import { StatsCard } from '@/components/StatsCard';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { formatSOL } from '@/lib/program-constants';
 import { ProgramInfo } from '@/components/ProgramInfo';
 import { CodeExample } from '@/components/CodeExample';
 export default function Index() {
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [totalAgents, setTotalAgents] = useState<number | null>(null);
   const [validationCount, setValidationCount] = useState<number | null>(null);
   const [totalRewardsLamports, setTotalRewardsLamports] = useState<number | null>(null);

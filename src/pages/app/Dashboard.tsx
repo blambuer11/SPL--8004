@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap } from 'lucide-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { usePayment } from '@/hooks/usePayment';
 import { useX402 } from '@/hooks/useX402';
 import { PublicKey } from '@solana/web3.js';
@@ -18,7 +18,7 @@ interface AgentData {
 }
 
 export default function Dashboard() {
-  const { client: spl8004Client } = useSPL8004();
+  const { client: spl8004Client } = useNOEMA8004();
   const { client: paymentClient } = usePayment();
   const wallet = useWallet();
   const [realAgentCount, setRealAgentCount] = useState(0);

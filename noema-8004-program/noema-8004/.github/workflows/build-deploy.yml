@@ -1,0 +1,55 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  SOLANA_VERSION: 1.18.1
+  ANCHOR_VERSION: 0.28.0
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_VERSION }}/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          source "$HOME/.cargo/env"
+          solana --version
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install Anchor CLI
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor --tag v${{ env.ANCHOR_VERSION }} anchor-cli --locked
+
+      - name: Build Program
+        run: |
+          cd spl-8004-program/spl-8004
+          anchor build
+
+      - name: Setup Solana Config
+        if: github.ref == 'refs/heads/main'
+        run: |
+          solana-keygen new --no-bip39-passphrase -o keypair.json
+          solana config set --url https://api.devnet.solana.com
+          solana config set --keypair keypair.json
+
+      - name: Deploy to Devnet
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd spl-8004-program/spl-8004
+          solana airdrop 2 -k ../keypair.json
+          anchor deploy --provider.cluster devnet --provider.wallet ../keypair.json

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Image, ExternalLink, ArrowRightLeft, Coins, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { SPL8004_PROGRAM_ID } from '@/lib/spl8004-client';
+import { SPL8004_PROGRAM_ID } from '@/lib/noema8004-client';
 import { addX404Mint, listX404Mints, clearX404Mints } from '@/lib/x404-storage';
 
 // X404 Program ID (env-driven with fallback)

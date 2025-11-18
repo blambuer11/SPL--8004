@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id            String         @id
+  pubkey        String        @unique
+  metadataUri   String
+  reputation    Int           @default(5000)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  validations   Validation[]
+  rewards       Reward[]
+}
+
+model Validation {
+  id           String       @id @default(uuid())
+  taskHash     String
+  approved     Boolean
+  evidenceUri  String
+  agent        Agent        @relation(fields: [agentId], references: [id])
+  agentId      String
+  createdAt    DateTime     @default(now())
+}
+
+model Reward {
+  id           String       @id @default(uuid())
+  amount       Float
+  agent        Agent        @relation(fields: [agentId], references: [id])
+  agentId      String
+  claimed      Boolean      @default(false)
+  claimedAt    DateTime?
+  createdAt    DateTime     @default(now())
+}

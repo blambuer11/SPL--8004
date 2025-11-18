@@ -5,14 +5,14 @@ import { Code2, Layers, Lock, Zap, CheckCircle2, ArrowRight } from 'lucide-react
 export default function SPLXStack() {
   const protocols = [
     {
-      id: 'SPL-8004',
+      id: 'NOEMA-8004',
       name: 'Agent Identity',
       description: 'On-chain identity and registration for autonomous agents',
       icon: <Code2 className="w-6 h-6" />,
       color: 'bg-blue-500',
       features: ['Unique Agent IDs', 'Metadata Storage', 'Capability Registry'],
       status: 'Active',
-      docs: '/docs#spl-8004'
+      docs: '/docs#noema-8004'
     },
     {
       id: 'X402',
@@ -84,7 +84,7 @@ export default function SPLXStack() {
           <div className="grid md:grid-cols-4 gap-6">
             {[
               { layer: 'Foundation', items: ['Solana Runtime', 'SPL Token', 'Anchor Framework'] },
-              { layer: 'Identity Layer', items: ['SPL-8004', 'Agent Registry', 'Metadata'] },
+              { layer: 'Identity Layer', items: ['NOEMA-8004', 'Agent Registry', 'Metadata'] },
               { layer: 'Economic Layer', items: ['X402 Payments', 'X404 NFTs', 'Usage Metering'] },
               { layer: 'Trust Layer', items: ['X403 Reputation', 'Stake Verification', 'Performance'] }
             ].map((layer, idx) => (
@@ -158,7 +158,7 @@ export default function SPLXStack() {
           <h2 className="text-3xl font-bold mb-6">How It Works Together</h2>
           <div className="grid md:grid-cols-4 gap-4 mb-8">
             {[
-              { step: '1', title: 'Register Agent', desc: 'Create identity with SPL-8004' },
+              { step: '1', title: 'Register Agent', desc: 'Create identity with NOEMA-8004' },
               { step: '2', title: 'Enable Payments', desc: 'Activate X402 for transactions' },
               { step: '3', title: 'Build Reputation', desc: 'Earn trust through X403' },
               { step: '4', title: 'Scale & Trade', desc: 'Use X404 for asset liquidity' }
@@ -200,7 +200,7 @@ export default function SPLXStack() {
               Open-source Rust programs verified and deployed on Solana mainnet.
             </p>
             <a 
-              href="https://github.com/blambuer11/SPL--8004" 
+              href="https://github.com/blambuer11/NOEMA-8004" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-primary font-medium text-sm inline-flex items-center gap-1"

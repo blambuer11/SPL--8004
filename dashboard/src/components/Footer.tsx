@@ -64,7 +64,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Github className="h-4 w-4" />
-                <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub</a>
+                <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub</a>
               </li>
             </ul>
           </div>

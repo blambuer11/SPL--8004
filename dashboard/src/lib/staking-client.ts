@@ -17,6 +17,28 @@ export const STAKING_PROGRAM_ID = new PublicKey(
 const CONFIG_SEED = "config";
 const VALIDATOR_SEED = "validator";
 
+export interface StakingConfig {
+  address: PublicKey;
+  authority: PublicKey;
+  treasury: PublicKey;
+  registrationFee: number;
+  validationFee: number;
+  validatorMinStake: number;
+  baseApyBps: number;
+  instantUnstakeFeeBps: number;
+}
+
+export interface ValidatorAccount {
+  address: PublicKey;
+  authority: PublicKey;
+  stakedAmount: number;
+  isActive: boolean;
+  lastStakeTs: number;
+  lastRewardClaim: number;
+  totalValidations: number;
+  pendingRewards: number;
+}
+
 export class StakingClient {
   private connection: Connection;
   private wallet: AnchorWallet;
@@ -173,7 +195,7 @@ export class StakingClient {
     };
   }
 
-  /** Initialize config if needed (SPL-8004 requires commission_rate and treasury) */
+  /** Initialize config if needed (NOEMA-8004 requires commission_rate and treasury) */
   async initializeConfigIfNeeded(): Promise<void> {
     const existing = await this.getConfigAccount();
     if (existing) return;
@@ -259,18 +281,18 @@ export class StakingClient {
     const [cfg] = this.findConfigPda();
     const [validatorPda] = this.findValidatorPda(this.wallet.publicKey);
     
-    // SPL-8004'te claim_rewards fonksiyonu validator için değil agent için
+    // NOEMA-8004'te claim_rewards fonksiyonu validator için değil agent için
     // Eğer validator rewards yoksa bu method'u kaldırabiliriz
     // Şimdilik placeholder olarak bırakıyorum
-    throw new Error("claimRewards not implemented for validators in SPL-8004");
+    throw new Error("claimRewards not implemented for validators in NOEMA-8004");
   }
 
   async instantUnstake(lamports: number): Promise<string> {
     if (lamports <= 0) throw new Error("Amount must be > 0");
     
-    // SPL-8004'te instant_unstake fonksiyonu yok
+    // NOEMA-8004'te instant_unstake fonksiyonu yok
     // Normal unstake kullanılıyor
-    throw new Error("instantUnstake not implemented in SPL-8004. Use unstake() instead.");
+    throw new Error("instantUnstake not implemented in NOEMA-8004. Use unstake() instead.");
   }
 
   async calculatePendingRewards(owner: PublicKey): Promise<number> {

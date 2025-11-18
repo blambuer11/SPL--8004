@@ -7,12 +7,12 @@ import { useEffect, useState } from 'react';
 import { GradientBorder } from '@/components/GradientBorder';
 import { GlowingText } from '@/components/GlowingText';
 import { StatsCard } from '@/components/StatsCard';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { formatSOL } from '@/lib/program-constants';
 import { ProgramInfo } from '@/components/ProgramInfo';
 import { CodeExample } from '@/components/CodeExample';
 export default function Index() {
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [totalAgents, setTotalAgents] = useState<number | null>(null);
   const [validationCount, setValidationCount] = useState<number | null>(null);
   const [totalRewardsLamports, setTotalRewardsLamports] = useState<number | null>(null);
@@ -597,7 +597,7 @@ export default function Index() {
           <div className="text-center mb-12">
             <Badge className="bg-input text-foreground border border-border mb-4">
               <Code2 className="w-4 h-4 mr-2" />
-              How SPL-8004 Works
+              How NOEMA-8004 Works
             </Badge>
           </div>
 
@@ -635,7 +635,7 @@ export default function Index() {
             </h2>
             
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              SPL-8004 implements the same core concepts as Ethereum's ERC-8004, 
+              NOEMA-8004 implements the same core concepts as Ethereum's ERC-8004, 
               optimized for Solana's high-performance architecture
             </p>
           </div>
@@ -647,7 +647,7 @@ export default function Index() {
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Feature</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold">ERC-8004 (Ethereum)</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">SPL-8004 (Solana)</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">NOEMA-8004 (Solana)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/10">

@@ -1,0 +1,11 @@
+[workspace]
+members = [
+  "programs/x402-facilitator"
+]
+resolver = "2"
+
+[workspace.dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+[profile.release]
+overflow-checks = true

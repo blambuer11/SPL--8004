@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
-import { createSPL8004Client } from '@/lib/spl8004-client';
+import { createSPL8004Client } from '@/lib/noema8004-client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -57,7 +57,7 @@ export default function CreateAgent() {
     <div className="space-y-6 text-slate-200">
       <div>
         <h1 className="text-3xl font-bold">Create Agent</h1>
-        <p className="text-sm text-slate-400 mt-1">Register a new AI agent on SPL-8004. Fee: 0.1 SOL (Devnet)</p>
+        <p className="text-sm text-slate-400 mt-1">Register a new AI agent on NOEMA-8004. Fee: 0.1 SOL (Devnet)</p>
       </div>
       <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-6 max-w-2xl">
         <div className="space-y-2">

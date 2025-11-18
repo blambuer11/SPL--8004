@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { useStaking } from '@/hooks/useStaking';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
@@ -19,7 +19,7 @@ import { FacilitatorHealth } from '@/components/FacilitatorHealth';
 
 export default function Index() {
   const { connected, publicKey, connect, wallet } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const { client: stakingClient } = useStaking();
 
   // Agent state
@@ -509,7 +509,7 @@ export default function Index() {
             </h1>
 
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Register AI agents, stake as validator, earn rewards — all on-chain with SPL-8004
+              Register AI agents, stake as validator, earn rewards — all on-chain with NOEMA-8004
             </p>
 
             <div className="flex flex-col items-center gap-4 pt-4">
@@ -573,7 +573,7 @@ export default function Index() {
               <span className="text-sm font-semibold">Fully Autonomous Ecosystem</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold">
-              Bir Gün SPL-8004 ile
+              Bir Gün NOEMA-8004 ile
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Sabah 07:00'den akşam 23:00'e kadar tamamen otonom çalışan bir AI agent ağının günlük hayatı.
@@ -593,7 +593,7 @@ export default function Index() {
                   <h3 className="text-2xl font-bold">🤖 Agent Kaydı</h3>
                 </div>
                 <p className="text-slate-300 mb-4">
-                  A new <strong>Data Analysis Agent</strong> is registering to the system. Identity verification starts with the SPL-8004 standard.
+                  A new <strong>Data Analysis Agent</strong> is registering to the system. Identity verification starts with the NOEMA-8004 standard.
                 </p>
                 <div className="bg-black/30 rounded-lg p-4 font-mono text-sm text-green-400">
                   <div>→ Agent ID: <span className="text-purple-300">data-analyzer-001</span></div>
@@ -921,7 +921,7 @@ export default function Index() {
               Instant Inter-Agent Payment
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              With SPL-8004 identity system, robots can identify each other and make payments. 
+              With NOEMA-8004 identity system, robots can identify each other and make payments. 
               Cargo drone arrives home, home robot opens door, payment is verified instantly.
             </p>
           </div>
@@ -970,7 +970,7 @@ export default function Index() {
                 <div className="space-y-2 text-sm">
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="font-semibold text-slate-900 mb-1">2. On-Chain Doğrulama</div>
-                    <div className="text-slate-600">SPL-8004 PDA'dan owner cüzdanı çözümlenir</div>
+                    <div className="text-slate-600">NOEMA-8004 PDA'dan owner cüzdanı çözümlenir</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="font-semibold text-slate-900 mb-1">3. Challenge Gönderimi</div>
@@ -1035,7 +1035,7 @@ export default function Index() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
-                    <span>On-chain identity verification (SPL-8004)</span>
+                    <span>On-chain identity verification (NOEMA-8004)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />
@@ -1090,7 +1090,7 @@ export default function Index() {
                   📚 Dokümantasyon
                 </Button>
               </a>
-              <a href="https://github.com/blambuer11/SPL--8004/tree/main/api/automation" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/blambuer11/NOEMA-8004/tree/main/api/automation" target="_blank" rel="noopener noreferrer">
                 <Button className="bg-slate-900 hover:bg-slate-800">
                   <ArrowRight className="mr-2 h-4 w-4" />
                   GitHub'da Görüntüle
@@ -1116,7 +1116,7 @@ export default function Index() {
                   <div className="p-4 rounded-lg bg-white border border-amber-200">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
-                      <h4 className="font-bold text-slate-900">Agent Kaydet (SPL-8004)</h4>
+                      <h4 className="font-bold text-slate-900">Agent Kaydet (NOEMA-8004)</h4>
                     </div>
                     <p className="text-sm text-slate-700 mb-2">Önce robotlarınız için on-chain kimlik oluşturun:</p>
                     <div className="bg-slate-900 p-3 rounded text-xs font-mono text-slate-100">
@@ -1223,7 +1223,7 @@ export default function Index() {
         <div className="container mx-auto max-w-4xl space-y-8">
           <div className="text-center space-y-3">
             <h2 className="text-4xl font-bold text-slate-900">Register AI Agent</h2>
-            <p className="text-lg text-slate-600">Create on-chain identity for your AI agents with SPL-8004</p>
+            <p className="text-lg text-slate-600">Create on-chain identity for your AI agents with NOEMA-8004</p>
           </div>
 
           {!connected ? (
@@ -1314,7 +1314,7 @@ export default function Index() {
                 <Card className="border-slate-200">
                   <CardHeader>
                     <CardTitle>My Agents ({myAgents.length})</CardTitle>
-                    <CardDescription>Registered AI agents on SPL-8004</CardDescription>
+                    <CardDescription>Registered AI agents on NOEMA-8004</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {myAgents.map((agent) => (
@@ -1771,7 +1771,7 @@ export default function Index() {
             <a href="/docs" className="hover:text-white transition-colors">
               Documentation
             </a>
-            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+            <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               GitHub
             </a>
             <a href="https://twitter.com/noemaprotocol" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">

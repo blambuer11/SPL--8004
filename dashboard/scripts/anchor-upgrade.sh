@@ -2,7 +2,7 @@
 set -euo pipefail
 PROGRAM_ID="G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW"
 CLUSTER="devnet"
-WORKDIR="spl-8004-program/spl-8004"
+WORKDIR="noema-8004-program/noema-8004"
 
 log() { printf "\n[+] %s\n" "$1"; }
 

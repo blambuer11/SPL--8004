@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { PROGRAM_CONSTANTS, formatSOL, getScoreChangeRange } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 
 export default function Validation() {
   const { connected } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [agentId, setAgentId] = useState('');
   const [taskHash, setTaskHash] = useState('');
   const [approved, setApproved] = useState(true);

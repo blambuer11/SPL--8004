@@ -38,7 +38,7 @@
     {
       "name": "declareCapability",
       "docs": [
-        "Declare agent capabilities (requires SPL-8004 identity)"
+        "Declare agent capabilities (requires NOEMA-8004 identity)"
       ],
       "accounts": [
         {

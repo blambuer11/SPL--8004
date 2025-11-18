@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 export default function Profile() {
   const { connected, publicKey } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [agents, setAgents] = useState<{ agentId: string; reputation: { score: number } }[]>([]);
   const [claimable, setClaimable] = useState<Record<string, number>>({});
   const totalScore = useMemo(() => agents.reduce((s, a) => s + a.reputation.score, 0), [agents]);
@@ -82,7 +82,7 @@ export default function Profile() {
                     <div>
                       <h4 className="font-semibold text-foreground mb-1">How to earn rewards:</h4>
                       <ul className="list-disc ml-5 space-y-1">
-                        <li>Register an agent on SPL-8004</li>
+                        <li>Register an agent on NOEMA-8004</li>
                         <li>Complete successful validations via <code className="bg-muted px-1 py-0.5 rounded">submit_validation</code></li>
                         <li>Validators call <code className="bg-muted px-1 py-0.5 rounded">update_reputation</code> to deposit rewards into your pool</li>
                       </ul>

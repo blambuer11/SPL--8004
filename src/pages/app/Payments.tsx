@@ -12,12 +12,12 @@ import {
 } from '@solana/spl-token';
 import { SendTransactionError, SystemProgram } from '@solana/web3.js';
 import { toast } from 'sonner';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 
 export default function Payments() {
   const { publicKey, connected } = useWallet();
   const anchorWallet = useAnchorWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');

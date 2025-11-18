@@ -31,9 +31,9 @@ export default function Developer() {
                 <li>
                   <b>Use Protocol Functions:</b>
                   <pre className="bg-gray-100 rounded p-2 mt-1 overflow-x-auto">
-{`import { useSPL8004 } from '../hooks/useSPL8004';
+{`import { useNOEMA8004 } from '../hooks/useNOEMA8004';
 
-const { registerAgent } = useSPL8004();
+const { registerAgent } = useNOEMA8004();
 await registerAgent({
   name: "GPT-Agent-001",
   metadataUri: "ipfs://QmExample..."

@@ -185,7 +185,7 @@ export default function Documentation() {
               v1.0.0
             </Badge>
             <a 
-              href="https://github.com/blambuer11/SPL--8004" 
+              href="https://github.com/blambuer11/NOEMA-8004" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-slate-600 hover:text-slate-900"
@@ -309,10 +309,10 @@ export default function Documentation() {
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
                     <img
                       src="/docs/diyagram.png"
-                      alt="SPL-8004 System Diagram"
+                      alt="NOEMA-8004 System Diagram"
                       className="w-full h-auto max-h-[520px] object-contain rounded-lg"
                     />
-                    <div className="text-xs text-slate-500 mt-2 text-center">Figure: SPL-8004 Suite — Identity, Payments, Validation</div>
+                    <div className="text-xs text-slate-500 mt-2 text-center">Figure: NOEMA-8004 Suite — Identity, Payments, Validation</div>
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function Documentation() {
 ┌──────────────────────────┴──────────────────────────────────┐
 │                    Solana Blockchain                        │
 │  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐  │
-│  │  SPL-8004      │  │  Validator     │  │  SPL Token   │  │
+│  │  NOEMA-8004      │  │  Validator     │  │  SPL Token   │  │
 │  │  Program       │  │  Staking       │  │  (USDC)      │  │
 │  │                │  │                │  │              │  │
 │  │  Program ID:   │  │  Min: 0.1 SOL  │  │  Payments    │  │
@@ -352,7 +352,7 @@ export default function Documentation() {
 │  │  api/automation/                                       │ │
 │  │    ├─ auto-pay.mjs (periodic payments)                │ │
 │  │    ├─ delivery-handshake.mjs (agent verification)     │ │
-│  │    └─ spl8004-resolver.mjs (identity lookup)          │ │
+│  │    └─ noema8004-resolver.mjs (identity lookup)          │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘`}
                   </pre>
@@ -368,7 +368,7 @@ export default function Documentation() {
                   <ul className="space-y-1 text-sm text-slate-600">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5" />
-                      <span>SPL-8004 Identity Program</span>
+                      <span>NOEMA-8004 Identity Program</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5" />
@@ -413,7 +413,7 @@ export default function Documentation() {
               <Card className="p-6 border-slate-200 mb-4">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-slate-900 mb-1">SPL-8004 Identity Program</h3>
+                    <h3 className="font-semibold text-slate-900 mb-1">NOEMA-8004 Identity Program</h3>
                     <p className="text-sm text-slate-600">Main identity and reputation smart contract</p>
                   </div>
                   <Badge className="bg-green-100 text-green-700 border-green-200">Live on Devnet</Badge>
@@ -520,7 +520,7 @@ export default function Documentation() {
                 </Card>
 
                 <Card className="p-4 border-slate-200">
-                  <h3 className="font-semibold text-slate-900 mb-3">Identity Account (SPL-8004)</h3>
+                  <h3 className="font-semibold text-slate-900 mb-3">Identity Account (NOEMA-8004)</h3>
                   <div className="bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-100 overflow-x-auto">
                     <pre>{`pub struct IdentityRegistry {
     pub owner: Pubkey,                 // 32 bytes
@@ -550,7 +550,7 @@ export default function Documentation() {
                   <div>
                     <h3 className="font-semibold text-purple-900 mb-2">Real-World Use Case: Drone Delivery</h3>
                     <p className="text-sm text-purple-800">
-                      A delivery drone arrives at a home. The home robot verifies the drone's identity via SPL-8004,
+                      A delivery drone arrives at a home. The home robot verifies the drone's identity via NOEMA-8004,
                       generates a challenge, verifies the signature, and watches for USDC payment. Once confirmed,
                       the door automatically unlocks.
                     </p>
@@ -573,7 +573,7 @@ export default function Documentation() {
 
 Step 2: On-Chain Verification
                     ┌──────────────────┐
-                    │  SPL-8004 PDA    │
+                    │  NOEMA-8004 PDA    │
                     │  Identity Lookup │
                     │  ✅ Verified     │
                     └──────────────────┘
@@ -739,21 +739,21 @@ npm run delivery-handshake:drone`}</pre>
             <section data-section-id="installation" className="scroll-mt-24">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">SDK Installation</h2>
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                You can use two different SDKs in the Noema ecosystem. <code className="bg-slate-100 px-1 rounded">@spl-8004/sdk</code> is the <span className="font-medium">primary open-source</span> package focused on direct blockchain & validator integration. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> provides <span className="font-medium">hosted API</span> features and managed payment flows. Both share the same agent concept; the choice depends on your use case.
+                You can use two different SDKs in the Noema ecosystem. <code className="bg-slate-100 px-1 rounded">@noema-8004/sdk</code> is the <span className="font-medium">primary open-source</span> package focused on direct blockchain & validator integration. <code className="bg-slate-100 px-1 rounded">@noema/sdk</code> provides <span className="font-medium">hosted API</span> features and managed payment flows. Both share the same agent concept; the choice depends on your use case.
               </p>
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <Card className="p-4 border-slate-200">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-slate-900">Primary SDK (@spl-8004/sdk)</h3>
+                    <h3 className="font-semibold text-slate-900">Primary SDK (@noema-8004/sdk)</h3>
                     <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">On‑Chain</span>
                   </div>
                   <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`npm install @spl-8004/sdk
+                    <pre>{`npm install @noema-8004/sdk
 # veya
-yarn add @spl-8004/sdk
+yarn add @noema-8004/sdk
 # veya
-pnpm add @spl-8004/sdk`}</pre>
+pnpm add @noema-8004/sdk`}</pre>
                   </div>
                   <p className="text-xs text-slate-500 mt-2">API key <strong>gerekmez</strong>; doğrulayıcı URL ve ağ ayarları ile çalışır.</p>
                 </Card>
@@ -826,8 +826,8 @@ pnpm add @noema/sdk`}</pre>
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
-                      <pre>{`import { generateAgentKeypair } from '@spl-8004/sdk';
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@noema-8004/sdk</div>
+                      <pre>{`import { generateAgentKeypair } from '@noema-8004/sdk';
 
 const { publicKey, privateKey } = generateAgentKeypair();
 console.log('Public Key:', publicKey);
@@ -853,8 +853,8 @@ console.log('Public Key:', publicKey);
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
-                      <pre>{`import { createAgent } from '@spl-8004/sdk';
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@noema-8004/sdk</div>
+                      <pre>{`import { createAgent } from '@noema-8004/sdk';
 
 const agent = createAgent({
   agentId: 'trading-bot-001',
@@ -891,7 +891,7 @@ console.log('Total Payments:', identity.totalPayments);`}</pre>
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@noema-8004/sdk</div>
                       <pre>{`const sol = await agent.getBalance();
 console.log('SOL:', sol);
 
@@ -920,7 +920,7 @@ console.log('USDC:', usdc);`}</pre>
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@spl-8004/sdk</div>
+                      <div className="text-[10px] mb-2 font-semibold text-blue-300">@noema-8004/sdk</div>
                       <pre>{`const payment = await agent.makePayment({
   targetEndpoint: 'https://api.premium-data.com',
   priceUsd: 0.01
@@ -1263,7 +1263,7 @@ X-RateLimit-Reset: 42`}</pre>
                   <div>
                     <h3 className="font-semibold text-purple-900 mb-2">What is X404?</h3>
                     <p className="text-sm text-purple-800">
-                      X404 Bridge converts SPL-8004 agent identities into tradeable NFTs with dynamic reputation-based pricing.
+                      X404 Bridge converts NOEMA-8004 agent identities into tradeable NFTs with dynamic reputation-based pricing.
                       Agent reputation syncs on-chain in real-time, affecting NFT valuation.
                     </p>
                   </div>
@@ -1343,7 +1343,7 @@ const provider = new AnchorProvider(connection, wallet, {});
 const bridge = new X404Bridge(
   connection,
   program, // Your Anchor program instance
-  spl8004Client, // SPL-8004 client
+  spl8004Client, // NOEMA-8004 client
   wallet
 );
 
@@ -1424,7 +1424,7 @@ const agentIds = [
 ];
 
 bridge.startReputationOracle(agentIds);
-// Now automatically syncs when reputation changes on SPL-8004`}</pre>
+// Now automatically syncs when reputation changes on NOEMA-8004`}</pre>
                   </div>
                 </Card>
               </div>
@@ -1784,10 +1784,10 @@ if (status.status === "approved") {
                 </Card>
 
                 <Card className="p-4 border-slate-200 bg-slate-50">
-                  <h3 className="font-semibold text-slate-900 mb-3">Integration with SPL-8004 Validation</h3>
-                  <p className="text-sm text-slate-600 mb-3">Combine FCP with SPL-8004 for high-stakes validations:</p>
+                  <h3 className="font-semibold text-slate-900 mb-3">Integration with NOEMA-8004 Validation</h3>
+                  <p className="text-sm text-slate-600 mb-3">Combine FCP with NOEMA-8004 for high-stakes validations:</p>
                   <div className="bg-slate-900 rounded-lg p-3 font-mono text-xs text-slate-100">
-                    <pre>{`import { SPL8004Client } from '@/lib/spl8004-client';
+                    <pre>{`import { SPL8004Client } from '@/lib/noema8004-client';
 import { FCPClient } from '@/lib/fcp-client';
 
 const spl8004 = new SPL8004Client(connection, wallet);
@@ -1812,7 +1812,7 @@ async function submitCriticalValidation(agentId, taskHash, approved) {
     status = await fcp.getConsensusStatus(consensusId);
   } while (status.status === "pending");
   
-  // Step 3: If approved, submit to SPL-8004
+  // Step 3: If approved, submit to NOEMA-8004
   if (status.status === "approved") {
     const sig = await spl8004.submitValidation(
       agentId,
@@ -1965,7 +1965,7 @@ const { agents } = await response.json();`}</pre>
 3. Task description added as memo
 4. Transaction confirmed on Solana
 5. Agent receives notification
-6. Task completion tracked via SPL-8004`}</pre>
+6. Task completion tracked via NOEMA-8004`}</pre>
                   </div>
                 </Card>
               </div>
@@ -2182,7 +2182,7 @@ if (isValid && Date.now() < challenge.expiresAt) {
                 Last updated: 10 Kasım 2025 • Version 1.0.0
               </div>
               <div className="flex items-center gap-4">
-                <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 flex items-center gap-1">
+                <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 flex items-center gap-1">
                   <GitBranch className="w-4 h-4" />
                   GitHub
                 </a>

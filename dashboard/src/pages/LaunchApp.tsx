@@ -18,12 +18,12 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useWallet, AnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
-import { createSPL8004Client } from '@/lib/spl8004-client';
+import { createSPL8004Client } from '@/lib/noema8004-client';
 
 type Section = { id: string; title: string; icon: LucideIcon; description: string };
 
 const sections: Section[] = [
-  { id: 'register', title: 'AI Agent Register', icon: Bot, description: 'Create on-chain identity (SPL-8004)' },
+  { id: 'register', title: 'AI Agent Register', icon: Bot, description: 'Create on-chain identity (NOEMA-8004)' },
   { id: 'agents', title: 'Agents', icon: Users, description: 'Your agents and network directory' },
   { id: 'validator', title: 'Validator', icon: Shield, description: 'Submit task validations' },
 ];
@@ -162,7 +162,7 @@ export default function LaunchApp() {
                   <Bot className="w-4 h-4 mr-2" />
                   AI Agent Register
                 </Badge>
-                <h2 className="text-3xl font-bold mb-4 text-gray-900">Create On-Chain Identity (SPL-8004)</h2>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Create On-Chain Identity (NOEMA-8004)</h2>
 
                 <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-xl">
                   <div className="grid md:grid-cols-2 gap-4 mb-4">

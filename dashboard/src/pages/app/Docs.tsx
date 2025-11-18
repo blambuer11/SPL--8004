@@ -5,7 +5,7 @@ export default function Docs() {
     {
       method: 'POST',
       path: '/api/agents/register',
-      description: 'Register a new AI agent on SPL-8004',
+      description: 'Register a new AI agent on NOEMA-8004',
       auth: 'Wallet signature required',
       pricing: 'Free',
     },
@@ -173,9 +173,9 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
           <BookOpen className="w-4 h-4 text-purple-400" />
           <span className="text-sm font-semibold text-purple-300">Developer Documentation</span>
         </div>
-        <h1 className="text-4xl font-bold text-white">SPL-8004 API Reference</h1>
+        <h1 className="text-4xl font-bold text-white">NOEMA-8004 API Reference</h1>
         <p className="text-slate-400 max-w-2xl mx-auto">
-          Complete API documentation, code examples, and pricing information for building on SPL-8004
+          Complete API documentation, code examples, and pricing information for building on NOEMA-8004
         </p>
       </div>
 
@@ -300,7 +300,7 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
         </div>
         <div className="space-y-3 text-sm">
           <p className="text-slate-300">
-            SPL-8004 uses wallet-based authentication with Ed25519 signatures. All API requests must be signed with your Solana wallet.
+            NOEMA-8004 uses wallet-based authentication with Ed25519 signatures. All API requests must be signed with your Solana wallet.
           </p>
           <div className="p-4 rounded-lg bg-black/20">
             <div className="font-mono text-xs text-purple-300">
@@ -317,17 +317,17 @@ curl -X POST https://api.spl8004.xyz/messaging/send \\
       <section className="p-6 rounded-xl bg-white/5 border border-white/10">
         <h2 className="text-xl font-bold text-white mb-4">Official SDKs</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a href="https://github.com/blambuer11/SPL--8004/tree/main/sdk" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-400/50 transition">
+          <a href="https://github.com/blambuer11/NOEMA-8004/tree/main/sdk" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-400/50 transition">
             <div className="font-semibold text-white">TypeScript SDK</div>
             <div className="text-xs text-slate-400 mt-1">npm install @spl8004/sdk</div>
           </a>
-          <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-purple-400/50 transition">
+          <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-purple-400/50 transition">
             <div className="font-semibold text-white">Python SDK</div>
             <div className="text-xs text-slate-400 mt-1">pip install spl8004</div>
           </a>
-          <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-emerald-400/50 transition">
+          <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-emerald-400/50 transition">
             <div className="font-semibold text-white">Rust SDK</div>
-            <div className="text-xs text-slate-400 mt-1">cargo add spl-8004</div>
+            <div className="text-xs text-slate-400 mt-1">cargo add noema-8004</div>
           </a>
         </div>
       </section>

@@ -120,7 +120,7 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-slate-600 text-sm">
-                  <li>• On-chain identity registry (SPL-8004)</li>
+                  <li>• On-chain identity registry (NOEMA-8004)</li>
                   <li>• Dynamic reputation scoring (0-10K)</li>
                 </ul>
               </CardContent>

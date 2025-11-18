@@ -1,0 +1,11 @@
+{
+  "name": "x402-facilitator-program",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "init-config": "tsx scripts/initialize-config.mjs"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1"
+  }
+}

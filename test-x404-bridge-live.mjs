@@ -9,7 +9,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 
 const RPC_URL = 'https://api.devnet.solana.com';
 const X404_PROGRAM_ID = 'ESEbyYMdhKUQ3h5AyqPwLhvkPhaMgugt3dRd3NXxUsH9';
-const SPL8004_PROGRAM_ID = 'G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW'; // From spl8004-client.ts
+const SPL8004_PROGRAM_ID = 'G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW'; // From noema8004-client.ts
 
 async function testX404Bridge() {
   console.log('🧪 Testing X404 NFT Bridge...\n');

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useSearchParams, useLocation } from 'react-router-dom';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { useStaking } from '@/hooks/useStaking';
 import { PROGRAM_CONSTANTS, formatSOL } from '@/lib/program-constants';
 import { getExplorerTxUrl } from '@/lib/utils';
@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 export default function Dashboard() {
   const { connected, publicKey } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const { client: stakingClient } = useStaking();
   const [searchParams] = useSearchParams();
   const location = useLocation();

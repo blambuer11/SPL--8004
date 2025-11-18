@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useSPL8004 } from "@/hooks/useSPL8004";
+import { useNOEMA8004 } from "@/hooks/useNOEMA8004";
 import { useToast } from "@/hooks/use-toast";
 import { getExplorerTxUrl } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ interface SponsorDialogProps {
 }
 
 export function SponsorDialog({ agentId, trigger }: SponsorDialogProps) {
-  const { client, connected } = useSPL8004();
+  const { client, connected } = useNOEMA8004();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [amountSol, setAmountSol] = useState<string>("");

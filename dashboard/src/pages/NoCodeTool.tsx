@@ -23,7 +23,7 @@ export default function NoCodeTool() {
       return;
     }
 
-    const code = `import { createAgent } from '@spl-8004/sdk';
+    const code = `import { createAgent } from '@noema-8004/sdk';
 
 // Initialize your AI agent: ${agentName}
 const ${agentName.toLowerCase().replace(/[^a-z0-9]/g, '')}Agent = await createAgent({
@@ -57,7 +57,7 @@ console.log('Data received:', response);`;
       return;
     }
 
-    const code = `import { createAgent } from '@spl-8004/sdk';
+    const code = `import { createAgent } from '@noema-8004/sdk';
 
 // Initialize agent
 const agent = await createAgent({
@@ -69,7 +69,7 @@ const agent = await createAgent({
 const payment = await agent.sendPayment({
   recipient: '${paymentRecipient}',
   amount: ${paymentAmount}, // USDC
-  memo: 'Payment via SPL-8004'
+  memo: 'Payment via NOEMA-8004'
 });
 
 console.log('Payment sent!');
@@ -195,7 +195,7 @@ console.log('Explorer:', \`https://explorer.solana.com/tx/\${payment.signature}?
                           <div>
                             <p className="font-semibold text-green-900">Next Steps:</p>
                             <ol className="text-green-700 mt-1 space-y-1 list-decimal list-inside">
-                              <li>Install SDK: <code className="bg-green-100 px-1 rounded">npm install @spl-8004/sdk</code></li>
+                              <li>Install SDK: <code className="bg-green-100 px-1 rounded">npm install @noema-8004/sdk</code></li>
                               <li>Set your private key in <code className="bg-green-100 px-1 rounded">.env</code></li>
                               <li>Run the code and test on Devnet</li>
                             </ol>
@@ -335,7 +335,7 @@ console.log('Explorer:', \`https://explorer.solana.com/tx/\${payment.signature}?
                   <a href="https://discord.gg/spl8004" target="_blank" rel="noopener noreferrer">Join Discord</a>
                 </Button>
                 <Button variant="outline" asChild>
-                  <a href="https://github.com/spl-8004" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+                  <a href="https://github.com/noema-8004" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
                 </Button>
               </div>
             </CardContent>

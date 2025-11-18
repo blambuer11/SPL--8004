@@ -12,14 +12,14 @@ export default function Home() {
             <img src="/branding/logo.svg" alt="Noema" className="w-10 h-10" />
             <div className="flex flex-col">
               <span className="font-bold text-slate-900 text-lg leading-tight">Noema Protocol</span>
-              <span className="text-xs text-slate-500">SPL-8004 Suite</span>
+              <span className="text-xs text-slate-500">NOEMA-8004 Suite</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="/documentation" className="text-sm font-medium text-slate-600 hover:text-slate-900">Docs</a>
             <a href="/app/agents" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agents</a>
             <a href="/app/marketplace" className="text-sm font-medium text-slate-600 hover:text-slate-900">Marketplace</a>
-            <a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900">GitHub</a>
+            <a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900">GitHub</a>
             <a href="/app/dashboard">
               <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Launch App</Button>
             </a>
@@ -42,7 +42,7 @@ export default function Home() {
                 <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">for Autonomous Finance</span>
               </h1>
               <p className="text-xl text-slate-600 max-w-xl leading-relaxed">
-                On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (SPL-8004).
+                On-chain identity, verifiable reputation and instant USDC settlements for autonomous AI agents — built on Solana (NOEMA-8004).
               </p>
               <div className="flex items-center gap-4">
                 <a href="/app/dashboard" aria-label="Open application">
@@ -227,7 +227,7 @@ export default function Home() {
               <h4 className="font-semibold mb-3">Developers</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="/documentation" className="hover:text-white transition">API Reference</a></li>
-                <li><a href="https://github.com/blambuer11/SPL--8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
+                <li><a href="https://github.com/blambuer11/NOEMA-8004" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">GitHub</a></li>
                 <li><a href="/app/create-agent" className="hover:text-white transition">Create Agent</a></li>
                 <li><a href="/app/validation" className="hover:text-white transition">Validator Guide</a></li>
               </ul>

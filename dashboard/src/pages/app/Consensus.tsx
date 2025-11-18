@@ -90,28 +90,50 @@ export default function Consensus() {
   };
 
   const handleApprove = async (id: string) => {
-    if (!client) return;
+    if (!client || !publicKey) {
+      toast.error('Connect wallet to approve');
+      return;
+    }
+    const loadingId = toast.loading('🔄 Submitting approval vote...');
     try {
       const sig = await client.approveConsensus(id);
-      toast.success('Approval submitted!', {
-        description: `Transaction: ${sig.slice(0, 8)}...`,
+      toast.dismiss(loadingId);
+      toast.success('✅ Approval submitted!', {
+        description: (
+          <a href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="underline">
+            View transaction →
+          </a>
+        ),
+        duration: 5000,
       });
     } catch (error) {
+      toast.dismiss(loadingId);
       console.error('Approval error:', error);
-      toast.error('Failed to approve');
+      toast.error(error instanceof Error ? error.message : '❌ Failed to approve');
     }
   };
 
   const handleReject = async (id: string) => {
-    if (!client) return;
+    if (!client || !publicKey) {
+      toast.error('Connect wallet to reject');
+      return;
+    }
+    const loadingId = toast.loading('🔄 Submitting rejection vote...');
     try {
       const sig = await client.rejectConsensus(id);
-      toast.warning('Rejection submitted', {
-        description: `Transaction: ${sig.slice(0, 8)}...`,
+      toast.dismiss(loadingId);
+      toast.warning('⚠️ Rejection submitted', {
+        description: (
+          <a href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="underline">
+            View transaction →
+          </a>
+        ),
+        duration: 5000,
       });
     } catch (error) {
+      toast.dismiss(loadingId);
       console.error('Rejection error:', error);
-      toast.error('Failed to reject');
+      toast.error(error instanceof Error ? error.message : '❌ Failed to reject');
     }
   };
 

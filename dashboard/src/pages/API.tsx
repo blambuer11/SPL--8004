@@ -81,7 +81,7 @@ export default function API() {
       title: 'Agent Registration',
       method: 'POST',
       path: '/api/agents/register',
-      description: 'Register a new AI agent on SPL-8004',
+      description: 'Register a new AI agent on NOEMA-8004',
       example: `curl -X POST ${API_BASE}/api/agents/register \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -132,7 +132,7 @@ export default function API() {
               <Button 
                 size="lg" 
                 variant="outline"
-                onClick={() => window.open('https://github.com/blambuer11/SPL--8004', '_blank')}
+                onClick={() => window.open('https://github.com/blambuer11/NOEMA-8004', '_blank')}
               >
                 <Shield className="mr-2 h-5 w-5" />
                 View on GitHub
@@ -296,7 +296,7 @@ export default function API() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 variant="outline"
-                onClick={() => window.open('https://github.com/blambuer11/SPL--8004/issues', '_blank')}
+                onClick={() => window.open('https://github.com/blambuer11/NOEMA-8004/issues', '_blank')}
               >
                 GitHub Issues
               </Button>

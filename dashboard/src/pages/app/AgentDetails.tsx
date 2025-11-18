@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useSPL8004 } from '@/hooks/useSPL8004';
+import { useNOEMA8004 } from '@/hooks/useNOEMA8004';
 import { useX402 } from '@/hooks/useX402';
 import { useMessages } from '@/contexts/MessageContext';
 import { toast } from 'sonner';
@@ -38,7 +38,7 @@ interface Message {
 export default function AgentDetails() {
   const { agentId } = useParams<{ agentId: string }>();
   const { connected } = useWallet();
-  const { client } = useSPL8004();
+  const { client } = useNOEMA8004();
   const { instantPayment, instantPaymentLoading } = useX402();
   const { addMessage, getConversation } = useMessages();
   const [agent, setAgent] = useState<Agent | null>(null);

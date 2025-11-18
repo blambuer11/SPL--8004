@@ -20,7 +20,7 @@
 ## 🎯 What is Noema Protocol?
 
 Noema Protocol gives AI agents:
-- **🆔 Identity** - Verifiable on-chain identity and reputation (SPL-8004)
+- **🆔 Identity** - Verifiable on-chain identity and reputation (NOEMA-8004)
 - **💰 Payments** - Autonomous USDC payments with X402 protocol
 - **🔐 Attestation** - Tool verification via SPL-TAP
 - **🤝 Consensus** - Multi-validator approval via SPL-FCP
@@ -63,8 +63,8 @@ console.log('✅ Data accessed:', data);
 
 ```bash
 # Clone repo
-git clone https://github.com/blambuer11/SPL--8004.git
-cd SPL--8004
+git clone https://github.com/blambuer11/NOEMA-8004.git
+cd NOEMA-8004
 
 # Install & run
 npm install
@@ -344,7 +344,7 @@ For high-volume operations
 
 Noema Protocol consists of multiple protocol extensions:
 
-### 1. SPL-8004: Identity & Reputation
+### 1. NOEMA-8004: Identity & Reputation
 On-chain agent identity registry with reputation tracking and validator staking
 
 **Program ID:** `G8iYmvncvWsfHRrxZvKuPU6B2kcMj82Lpcf6og6SyMkW`
@@ -499,7 +499,7 @@ curl -H "x-api-key: noema_sk_..." \
 - **Blockchain:** Solana (65k TPS, <400ms finality)
 - **Smart Contracts:** Anchor Framework (Rust)
 - **Protocol Extensions:**
-  - SPL-8004: Identity & Reputation
+  - NOEMA-8004: Identity & Reputation
   - SPL-ACP: Agent Communication Protocol
   - SPL-TAP: Tool Attestation Protocol
   - SPL-FCP: Function Call Protocol (Consensus)
@@ -523,7 +523,7 @@ curl -H "x-api-key: noema_sk_..." \
 - **🚀 SDK Documentation:** [noemaprotocol.xyz/docs/sdk](https://noemaprotocol.xyz/docs/sdk)
 - **🔌 API Reference:** [noemaprotocol.xyz/docs/api](https://noemaprotocol.xyz/docs/api)
 - **📘 Guides:** [noemaprotocol.xyz/docs/guides](https://noemaprotocol.xyz/docs/guides)
-- **💡 Examples:** [github.com/blambuer11/SPL--8004/tree/main/examples](https://github.com/blambuer11/SPL--8004/tree/main/examples)
+- **💡 Examples:** [github.com/blambuer11/NOEMA-8004/tree/main/examples](https://github.com/blambuer11/NOEMA-8004/tree/main/examples)
 
 ### Protocol Extensions
 - **SPL-ACP** - Agent Communication Protocol ([Docs](/docs#acp-protocol))
@@ -540,7 +540,7 @@ curl -H "x-api-key: noema_sk_..." \
 - **Discord:** [discord.gg/noema](https://discord.gg/noema)
 - **Twitter:** [@NoemaProtocol](https://twitter.com/NoemaProtocol)
 - **Email:** [support@noemaprotocol.xyz](mailto:support@noemaprotocol.xyz)
-- **GitHub Issues:** [github.com/blambuer11/SPL--8004/issues](https://github.com/blambuer11/SPL--8004/issues)
+- **GitHub Issues:** [github.com/blambuer11/NOEMA-8004/issues](https://github.com/blambuer11/NOEMA-8004/issues)
 
 ---
 
@@ -554,7 +554,7 @@ MIT License - See [LICENSE](LICENSE) for details
 
 If you find Noema Protocol useful, please star this repository to help others discover it!
 
-[![GitHub stars](https://img.shields.io/github/stars/blambuer11/SPL--8004?style=social)](https://github.com/blambuer11/SPL--8004)
+[![GitHub stars](https://img.shields.io/github/stars/blambuer11/NOEMA-8004?style=social)](https://github.com/blambuer11/NOEMA-8004)
 
 ---
 
