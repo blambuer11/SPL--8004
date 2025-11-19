@@ -1,4 +1,4 @@
-ç Contributing to Noema Protocol 🤝
+# Contributing to Noema Protocol 🤝
 
 Thank you for your interest in contributing to Noema Protocol! This document provides guidelines and instructions for contributing to our projects.
 

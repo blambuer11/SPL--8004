@@ -1,3 +1,63 @@
+# Noema Protocol — SPL-8004
+
+Noema Protocol, otonom AI ajanları için on-chain kimlik, itibar ve ödemeler sağlayan açık kaynaklı bir altyapıdır. Bu depo SPL-8004 standardının (Noema-8004) referans uygulamasını, SDK'ları ve demo araçlarını içerir.
+
+Özet:
+- On-chain kimlik ve itibar (SPL-8004)
+- X402 tabanlı otonom ödemeler
+- Geliştirici SDK'ları ve örnek uygulamalar
+- Devnet üzerinde test amaçlı programlar
+
+Hızlı Başlangıç
+1. Depoyu klonlayın:
+
+```bash
+git clone https://github.com/NoemaProtocol/SPL--8004.git
+cd SPL--8004
+```
+
+2. Bağımlılıkları yükleyin (frontend örneği için):
+
+```bash
+npm install
+```
+
+3. Geliştirme sunucusunu başlatın:
+
+```bash
+npm run dev
+```
+
+Ana Bileşenler
+- `programs/` — Anchor/Rust program kaynakları (SPL-8004 on-chain programı)
+- `sdk/` veya `packages/spl-8004-sdk/` — TypeScript SDK ve yardımcı kütüphaneler
+- `dashboard/` — Frontend demo ve yönetim paneli
+- `docs/` — Proje dökümantasyonu ve entegrasyon rehberleri
+
+Geliştirme
+- Rust + Anchor programları için `anchor build` ve `anchor deploy` (devnet/testnet kullanırken RPC kotalarına dikkat edin).
+- Frontend için `npm run dev` (varsayılan portlar `8080`/`8081` olabilir).
+
+Test ve Yerel Hizmetler
+- Bazı demo servisler docker ile çalışır: `docker compose up -d`
+- Localnet veya devnet üzerinde test ederken `solana` CLI ve cüzdan anahtarlarınızı kullanın.
+
+Katkı
+Katkılarınızı memnuniyetle kabul ederiz. Lütfen şu adımları izleyin:
+1. Fork yapın
+2. Yeni bir branch açın (örn. `feature/isim`)
+3. Değişiklikleri commit edin ve PR açın
+
+Destek
+- Discord: https://discord.gg/noemaprotocol
+- Email: contact@noemaprotocol.xyz
+
+Lisans
+Bu proje MIT lisansı ile dağıtılmaktadır — detaylar için `LICENSE` dosyasına bakın.
+
+---
+
+Not: Depodaki diğer README ve `.github` içeriği ayrı yönetilmektedir; kök README genel proje özetini verir. Eğer `.github/README.md` içinde de güncelleme isterseniz belirtin, PayAI veya Lovable gibi üçüncü taraf referanslarını oradan da kaldırırım.
 # Noema Protocol
 
 <div align="center">

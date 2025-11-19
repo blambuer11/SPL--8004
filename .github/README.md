@@ -181,12 +181,12 @@ npm install @noema/sdk
 └───────────────────────────┼──────────────────────────────────┘
                             │
                    ┌────────▼────────┐
-                   │   PayAI SDK     │
+                   │   Noema SDK     │
                    │  @noema/sdk     │
                    └────────┬────────┘
                             │
 ┌───────────────────────────┼──────────────────────────────────┐
-│                   PAYAI NETWORK                              │
+│                   NOEMA NETWORK                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ │
 │  │  SPL-8004      │  │  X402 Payment  │  │  X404 Bridge  │ │
 │  │  Identity      │  │  Protocol      │  │  Multi-chain  │ │
@@ -311,9 +311,29 @@ server.listen(3000);
 ### Q2 2025 🔄 (In Progress)
 - [ ] Mainnet Launch
 - [ ] X404 Bridge Beta
-- [ ] PayAI SDK v2.0
+- [ ] Noema SDK improvements
 - [ ] Mobile Wallet Support
 - [ ] API Gateway v1.0
+
+## Recent Updates
+
+Commits and recent edits (attributed to the project team):
+
+- Nov 8, 2025 — Visual edit: layered architecture visual added to hero
+- Nov 8, 2025 — Add layered architecture visual to hero
+- Nov 8, 2025 — Fix React module resolution
+- Nov 8, 2025 — Fix useEffect error in QueryClientProvider
+- Nov 8, 2025 — Add explicit React import to NetworkProvider
+- Nov 8, 2025 — Visual edits to homepage design
+- Nov 8, 2025 — Update project to latest UI/tooling version
+- Nov 1, 2025 — Fix: Docs page and workflow diagram
+- Nov 1, 2025 — Visual edits to documentation
+- Oct 31, 2025 — Update homepage with AI details
+- Oct 31, 2025 — Refactor: Implement SPL-8004 standard
+- Oct 31, 2025 — feat: Implement SPL-8004 interface and deploy
+- Oct 31, 2025 — Refactor: Update Home page and branding
+- Oct 31, 2025 — feat: Implement SPL-8004 standard
+- Oct 31, 2025 — Use tech stack vite_react_shadcn_ts_20250728_minor
 
 ### Q3 2025 📋 (Planned)
 - [ ] Cross-chain Expansion (Ethereum, Base)

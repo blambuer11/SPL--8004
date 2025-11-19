@@ -1,4 +1,10 @@
 # Git mailmap - Consolidate contributor identities
+# This file maps alternate contributor emails to canonical names.
+# Sensitive or third-party bot names have been removed and consolidated
+# to the NoemaProtocol Team identity.
+
+NoemaProtocol Team <team@noemaprotocol.xyz> <team@noemaprotocol.xyz>
+# Git mailmap - Consolidate contributor identities
 # This remaps bot and tool-generated commits to the organization
 
 NoemaProtocol Team <team@noemaprotocol.xyz> lovable-dev[bot] <123456+lovable-dev[bot]@users.noreply.github.com>

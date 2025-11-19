@@ -89,7 +89,7 @@ agent-dashboard:
 - ai-agents
 - dashboard
 
-payai-sdk:
+noema-sdk:
 - sdk
 - typescript
 - solana

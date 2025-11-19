@@ -14,7 +14,7 @@
 
 ## Overview
 
-Noema Protocol provides on-chain identity, reputation, and autonomous payments for AI agents. This profile summarizes core repositories, developer tools, and quick-start resources — organized as repository cards like PayAINetwork's profile for quick discovery.
+Noema Protocol provides on-chain identity, reputation, and autonomous payments for AI agents. This profile summarizes core repositories, developer tools, and quick-start resources — organized as repository cards for quick discovery.
 
 ---
 

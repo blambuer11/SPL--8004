@@ -1,11 +1,11 @@
 #!/bin/bash
-# Safe git history rewrite to re-attribute lovable-dev[bot] commits
+# Safe git history rewrite to re-attribute bot commits to the organization
 # This script DOES NOT modify file contents, only author metadata
 
 set -e
 
 echo "=== Git History Re-attribution Script ==="
-echo "This will replace 'lovable-dev[bot]' with 'NoemaProtocol Team' in commit history"
+echo "This will replace external bot author names with 'NoemaProtocol Team' in commit history"
 echo "Files and code will NOT be changed - only author names"
 echo ""
 
@@ -34,10 +34,10 @@ echo "✓ Backup created"
 echo ""
 
 # Perform the re-attribution
-echo "Re-attributing commits from 'lovable-dev[bot]' to 'NoemaProtocol Team'..."
+echo "Re-attributing bot commits to 'NoemaProtocol Team'..."
 git filter-repo --force \
-  --name-callback 'return b"NoemaProtocol Team" if name == b"lovable-dev[bot]" else name' \
-  --email-callback 'return b"team@noemaprotocol.xyz" if b"lovable-dev" in email else email'
+  --name-callback 'return b"NoemaProtocol Team" if b"[" in name or b"bot" in name else name' \
+  --email-callback 'return b"team@noemaprotocol.xyz" if email.endswith(b"@users.noreply.github.com") else email'
 
 echo ""
 echo "✓ Re-attribution complete!"
